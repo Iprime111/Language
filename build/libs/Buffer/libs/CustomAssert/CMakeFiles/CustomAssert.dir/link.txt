@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../../../../lib/libCustomAssert.a CMakeFiles/CustomAssert.dir/src/CustomAssert.cpp.o CMakeFiles/CustomAssert.dir/src/Logger.cpp.o
+/usr/bin/ranlib ../../../../lib/libCustomAssert.a

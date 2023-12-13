@@ -1,0 +1,26 @@
+TranslationUnit ::= {ExternalDeclaration}+ Terminator
+
+ExternalDeclaration ::= FunctionDefinition | { Declaration ';'}
+
+AssignmentExpression ::= Identifier '=' Expression
+Expression ::= Priority5
+
+Priority4 ::= Priority4 {['and', 'or'] Priority4}*
+Priority3 ::= Priority3 {['+', '-'] Priority3}*
+Priority2 ::= Priority2 {['*' , '/'] Priority2}*
+Priority1 ::= ['sin', 'cos', 'floor', 'not'] PrimaryExpression | PrimaryExpression
+
+PrimaryExpression ::= '(' Priority5 ')' | Identifier | Constant
+
+If    ::= 'if' Expression 'then' Operator
+While ::= 'While' Expression 'then' Operator
+
+Operator ::= {If | While | AssignmentExpression | '{' Operator '}' | Declaration} ';'
+
+Declaration ::= TypeSpecifier InitializerDeclarator
+TypeSpecifier ::= 'number'
+InitializerDeclarator ::= {Identifier | AssignmentExpression}
+
+FunctionDefinition ::= TypeSpecifier Identifier '(' ')' '{' Operator '}'
+
+

@@ -1,0 +1,17 @@
+// KEYWORD (NAME, NUMBER, KEYWORD, TYPE, ...)
+
+KEYWORD (IF,          1 << 1,  "if",        NameType::OPERATOR)
+KEYWORD (WHILE,       1 << 2,  "while",     NameType::OPERATOR)
+KEYWORD (SIN,         1 << 3,  "sin",       NameType::OPERATOR)
+KEYWORD (COS,         1 << 4,  "cos",       NameType::OPERATOR)
+KEYWORD (ADD,         1 << 5,  "+",         NameType::OPERATOR)
+KEYWORD (SUB,         1 << 6,  "-",         NameType::OPERATOR)
+KEYWORD (MUL,         1 << 7,  "*",         NameType::OPERATOR)
+KEYWORD (DIV,         1 << 8,  "/",         NameType::OPERATOR)
+                                            
+KEYWORD (LBRACKET,    1 << 9,  "(",         NameType::SEPARATOR)
+KEYWORD (RBRACKET,    1 << 10, ")",         NameType::SEPARATOR)
+KEYWORD (BLOCK_OPEN,  1 << 11, "{",         NameType::SEPARATOR)
+KEYWORD (BLOCK_CLOSE, 1 << 12, "}",         NameType::SEPARATOR)
+
+KEYWORD (NUMBER,      1 << 13, "number",    NameType::TYPE_NAME)

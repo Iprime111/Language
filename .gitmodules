@@ -1,0 +1,10 @@
+[submodule "libs/Buffer"]
+	path = libs/Buffer
+	url = git@github.com:Iprime111/Buffer.git
+[submodule "libs/CustomAssert"]
+	path = libs/CustomAssert
+	url = git@github.com:Iprime111/CustomAssert.git
+[submodule "libs/Tree"]
+    path = libs/Tree
+    branch = tree-lib
+	url = https://github.com/Iprime111/BinaryTree
