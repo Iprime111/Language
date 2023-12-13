@@ -1,2 +1,0 @@
-/usr/bin/ar qc libColorConsole.a CMakeFiles/ColorConsole.dir/src/ColorConsole.cpp.o
-/usr/bin/ranlib libColorConsole.a

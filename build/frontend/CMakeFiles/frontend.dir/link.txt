@@ -1,1 +1,0 @@
-/usr/bin/c++ -g CMakeFiles/frontend.dir/main.cpp.o CMakeFiles/frontend.dir/src/Lexer.cpp.o CMakeFiles/frontend.dir/src/Parser.cpp.o CMakeFiles/frontend.dir/src/FrontendCore.cpp.o -o ../bin/frontend  ../lib/libCustomAssert.a ../SyntaxTree/libSyntaxTree.a ../lib/libCustomAssert.a ../libs/Buffer/libs/CustomAssert/ColorConsole/libColorConsole.a 

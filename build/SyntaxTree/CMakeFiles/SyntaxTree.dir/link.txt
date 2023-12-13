@@ -1,2 +1,0 @@
-/usr/bin/ar qc libSyntaxTree.a CMakeFiles/SyntaxTree.dir/src/SyntaxTree.cpp.o CMakeFiles/SyntaxTree.dir/src/NameTable.cpp.o
-/usr/bin/ranlib libSyntaxTree.a
