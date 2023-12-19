@@ -13,12 +13,12 @@ BufferErrorCode InitNameTable (Buffer <NameTableRecord> *nameTable, bool isGloba
     }
 
     if (isGlobal) {
-        #define KEYWORD(NAME, NUMBER, KEYWORD, TYPE, ...)                                                   \
-            {                                                                                               \
-                NameTableRecord newRecord = {.name = KEYWORD, .type = TYPE};                                \
-                if (WriteDataToBuffer (nameTable, &newRecord, 1) != BufferErrorCode::NO_BUFFER_ERRORS) {    \
-                    RETURN BufferErrorCode::BUFFER_ENDED;                                                   \
-                }                                                                                           \
+        #define KEYWORD(NAME, NUMBER, KEYWORD, TYPE, ...)                                                                   \
+            {                                                                                                               \
+                NameTableRecord newRecord = {.name = KEYWORD, .type = TYPE, .keyword = static_cast <Keyword> (NUMBER)};     \
+                if (WriteDataToBuffer (nameTable, &newRecord, 1) != BufferErrorCode::NO_BUFFER_ERRORS) {                    \
+                    RETURN BufferErrorCode::BUFFER_ENDED;                                                                   \
+                }                                                                                                           \
             }
 
         #include "Keywords.def"
@@ -29,7 +29,7 @@ BufferErrorCode InitNameTable (Buffer <NameTableRecord> *nameTable, bool isGloba
     RETURN BufferErrorCode::NO_BUFFER_ERRORS;
 }
 
-BufferErrorCode AddIdentifier (Buffer <NameTableRecord> *nameTable, const char *identifier) {
+BufferErrorCode AddIdentifier (Buffer <NameTableRecord> *nameTable, char *identifier) {
     PushLog (4);
 
     custom_assert (nameTable, pointer_is_null, BufferErrorCode::NO_BUFFER);

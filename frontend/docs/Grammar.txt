@@ -1,26 +1,29 @@
-TranslationUnit ::= {ExternalDeclaration}+ Terminator
+Grammar ::= 'Сап конфешнс' TranslationUnit Terminator
+TranslationUnit ::= ExternalDeclaration '.' {TranslationUnit}?
 
-ExternalDeclaration ::= FunctionDefinition | { Declaration ';'}
+ExternalDeclaration ::= FunctionDefinition | Declaration
 
 AssignmentExpression ::= Identifier '=' Expression
 Expression ::= Priority5
 
-Priority4 ::= Priority4 {['and', 'or'] Priority4}*
-Priority3 ::= Priority3 {['+', '-'] Priority3}*
-Priority2 ::= Priority2 {['*' , '/'] Priority2}*
-Priority1 ::= ['sin', 'cos', 'floor', 'not'] PrimaryExpression | PrimaryExpression
+Priority5 ::= Priority4 {['и', 'или'] Priority4}*
+Priority4 ::= Priority3 {['==', '>=', '<=', '>', '<', '!='] Priority3}?
+Priority3 ::= Priority2 {['+', '-'] Priority2}*
+Priority2 ::= Priority1 {['*' , '/'] Priority1}*
+Priority1 ::= ['sin', 'cos', 'floor'] PrimaryExpression | PrimaryExpression
 
 PrimaryExpression ::= '(' Priority5 ')' | Identifier | Constant
 
-If    ::= 'if' Expression 'then' Operator
-While ::= 'While' Expression 'then' Operator
+If    ::= 'if'    Expression 'не знаю что делать' Operator
+While ::= 'while' Expression 'не знаю что делать' Operator
 
-Operator ::= {If | While | AssignmentExpression | '{' Operator '}' | Declaration} ';'
+Operator ::= {If | While | AssignmentExpression | Declaration | '{' OperatorList '}' } '.'
+OperatorList ::= Operator {OperatorList}?
 
 Declaration ::= TypeSpecifier InitializerDeclarator
-TypeSpecifier ::= 'number'
-InitializerDeclarator ::= {Identifier | AssignmentExpression}
+TypeSpecifier ::= 'Дедекиндово сечение множества действительных чисел'
+InitializerDeclarator ::= {AssignmentExpression | Identifier}
 
-FunctionDefinition ::= TypeSpecifier Identifier '(' ')' '{' Operator '}'
+FunctionDefinition ::= 'Физтех-школа' TypeSpecifier Identifier '(' ')' '{' OperatorList '}'
 
 

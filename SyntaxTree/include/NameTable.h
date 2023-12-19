@@ -23,12 +23,12 @@ enum class Keyword {
 #undef KEYWORD
 
 struct NameTableRecord {
-    const char *name    = NULL;
+    char *name          = NULL;
     NameType    type    = NameType::IDENTIFIER;
     Keyword     keyword = Keyword::NOT_KEYWORD;
 };
 
 BufferErrorCode InitNameTable (Buffer <NameTableRecord> *nameTable, bool isGlobal);
-BufferErrorCode AddIdentifier (Buffer <NameTableRecord> *nameTable, const char *identifier);
+BufferErrorCode AddIdentifier (Buffer <NameTableRecord> *nameTable, char *identifier);
 
 #endif

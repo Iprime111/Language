@@ -43,10 +43,14 @@ CompilationError LexicalAnalysis (CompilationContext *context, const char *fileC
     custom_assert (fileContent, pointer_is_null, CompilationError::CONTEXT_ERROR);
     
     const char *symbol = fileContent;
+    context->currentLine = 1;
 
     while (*symbol != '\0') {
 
         if (isspace (*symbol)) {
+            if (*symbol == '\n')
+                context->currentLine++;
+
             symbol++;
             continue;
         }
@@ -57,7 +61,9 @@ CompilationError LexicalAnalysis (CompilationContext *context, const char *fileC
         }
 
         LexerAssert (TokenizeWord (context, &symbol));
-    } 
+    }
+
+    AddToken (Terminator ());
 
     RETURN CompilationError::NO_ERRORS;
 }
@@ -120,7 +126,7 @@ static CompilationError TokenizeWord (CompilationContext *context, const char **
 static CompilationError TokenizeNewIdentifier (CompilationContext *context, const char **identifier, size_t length) {
     PushLog (3);
 
-    char *newIdentifier = (char *) calloc (length+ 1, sizeof (char));
+    char *newIdentifier = (char *) calloc (length + 1, sizeof (char));
     memcpy (newIdentifier, *identifier, length);
 
     if (AddIdentifier (&context->nameTable, newIdentifier) != BufferErrorCode::NO_BUFFER_ERRORS) {
@@ -147,7 +153,7 @@ static CompilationError TokenizeExistingIdentifier (CompilationContext *context,
 static size_t GetNextWordLength (const char *wordBegin) {
     PushLog (4);
 
-    if (wordBegin [0] == '\0') {
+    if (wordBegin [0] == '\0' || wordBegin [0] == '\n') {
         RETURN 0;
     }
 

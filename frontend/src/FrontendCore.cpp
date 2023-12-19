@@ -5,6 +5,7 @@
 #include "Logger.h"
 #include "NameTable.h"
 #include "SyntaxTree.h"
+#include "TreeDefinitions.h"
 
 static const char *NameTypeToString (NameType type);
 
@@ -19,10 +20,34 @@ CompilationError InitCompilationContext (CompilationContext *context) {
         RETURN CompilationError::TOKEN_BUFFER_ERROR;
     }
 
+    if (InitBuffer (&context->errorList) != BufferErrorCode::NO_BUFFER_ERRORS) {
+        RETURN CompilationError::NAME_TABLE_ERROR; 
+    }
+
     context->error = CompilationError::NO_ERRORS;
 
     RETURN CompilationError::NO_ERRORS;
 }
+
+CompilationError DestroyCompilationContext (CompilationContext *context) {
+    PushLog (3);
+
+    Tree::DestroySubtreeNode (&context->abstractSyntaxTree, context->abstractSyntaxTree.root);
+
+    for (size_t nameIndex = 0; nameIndex < context->nameTable.currentIndex; nameIndex++) {
+        fprintf (stderr, "Destroying \"%s\"\n", context->nameTable.data [nameIndex].name);
+        if (context->nameTable.data [nameIndex].type == NameType::IDENTIFIER) {
+            free (context->nameTable.data [nameIndex].name);
+        }
+    }
+
+    DestroyBuffer (&context->nameTable);
+    DestroyBuffer (&context->errorList);
+    DestroyBuffer (&context->tokens);
+
+    RETURN CompilationError::NO_ERRORS;
+}
+
 
 // TODO: move lexer dumps to a separate file
 
@@ -41,8 +66,10 @@ CompilationError DumpToken (CompilationContext *context, Tree::Node <AstNode> *t
 
     if (token->nodeData.type == NodeType::CONSTANT) {
         printf ("Constant: %lg\n", token->nodeData.content.number);
-    } else {
+    } else if (token->nodeData.type == NodeType::NAME) {
         printf ("Name: (type: \"%-10s\") <%s>\n", NameTypeToString (context->nameTable.data [token->nodeData.content.nameTableIndex].type), context->nameTable.data [token->nodeData.content.nameTableIndex].name);
+    } else {
+        printf ("Service node\n");
     }
 
     RETURN CompilationError::NO_ERRORS;
