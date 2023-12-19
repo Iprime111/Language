@@ -102,13 +102,18 @@ static Tree::Node <AstNode> *GetFunctionDefinition (CompilationContext *context)
     NotNull (identifier);
 
     size_t identifierIndex = identifier->nodeData.content.nameTableIndex;
+
+    context->tokenIndex--;
     DestroyCurrentNode ();
+    context->tokenIndex++;
 
     NotNull (GetDestroyableToken (context, Keyword::LBRACKET,   CompilationError::BRACKET_EXPECTED));
     NotNull (GetDestroyableToken (context, Keyword::RBRACKET,   CompilationError::BRACKET_EXPECTED));
     NotNull (GetDestroyableToken (context, Keyword::BLOCK_OPEN, CompilationError::CODE_BLOCK_EXPECTED));
 
     Tree::Node <AstNode> *functionContent = GetOperatorList (context);
+
+    NotNull (GetDestroyableToken (context, Keyword::BLOCK_CLOSE, CompilationError::CODE_BLOCK_EXPECTED));
 
     RETURN FunctionDefinition (type, FunctionArguments (NULL, functionContent), identifierIndex);
 }
@@ -177,19 +182,21 @@ static Tree::Node <AstNode> *GetOperator (CompilationContext *context) {
 
     Tree::Node <AstNode> *expectedOperator = NULL;
 
-    while (true) {
-        expectedOperator = GetConditionOperator (context, Keyword::IF, CompilationError::IF_EXPECTED);
+    expectedOperator = GetConditionOperator (context, Keyword::IF, CompilationError::IF_EXPECTED);
         CheckForError (expectedOperator, CompilationError::IF_EXPECTED);
 
-        if (expectedOperator)
-            break;
+        if (expectedOperator) {
+            RETURN OperatorSeparator (expectedOperator, NULL);   
+        }
         
         expectedOperator = GetConditionOperator (context, Keyword::WHILE, CompilationError::WHILE_EXPECTED);
         CheckForError (expectedOperator, CompilationError::WHILE_EXPECTED);
         
-        if (expectedOperator)
-            break;
+        if (expectedOperator) {
+            RETURN OperatorSeparator (expectedOperator, NULL);   
+        }
 
+    while (true) {
         expectedOperator = GetAssignmentExpression (context);
         CheckForError (expectedOperator, CompilationError::IDENTIFIER_EXPECTED);
 

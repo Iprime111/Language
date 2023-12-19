@@ -30,12 +30,14 @@ struct AstNode {
 Tree::Node <AstNode> *EmplaceNode (Tree::Node <AstNode> node);
 
 #define Const(NUMBER) EmplaceNode (Tree::Node <AstNode> {.left = NULL, .right = NULL, .parent = NULL, .nodeData = {.type = NodeType::CONSTANT,  .content = {.number         = NUMBER}, .line = context->currentLine}})
-#define Name(INDEX)   EmplaceNode ( Tree::Node <AstNode> {.left = NULL, .right = NULL, .parent = NULL, .nodeData = {.type = NodeType::NAME,      .content = {.nameTableIndex = INDEX},  .line = context->currentLine}})
+#define Name(INDEX)   EmplaceNode (Tree::Node <AstNode> {.left = NULL, .right = NULL, .parent = NULL, .nodeData = {.type = NodeType::NAME,      .content = {.nameTableIndex = INDEX},  .line = context->currentLine}})
 
 #define FunctionDefinition(leftChild, rightChild, identifierIndex)  EmplaceNode (Tree::Node <AstNode> {.left = leftChild, .right = rightChild, .parent = NULL, .nodeData = {.type = NodeType::FUNCTION_DEFINITION,  .content = {.nameTableIndex = identifierIndex}}})
 #define VariableDeclaration(leftChild, rightChild, identifierIndex) EmplaceNode (Tree::Node <AstNode> {.left = leftChild, .right = rightChild, .parent = NULL, .nodeData = {.type = NodeType::VARIABLE_DECLARATION, .content = {.nameTableIndex = identifierIndex}}})
 #define FunctionArguments(leftChild, rightChild)                    EmplaceNode (Tree::Node <AstNode> {.left = leftChild, .right = rightChild, .parent = NULL, .nodeData = {.type = NodeType::FUNCTION_ARGUMENTS}})
 
-#define Terminator() EmplaceNode (Tree::Node <AstNode> {.left = NULL, .right = NULL, .parent = NULL, .nodeData = {.type = NodeType::TERMINATOR}})  
+#define Terminator() EmplaceNode (Tree::Node <AstNode> {.left = NULL, .right = NULL, .parent = NULL, .nodeData = {.type = NodeType::TERMINATOR}})
+
+#define OperatorSeparator(leftChild, rightChild) EmplaceNode (Tree::Node <AstNode> {.left = leftChild, .right = rightChild, .parent = NULL, .nodeData = {.type = NodeType::NAME, .content = {.nameTableIndex = 0}}});
 
 #endif

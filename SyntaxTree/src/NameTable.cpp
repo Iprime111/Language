@@ -29,7 +29,7 @@ BufferErrorCode InitNameTable (Buffer <NameTableRecord> *nameTable, bool isGloba
     RETURN BufferErrorCode::NO_BUFFER_ERRORS;
 }
 
-BufferErrorCode AddIdentifier (Buffer <NameTableRecord> *nameTable, char *identifier) {
+BufferErrorCode AddIdentifier (Buffer <NameTableRecord> *nameTable, const char *identifier) {
     PushLog (4);
 
     custom_assert (nameTable, pointer_is_null, BufferErrorCode::NO_BUFFER);

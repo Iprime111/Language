@@ -18,3 +18,7 @@ target_link_libraries (${PROJECT_NAME} PRIVATE SyntaxTree)
 
 add_subdirectory (src)
 target_include_directories (${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+make_directory (${CMAKE_BINARY_DIR}/bin/Resources)
+configure_file (${CMAKE_CURRENT_SOURCE_DIR}/Resources/pattern_header.html ${CMAKE_BINARY_DIR}/bin/Resources/pattern_header.html COPYONLY)
+configure_file (${CMAKE_CURRENT_SOURCE_DIR}/Resources/pattern_footer.html ${CMAKE_BINARY_DIR}/bin/Resources/pattern_footer.html COPYONLY)

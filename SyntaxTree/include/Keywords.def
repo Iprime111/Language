@@ -1,5 +1,6 @@
 // KEYWORD (NAME, NUMBER, KEYWORD, TYPE, ...)
 
+KEYWORD (OPERATOR_SEPARATOR,  1 << 26, ".",                                                     NameType::SEPARATOR)
 KEYWORD (IF,                  1 << 1,  "Зачем я пошел на Физтех если тут",                      NameType::OPERATOR)
 KEYWORD (WHILE,               1 << 2,  "Физтехи постоянно ноют что",                            NameType::OPERATOR)
 KEYWORD (SIN,                 1 << 3,  "sin",                                                   NameType::OPERATOR)
@@ -25,8 +26,7 @@ KEYWORD (LBRACKET,            1 << 20, "(",                                     
 KEYWORD (RBRACKET,            1 << 21, ")",                                                     NameType::SEPARATOR)
 KEYWORD (BLOCK_OPEN,          1 << 22, "заебало уже",                                           NameType::SEPARATOR)
 KEYWORD (BLOCK_CLOSE,         1 << 23, "каждый раз это",                                        NameType::SEPARATOR)
-KEYWORD (CONDITION_SEPARATOR, 1 << 24, "не знаю что делать",                                    NameType::SEPARATOR)
+KEYWORD (CONDITION_SEPARATOR, 1 << 24, "что мне делать",                                        NameType::SEPARATOR)
 KEYWORD (INITIAL_OPERATOR,    1 << 25, "Сап конфешнс",                                          NameType::SEPARATOR)
-KEYWORD (OPERATOR_SEPARATOR,  1 << 26, ".",                                                     NameType::SEPARATOR)
 
-KEYWORD (NUMBER,              1 << 27, "дедекиндово сечение множества действительных чисел",    NameType::TYPE_NAME)
+KEYWORD (NUMBER,              1 << 27, "брс",                                                   NameType::TYPE_NAME)

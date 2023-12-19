@@ -14,16 +14,16 @@ Priority1 ::= ['sin', 'cos', 'floor'] PrimaryExpression | PrimaryExpression
 
 PrimaryExpression ::= '(' Priority5 ')' | Identifier | Constant
 
-If    ::= 'if'    Expression 'не знаю что делать' Operator
-While ::= 'while' Expression 'не знаю что делать' Operator
+If    ::= 'Зачем я пошел на физтех если тут' Expression 'не знаю что делать' Operator
+While ::= 'Физтехи постоянно ноют что'       Expression 'не знаю что делать' Operator
 
-Operator ::= {If | While | AssignmentExpression | Declaration | '{' OperatorList '}' } '.'
+Operator ::= If | While | {{AssignmentExpression | Declaration | 'заебало уже' OperatorList 'каждый раз это' } '.'}
 OperatorList ::= Operator {OperatorList}?
 
 Declaration ::= TypeSpecifier InitializerDeclarator
-TypeSpecifier ::= 'Дедекиндово сечение множества действительных чисел'
+TypeSpecifier ::= 'брс'
 InitializerDeclarator ::= {AssignmentExpression | Identifier}
 
-FunctionDefinition ::= 'Физтех-школа' TypeSpecifier Identifier '(' ')' '{' OperatorList '}'
+FunctionDefinition ::= 'Физтех-школа' TypeSpecifier Identifier '(' ')' 'заебало уже' OperatorList 'каждый раз это'
 
 

@@ -31,13 +31,18 @@ CompilationError InitCompilationContext (CompilationContext *context) {
 
 CompilationError DestroyCompilationContext (CompilationContext *context) {
     PushLog (3);
-
-    Tree::DestroySubtreeNode (&context->abstractSyntaxTree, context->abstractSyntaxTree.root);
+    
+    if (context->abstractSyntaxTree.root) {
+        Tree::DestroySubtreeNode (&context->abstractSyntaxTree, context->abstractSyntaxTree.root);
+    } else {
+        for (size_t tokenIndex = 0; tokenIndex < context->tokens.currentIndex; tokenIndex++) {
+            free (context->tokens.data [tokenIndex]);
+        }
+    }
 
     for (size_t nameIndex = 0; nameIndex < context->nameTable.currentIndex; nameIndex++) {
-        fprintf (stderr, "Destroying \"%s\"\n", context->nameTable.data [nameIndex].name);
         if (context->nameTable.data [nameIndex].type == NameType::IDENTIFIER) {
-            free (context->nameTable.data [nameIndex].name);
+            free (const_cast <char *> (context->nameTable.data [nameIndex].name));
         }
     }
 

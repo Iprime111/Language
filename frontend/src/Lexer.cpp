@@ -81,7 +81,7 @@ static CompilationError TokenizeNumber (CompilationContext *context, const char 
         RETURN CompilationError::NO_ERRORS;
     }
 
-    RETURN CompilationError::NUMBER_EXPECTED;
+    RETURN CompilationError::CONSTANT_EXPECTED;
 }
 
 static CompilationError TokenizeWord (CompilationContext *context, const char **symbol) {
