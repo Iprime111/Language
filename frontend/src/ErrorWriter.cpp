@@ -145,7 +145,6 @@ static CompilationError WriteErrorText (Buffer <char> *dataBuffer, const ErrorDa
         WriteErrorDescription (CONSTANT_EXPECTED,               "Какие же физтехи жалкие, не могут даже число написать")
         WriteErrorDescription (DUMP_ERROR,                      "JAMclub")
         WriteErrorDescription (HTML_ERROR,                      "Какой долбоеб написал сайт конфешнса так, что он не может отобразить мой комментарий")
-
     };
 
     #undef WriteErrorDescription

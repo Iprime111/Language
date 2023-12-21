@@ -3,19 +3,41 @@
 #include "TreeReader.h"
 #include "Dump.h"
 
+static char *GetTreeFileContent (const char *filename);
+
 int main (int argc, char **argv) {
 
     TranslationContext context = {};
 
     if (argc < 2) {
         printf ("Console argument (tree file name) expected\n");
+        return 0;
     }
 
-    FILE *treeFile = fopen (argv [1], "r");
+    char *treeData = GetTreeFileContent (argv [1]);
+
+    if (!treeData)
+        return 0;
+
+    InitTranslationContext (&context);
+
+    ReadSyntaxTree (&context, treeData);
+    DumpSyntaxTree (&context, "tree_dump.dot");
+    
+    GenerateAssembly (&context, stdout);
+
+    DestroyTranslationContext (&context);
+    free (treeData);
+}
+
+static char *GetTreeFileContent (const char *filename) {
+    PushLog (4);
+
+    FILE *treeFile = fopen (filename, "r");
 
     if (!treeFile) {
         printf ("Can not open tree file\n");
-        return 0;
+        return NULL;
     }
     
     fseek (treeFile, 0, SEEK_END);
@@ -29,13 +51,5 @@ int main (int argc, char **argv) {
     
     fclose (treeFile);
 
-    InitTranslationContext (&context);
-
-    ReadSyntaxTree (&context, treeData);
-    DumpSyntaxTree (&context, "tree_dump.dot");
-    
-    GenerateAssembly (&context, stdout);
-
-    DestroyTranslationContext (&context);
-    free (treeData);
+    RETURN treeData;
 }

@@ -24,6 +24,12 @@ CompilationError InitCompilationContext (CompilationContext *context) {
         RETURN CompilationError::NAME_TABLE_ERROR; 
     }
 
+    if (InitBuffer (&context->localTables) != BufferErrorCode::NO_BUFFER_ERRORS) {
+        RETURN CompilationError::NAME_TABLE_ERROR;
+    }
+
+    AddLocalNameTable (0, &context->localTables);
+
     context->error = CompilationError::NO_ERRORS;
 
     RETURN CompilationError::NO_ERRORS;
@@ -46,15 +52,17 @@ CompilationError DestroyCompilationContext (CompilationContext *context) {
         }
     }
 
+    for (size_t tableIndex = 0; tableIndex < context->localTables.currentIndex; tableIndex++) {
+        DestroyBuffer (&context->localTables.data [tableIndex].items);
+    }
+
+    DestroyBuffer (&context->localTables);
     DestroyBuffer (&context->nameTable);
     DestroyBuffer (&context->errorList);
     DestroyBuffer (&context->tokens);
 
     RETURN CompilationError::NO_ERRORS;
 }
-
-
-// TODO: move lexer dumps to a separate file
 
 CompilationError DumpTokenTable (CompilationContext *context) {
     PushLog (3);

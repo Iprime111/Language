@@ -4,6 +4,14 @@
     #include "SyntaxTree.h"
     #include "TreeDefinitions.h"
 
+    #define TryGetOperator(ERROR)                                   \
+    do {                                                            \
+        CheckForError (expectedOperator, CompilationError::ERROR);  \
+        if (expectedOperator) {                                     \
+            break;                                                  \
+        }                                                           \
+    } while (0)
+
     #define SyntaxAssert(EXPRESSION, ERROR)                                                 \
         do {                                                                                \
             if (!(EXPRESSION)) {                                                            \
@@ -41,10 +49,13 @@
             }                                                                                       \
         } while (0)
 
-    Tree::Node <AstNode> *GetNameWithType (CompilationContext *context, NameType type,   CompilationError error);
+    Tree::Node <AstNode> *GetNameWithType       (CompilationContext *context, NameType type, CompilationError error);
+    Tree::Node <AstNode> *GetFunctionIdentifier (CompilationContext *context, CompilationError error);
+    Tree::Node <AstNode> *GetVariableIdentifier    (CompilationContext *context, CompilationError error, int localTableIndex);
+
     Tree::Node <AstNode> *GetKeyword      (CompilationContext *context, Keyword keyword, CompilationError error);
     Tree::Node <AstNode> *GetConstant     (CompilationContext *context);
-    Tree::Node <AstNode> *GetFunctionCall (CompilationContext *context);
+    Tree::Node <AstNode> *GetFunctionCall (CompilationContext *context, int localTableIndex);
 
     bool GetDestroyableToken (CompilationContext *context, Keyword keyword, CompilationError error);
 #endif 

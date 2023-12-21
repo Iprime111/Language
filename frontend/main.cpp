@@ -1,35 +1,26 @@
 #include "Buffer.h"
 #include "FrontendCore.h"
 #include "Lexer.h"
+#include "Logger.h"
 #include "Parser.h"
 #include "Dump.h"
 #include "ErrorWriter.h"
 #include "TreeSaver.h"
+
+static char *GetSourceFileContent (const char *filename);
 
 int main (int argc, char **argv) {
     CompilationContext context = {};
 
     if (argc < 2) {
         printf ("Console argument (source file name) expected\n");
-    }
-
-    FILE *sourceFile = fopen (argv [1], "r");
-
-    if (!sourceFile) {
-        printf ("Can not open source file\n");
         return 0;
     }
-    
-    fseek (sourceFile, 0, SEEK_END);
-    size_t fileSize = (size_t) ftell (sourceFile);
-    fseek (sourceFile, 0, SEEK_SET);
 
-    char *sourceData = (char *) calloc (fileSize + 1, sizeof (char));
-    fread (sourceData, fileSize, 1, sourceFile);
+    char *sourceData = GetSourceFileContent (argv [1]);
 
-    sourceData [fileSize] = '\0';
-    
-    fclose (sourceFile);
+    if (!sourceData)
+        return 0;
 
     InitCompilationContext (&context);
 
@@ -48,4 +39,28 @@ int main (int argc, char **argv) {
     free (sourceData);
 
     return 0;
+}
+
+static char *GetSourceFileContent (const char *filename) {
+    PushLog (4);
+
+    FILE *sourceFile = fopen (filename, "r");
+
+    if (!sourceFile) {
+        printf ("Can not open source file\n");
+        return NULL;
+    }
+    
+    fseek (sourceFile, 0, SEEK_END);
+    size_t fileSize = (size_t) ftell (sourceFile);
+    fseek (sourceFile, 0, SEEK_SET);
+
+    char *sourceData = (char *) calloc (fileSize + 1, sizeof (char));
+    fread (sourceData, fileSize, 1, sourceFile);
+
+    sourceData [fileSize] = '\0';
+    
+    fclose (sourceFile);
+
+    RETURN sourceData;
 }

@@ -317,16 +317,7 @@ static TranslationError WriteKeyword (TranslationContext *context, Tree::Node <A
             }
         })
 
-        case Keyword::FUNCTION_CALL:
-        case Keyword::FUNCTION_DEFINITION:
-        case Keyword::LBRACKET:
-        case Keyword::RBRACKET:
-        case Keyword::BLOCK_OPEN:
-        case Keyword::BLOCK_CLOSE:
-        case Keyword::CONDITION_SEPARATOR:
-        case Keyword::INITIAL_OPERATOR:
-        case Keyword::NOT_KEYWORD:
-        case Keyword::NUMBER: {
+        default: {
             RETURN TranslationError::TREE_ERROR;
         }
 

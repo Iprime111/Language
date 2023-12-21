@@ -34,6 +34,8 @@ enum class CompilationError {
     IN_EXPECTED                  = 1 << 24,
     OUT_EXPECTED                 = 1 << 25,
     ABORT_EXPECTED               = 1 << 26,
+    NO_FUNCTION                  = 1 << 27,
+    NO_VARIABLE                  = 1 << 28,
 };
 
 struct ErrorData {
@@ -53,7 +55,8 @@ struct CompilationContext {
     CompilationError   error     = CompilationError::NO_ERRORS;
     Buffer <ErrorData> errorList = {};
 
-    Tree::Tree <AstNode> abstractSyntaxTree = {};
+    Tree::Tree <AstNode>    abstractSyntaxTree = {};
+    Buffer <LocalNameTable> localTables        = {};
 };
 
 CompilationError InitCompilationContext    (CompilationContext *context);
