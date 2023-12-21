@@ -185,19 +185,19 @@ static Tree::Node <AstNode> *GetAssignmentExpression (CompilationContext *contex
 
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 
-static Tree::Node <AstNode> *GetOperator (CompilationContext *context, int localTableIndex) {
+static Tree::Node <AstNode> *GetOperator (CompilationContext *context) {
     PushLog (2);
 
     Tree::Node <AstNode> *expectedOperator = NULL;
 
-    expectedOperator = GetConditionOperator (context, Keyword::IF, CompilationError::IF_EXPECTED, localTableIndex);
+    expectedOperator = GetConditionOperator (context, Keyword::IF, CompilationError::IF_EXPECTED);
     CheckForError (expectedOperator, CompilationError::IF_EXPECTED);
 
     if (expectedOperator) {
         RETURN OperatorSeparator (expectedOperator, NULL);   
     }
     
-    expectedOperator = GetConditionOperator (context, Keyword::WHILE, CompilationError::WHILE_EXPECTED, localTableIndex);
+    expectedOperator = GetConditionOperator (context, Keyword::WHILE, CompilationError::WHILE_EXPECTED);
     CheckForError (expectedOperator, CompilationError::WHILE_EXPECTED);
     
     if (expectedOperator) {
@@ -208,7 +208,7 @@ static Tree::Node <AstNode> *GetOperator (CompilationContext *context, int local
         expectedOperator = GetKeyword (context, Keyword::ABORT, CompilationError::ABORT_EXPECTED);
         TryGetOperator (ABORT_EXPECTED);
 
-        expectedOperator = GetOutOperator (context, localTableIndex);
+        expectedOperator = GetOutOperator (context);
         TryGetOperator (OUT_EXPECTED);
 
         expectedOperator = GetKeyword (context, Keyword::BREAK_OPERATOR, CompilationError::BREAK_EXPECTED);
@@ -217,20 +217,20 @@ static Tree::Node <AstNode> *GetOperator (CompilationContext *context, int local
         expectedOperator = GetKeyword (context, Keyword::CONTINUE_OPERATOR, CompilationError::CONTINUE_EXPECTED);
         TryGetOperator (CONTINUE_EXPECTED);
 
-        expectedOperator = GetReturnOperator (context, localTableIndex);
+        expectedOperator = GetReturnOperator (context);
         TryGetOperator (RETURN_EXPECTED);
 
-        expectedOperator = GetFunctionCall (context, localTableIndex);
+        expectedOperator = GetFunctionCall (context);
         TryGetOperator (FUNCTION_CALL_EXPECTED);
 
-        expectedOperator = GetAssignmentExpression (context, localTableIndex);
+        expectedOperator = GetAssignmentExpression (context);
         TryGetOperator (IDENTIFIER_EXPECTED);
         
-        expectedOperator = GetDeclaration (context, localTableIndex);
+        expectedOperator = GetDeclaration (context);
         TryGetOperator (TYPE_NAME_EXPECTED);
 
         NotNull (GetDestroyableToken (context, Keyword::BLOCK_OPEN,  CompilationError::CODE_BLOCK_EXPECTED));
-        expectedOperator = GetOperatorList (context, localTableIndex);
+        expectedOperator = GetOperatorList (context);
         NotNull (GetDestroyableToken (context, Keyword::BLOCK_CLOSE, CompilationError::CODE_BLOCK_EXPECTED));
 
         if (expectedOperator)
