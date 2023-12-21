@@ -10,6 +10,7 @@ enum class CompilationError {
     CONTEXT_ERROR                = 1 << 0,
     NAME_TABLE_ERROR             = 1 << 1,
     TOKEN_BUFFER_ERROR           = 1 << 2,
+    FUNCTION_CALL_EXPECTED       = 1 << 3,
     IDENTIFIER_EXPECTED          = 1 << 4,
     INITIAL_OPERATOR_EXPECTED    = 1 << 5,
     OPERATOR_SEPARATOR_EXPECTED  = 1 << 6,
@@ -23,8 +24,16 @@ enum class CompilationError {
     WHILE_EXPECTED               = 1 << 14,
     OPERATION_EXPECTED           = 1 << 15,
     CONSTANT_EXPECTED            = 1 << 16,
-    DUMP_ERROR                   = 1 << 17,
-    HTML_ERROR                   = 1 << 18,
+    ARGUMENT_SEPARATOR_EXPECTED  = 1 << 17,
+    DUMP_ERROR                   = 1 << 18,
+    HTML_ERROR                   = 1 << 19,
+    OUTPUT_FILE_ERROR            = 1 << 20,
+    RETURN_EXPECTED              = 1 << 21,
+    BREAK_EXPECTED               = 1 << 22,
+    CONTINUE_EXPECTED            = 1 << 23,
+    IN_EXPECTED                  = 1 << 24,
+    OUT_EXPECTED                 = 1 << 25,
+    ABORT_EXPECTED               = 1 << 26,
 };
 
 struct ErrorData {

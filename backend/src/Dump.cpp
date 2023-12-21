@@ -3,24 +3,25 @@
 #include "NameTable.h"
 #include "SyntaxTree.h"
 #include "TreeDump.h"
+#include <cstdio>
 
-static CompilationError EmitDumpHeader      (CompilationContext *context, Buffer <char> *dumpBuffer);
-static CompilationError EmitNodeData        (CompilationContext *context, Tree::Node <AstNode> *node, Buffer <char> *dumpBuffer);
-static CompilationError EmitNode            (CompilationContext *context, Tree::Node <AstNode> *node, Buffer <char> *dumpBuffer);
-static const  char     *GetNodeColor        (CompilationContext *context, Tree::Node <AstNode> *node);
-static CompilationError EmitNodeConnections (Tree::Node <AstNode> *node, Buffer <char> *dumpBuffer);
+static TranslationError EmitDumpHeader      (TranslationContext *context, Buffer <char> *dumpBuffer);
+static TranslationError EmitNodeData        (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *dumpBuffer);
+static TranslationError EmitNode            (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *dumpBuffer);
+static const  char     *GetNodeColor        (TranslationContext *context, Tree::Node <AstNode> *node);
+static TranslationError EmitNodeConnections (Tree::Node <AstNode> *node, Buffer <char> *dumpBuffer);
 
 #define WriteToDumpWithErrorCheck(dumpBuffer, data)                                                     \
     do {                                                                                                \
         if (WriteDataToBuffer (dumpBuffer, data, strlen (data)) != BufferErrorCode::NO_BUFFER_ERRORS) { \
-            RETURN CompilationError::DUMP_ERROR;                                                        \
+            RETURN TranslationError::DUMP_ERROR;                                                        \
         }                                                                                               \
     } while (0)
 
-CompilationError DumpSyntaxTree (CompilationContext *context, char *dumpFilename) {
+TranslationError DumpSyntaxTree (TranslationContext *context, char *dumpFilename) {
     PushLog (3);
 
-    custom_assert (context, pointer_is_null, CompilationError::CONTEXT_ERROR);
+    custom_assert (context, pointer_is_null, TranslationError::CONTEXT_ERROR);
 
     Buffer <char> dumpBuffer = {};
 
@@ -31,29 +32,29 @@ CompilationError DumpSyntaxTree (CompilationContext *context, char *dumpFilename
             }                               \
         } while (0)
 
-    CatchError (CompilationError::DUMP_ERROR, InitBuffer (&dumpBuffer) == BufferErrorCode::NO_BUFFER_ERRORS);
-    CatchError (CompilationError::DUMP_ERROR, EmitDumpHeader (context, &dumpBuffer) == CompilationError::NO_ERRORS);
+    CatchError (TranslationError::DUMP_ERROR, InitBuffer (&dumpBuffer) == BufferErrorCode::NO_BUFFER_ERRORS);
+    CatchError (TranslationError::DUMP_ERROR, EmitDumpHeader (context, &dumpBuffer) == TranslationError::NO_ERRORS);
 
     if (context->abstractSyntaxTree.root) {
-        CatchError (CompilationError::DUMP_ERROR, EmitNode (context, context->abstractSyntaxTree.root, &dumpBuffer) == CompilationError::NO_ERRORS);
+        CatchError (TranslationError::DUMP_ERROR, EmitNode (context, context->abstractSyntaxTree.root, &dumpBuffer) == TranslationError::NO_ERRORS);
     }
 
     WriteToDumpWithErrorCheck (&dumpBuffer, "}");
 
     FILE *dumpFile = fopen (dumpFilename, "w");
-    CatchError (CompilationError::DUMP_ERROR, dumpFile != NULL);
+    CatchError (TranslationError::DUMP_ERROR, dumpFile != NULL);
 
     fwrite (dumpBuffer.data, sizeof (char), dumpBuffer.currentIndex, dumpFile);
 
     fclose (dumpFile);
-    CatchError (CompilationError::DUMP_ERROR, DestroyBuffer (&dumpBuffer) == BufferErrorCode::NO_BUFFER_ERRORS);
+    CatchError (TranslationError::DUMP_ERROR, DestroyBuffer (&dumpBuffer) == BufferErrorCode::NO_BUFFER_ERRORS);
 
     #undef CatchError
 
-    RETURN CompilationError::NO_ERRORS;
+    RETURN TranslationError::NO_ERRORS;
 }
 
-static CompilationError EmitNode (CompilationContext *context, Tree::Node <AstNode> *node, Buffer <char> *dumpBuffer) {
+static TranslationError EmitNode (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *dumpBuffer) {
     PushLog (3);
 
     char indexBuffer [MAX_NODE_INDEX_LENGTH] = "";
@@ -65,7 +66,7 @@ static CompilationError EmitNode (CompilationContext *context, Tree::Node <AstNo
 
     const char *nodeColor = GetNodeColor (context, node);
     if (!nodeColor) {
-        RETURN CompilationError::DUMP_ERROR;
+        RETURN TranslationError::DUMP_ERROR;
     }
 
     WriteToDumpWithErrorCheck (dumpBuffer, nodeColor);
@@ -83,10 +84,10 @@ static CompilationError EmitNode (CompilationContext *context, Tree::Node <AstNo
     if (node->right)
         EmitNode (context, node->right, dumpBuffer);
 
-    RETURN CompilationError::NO_ERRORS;
+    RETURN TranslationError::NO_ERRORS;
 }
 
-static CompilationError EmitNodeData (CompilationContext *context, Tree::Node <AstNode> *node, Buffer <char> *dumpBuffer) {
+static TranslationError EmitNodeData (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *dumpBuffer) {
     PushLog (3);
 
     char indexBuffer [MAX_NODE_INDEX_LENGTH] = "";
@@ -104,6 +105,15 @@ static CompilationError EmitNodeData (CompilationContext *context, Tree::Node <A
         case NodeType::NAME: {
             WriteToDumpWithErrorCheck (dumpBuffer, "{");
             WriteToDumpWithErrorCheck (dumpBuffer, context->nameTable.data [node->nodeData.content.nameTableIndex].name);
+
+            break;
+        }   
+
+        case NodeType::KEYWORD: {
+            snprintf (indexBuffer, MAX_NODE_INDEX_LENGTH, "%d", (int) node->nodeData.content.keyword);
+
+            WriteToDumpWithErrorCheck (dumpBuffer, "{");
+            WriteToDumpWithErrorCheck (dumpBuffer, indexBuffer);
 
             break;
         }
@@ -136,19 +146,19 @@ static CompilationError EmitNodeData (CompilationContext *context, Tree::Node <A
         }
 
         default: {
-            RETURN CompilationError::NO_ERRORS;
+            RETURN TranslationError::NO_ERRORS;
         }
     }
 
     WriteToDumpWithErrorCheck (dumpBuffer, "}");
 
 
-    RETURN CompilationError::NO_ERRORS;
+    RETURN TranslationError::NO_ERRORS;
 }
 
 
 
-static CompilationError EmitNodeConnections (Tree::Node <AstNode> *node, Buffer <char> *dumpBuffer) {
+static TranslationError EmitNodeConnections (Tree::Node <AstNode> *node, Buffer <char> *dumpBuffer) {
     PushLog (3);
 
     char currentNodeIndex [MAX_NODE_INDEX_LENGTH] = "";
@@ -172,10 +182,10 @@ static CompilationError EmitNodeConnections (Tree::Node <AstNode> *node, Buffer 
 
     #undef ChildConnection
     
-    RETURN CompilationError::NO_ERRORS;
+    RETURN TranslationError::NO_ERRORS;
 }
 
-static const char *GetNodeColor (CompilationContext *context, Tree::Node <AstNode> *node) {
+static const char *GetNodeColor (TranslationContext *context, Tree::Node <AstNode> *node) {
     PushLog (4);
 
     if (node->nodeData.type == NodeType::CONSTANT) {
@@ -192,10 +202,10 @@ static const char *GetNodeColor (CompilationContext *context, Tree::Node <AstNod
 
 }
 
-static CompilationError EmitDumpHeader (CompilationContext *context, Buffer <char> *dumpBuffer) {
+static TranslationError EmitDumpHeader (TranslationContext *context, Buffer <char> *dumpBuffer) {
     PushLog (4);
 
     WriteToDumpWithErrorCheck (dumpBuffer, "digraph {\n\tbgcolor=\"" DUMP_BACKGROUND_COLOR "\"\n");
 
-    RETURN CompilationError::NO_ERRORS;
+    RETURN TranslationError::NO_ERRORS;
 }

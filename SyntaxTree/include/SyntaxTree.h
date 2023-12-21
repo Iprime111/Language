@@ -3,21 +3,24 @@
 
 #include <math.h>
 
+#include "NameTable.h"
 #include "Tree.h"
 
 enum class NodeType {
     TERMINATOR           = 0,
     CONSTANT             = 1,
     NAME                 = 2,
+    KEYWORD              = 3,
     FUNCTION_DEFINITION  = 4,
-    VARIABLE_DECLARATION = 5,
-    FUNCTION_ARGUMENTS   = 6,
+    FUNCTION_ARGUMENTS   = 5,
+    VARIABLE_DECLARATION = 6,
     FUNCTION_CALL        = 7,
 };
 
 union NodeContent {
-    double number = NAN;
-    size_t nameTableIndex;
+    double  number = NAN;
+    size_t  nameTableIndex;
+    Keyword keyword;
 };
 
 struct AstNode {
@@ -35,9 +38,11 @@ Tree::Node <AstNode> *EmplaceNode (Tree::Node <AstNode> node);
 #define FunctionDefinition(leftChild, rightChild, identifierIndex)  EmplaceNode (Tree::Node <AstNode> {.left = leftChild, .right = rightChild, .parent = NULL, .nodeData = {.type = NodeType::FUNCTION_DEFINITION,  .content = {.nameTableIndex = identifierIndex}}})
 #define VariableDeclaration(leftChild, rightChild, identifierIndex) EmplaceNode (Tree::Node <AstNode> {.left = leftChild, .right = rightChild, .parent = NULL, .nodeData = {.type = NodeType::VARIABLE_DECLARATION, .content = {.nameTableIndex = identifierIndex}}})
 #define FunctionArguments(leftChild, rightChild)                    EmplaceNode (Tree::Node <AstNode> {.left = leftChild, .right = rightChild, .parent = NULL, .nodeData = {.type = NodeType::FUNCTION_ARGUMENTS}})
+#define FunctionCall(leftChild, rightChild)                         EmplaceNode (Tree::Node <AstNode> {.left = leftChild, .right = rightChild, .parent = NULL, .nodeData = {.type = NodeType::FUNCTION_CALL}})
 
 #define Terminator() EmplaceNode (Tree::Node <AstNode> {.left = NULL, .right = NULL, .parent = NULL, .nodeData = {.type = NodeType::TERMINATOR}})
 
 #define OperatorSeparator(leftChild, rightChild) EmplaceNode (Tree::Node <AstNode> {.left = leftChild, .right = rightChild, .parent = NULL, .nodeData = {.type = NodeType::NAME, .content = {.nameTableIndex = 0}}});
+#define ArgumentSeparator(leftChild, rightChild) EmplaceNode (Tree::Node <AstNode> {.left = leftChild, .right = rightChild, .parent = NULL, .nodeData = {.type = NodeType::NAME, .content = {.nameTableIndex = 1}}});
 
 #endif

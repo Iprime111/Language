@@ -157,9 +157,18 @@ static size_t GetNextWordLength (const char *wordBegin) {
         RETURN 0;
     }
 
+    bool punctWord = false;
+
+    if (ispunct (wordBegin [0]))
+        punctWord = true;
+
     size_t nextWordLength = 1;
 
     while (!isspace (wordBegin [nextWordLength]) && wordBegin [nextWordLength] != '\0') {
+        if (ispunct(wordBegin [nextWordLength]) != punctWord)
+            break;
+
+
         nextWordLength++;
     }
 

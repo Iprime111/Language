@@ -20,7 +20,10 @@ static Tree::Node <AstNode> *GetInitializerDeclarator (CompilationContext *conte
 static Tree::Node <AstNode> *GetAssignmentExpression  (CompilationContext *context);
 static Tree::Node <AstNode> *GetConditionOperator     (CompilationContext *context, Keyword operatorKeyword, CompilationError error);
 static Tree::Node <AstNode> *GetOperatorList          (CompilationContext *context);
-
+static Tree::Node <AstNode> *GetArgumentList          (CompilationContext *context);
+static Tree::Node <AstNode> *GetParameterList         (CompilationContext *context);
+static Tree::Node <AstNode> *GetReturnOperator        (CompilationContext *context);
+static Tree::Node <AstNode> *GetOutOperator           (CompilationContext *context);
 
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -108,6 +111,10 @@ static Tree::Node <AstNode> *GetFunctionDefinition (CompilationContext *context)
     context->tokenIndex++;
 
     NotNull (GetDestroyableToken (context, Keyword::LBRACKET,   CompilationError::BRACKET_EXPECTED));
+
+    Tree::Node <AstNode> *parameters = GetParameterList (context);
+    CheckForError (parameters, CompilationError::TYPE_NAME_EXPECTED);
+
     NotNull (GetDestroyableToken (context, Keyword::RBRACKET,   CompilationError::BRACKET_EXPECTED));
     NotNull (GetDestroyableToken (context, Keyword::BLOCK_OPEN, CompilationError::CODE_BLOCK_EXPECTED));
 
@@ -115,7 +122,7 @@ static Tree::Node <AstNode> *GetFunctionDefinition (CompilationContext *context)
 
     NotNull (GetDestroyableToken (context, Keyword::BLOCK_CLOSE, CompilationError::CODE_BLOCK_EXPECTED));
 
-    RETURN FunctionDefinition (type, FunctionArguments (NULL, functionContent), identifierIndex);
+    RETURN FunctionDefinition (type, FunctionArguments (parameters, functionContent), identifierIndex);
 }
 
 static Tree::Node <AstNode> *GetDeclaration (CompilationContext *context) {
@@ -147,7 +154,8 @@ static Tree::Node <AstNode> *GetInitializerDeclarator (CompilationContext *conte
         RETURN initializer;
     }
 
-    CheckForError (initializer, CompilationError::IDENTIFIER_EXPECTED);
+    CheckForError (initializer, CompilationError::ASSIGNMENT_EXPECTED);
+    context->tokenIndex--;
 
     initializer = GetNameWithType (context, NameType::IDENTIFIER, CompilationError::IDENTIFIER_EXPECTED);
 
@@ -183,20 +191,56 @@ static Tree::Node <AstNode> *GetOperator (CompilationContext *context) {
     Tree::Node <AstNode> *expectedOperator = NULL;
 
     expectedOperator = GetConditionOperator (context, Keyword::IF, CompilationError::IF_EXPECTED);
-        CheckForError (expectedOperator, CompilationError::IF_EXPECTED);
+    CheckForError (expectedOperator, CompilationError::IF_EXPECTED);
 
-        if (expectedOperator) {
-            RETURN OperatorSeparator (expectedOperator, NULL);   
-        }
-        
-        expectedOperator = GetConditionOperator (context, Keyword::WHILE, CompilationError::WHILE_EXPECTED);
-        CheckForError (expectedOperator, CompilationError::WHILE_EXPECTED);
-        
-        if (expectedOperator) {
-            RETURN OperatorSeparator (expectedOperator, NULL);   
-        }
+    if (expectedOperator) {
+        RETURN OperatorSeparator (expectedOperator, NULL);   
+    }
+    
+    expectedOperator = GetConditionOperator (context, Keyword::WHILE, CompilationError::WHILE_EXPECTED);
+    CheckForError (expectedOperator, CompilationError::WHILE_EXPECTED);
+    
+    if (expectedOperator) {
+        RETURN OperatorSeparator (expectedOperator, NULL);   
+    }
 
     while (true) {
+        expectedOperator = GetKeyword (context, Keyword::ABORT, CompilationError::ABORT_EXPECTED);
+        CheckForError (expectedOperator, CompilationError::ABORT_EXPECTED);
+
+        if (expectedOperator)
+            break;
+
+        expectedOperator = GetOutOperator (context);
+        CheckForError (expectedOperator, CompilationError::OUT_EXPECTED);
+
+        if (expectedOperator)
+            break;
+
+        expectedOperator = GetKeyword (context, Keyword::BREAK_OPERATOR, CompilationError::BREAK_EXPECTED);
+        CheckForError (expectedOperator, CompilationError::BREAK_EXPECTED);
+
+        if (expectedOperator)
+            break;
+
+        expectedOperator = GetKeyword (context, Keyword::CONTINUE_OPERATOR, CompilationError::CONTINUE_EXPECTED);
+        CheckForError (expectedOperator, CompilationError::CONTINUE_EXPECTED);
+
+        if (expectedOperator)
+            break;
+
+        expectedOperator = GetReturnOperator (context);
+        CheckForError (expectedOperator, CompilationError::RETURN_EXPECTED);
+
+        if (expectedOperator)
+            break;
+
+        expectedOperator = GetFunctionCall (context);
+        CheckForError (expectedOperator, CompilationError::FUNCTION_CALL_EXPECTED);
+
+        if (expectedOperator)
+            break;
+
         expectedOperator = GetAssignmentExpression (context);
         CheckForError (expectedOperator, CompilationError::IDENTIFIER_EXPECTED);
 
@@ -268,5 +312,105 @@ static Tree::Node <AstNode> *GetConditionOperator (CompilationContext *context, 
     operatorContent->parent  = conditionOperator;
 
     RETURN conditionOperator;
+}
+
+static Tree::Node <AstNode> *GetReturnOperator (CompilationContext *context) {
+    PushLog (2);
+
+    Tree::Node <AstNode> *returnStatement = GetKeyword (context, Keyword::RETURN_OPERATOR, CompilationError::RETURN_EXPECTED);
+    NotNull (returnStatement);
+
+    Tree::Node <AstNode> *expression = GetExpression (context);
+    NotNull (expression);
+
+    returnStatement->right = expression;
+    expression->parent     = returnStatement;
+
+    RETURN returnStatement;
+}
+
+static Tree::Node <AstNode> *GetOutOperator (CompilationContext *context) {
+    PushLog (2);
+
+    Tree::Node <AstNode> *outOperator = GetKeyword (context, Keyword::OUT, CompilationError::OUT_EXPECTED);
+    NotNull (outOperator);
+
+    Tree::Node <AstNode> *expression = GetExpression (context);
+    NotNull (expression);
+
+    outOperator->right = expression;
+    expression->parent = outOperator;
+
+    RETURN outOperator;
+}
+
+//---------------------------------------------------------------------------------------------------------------------------------------------------
+
+Tree::Node <AstNode> *GetFunctionCall (CompilationContext *context) {
+    PushLog (2);
+
+    NotNull (GetDestroyableToken (context, Keyword::FUNCTION_CALL, CompilationError::FUNCTION_CALL_EXPECTED));
+
+    Tree::Node <AstNode> *identifier = GetNameWithType (context, NameType::IDENTIFIER, CompilationError::IDENTIFIER_EXPECTED);
+    NotNull (identifier);
+
+    NotNull (GetDestroyableToken (context, Keyword::LBRACKET, CompilationError::BRACKET_EXPECTED));
+
+    Tree::Node <AstNode> *arguments = GetArgumentList (context);
+    CheckForError (arguments, CompilationError::CONSTANT_EXPECTED);
+
+    NotNull (GetDestroyableToken (context, Keyword::RBRACKET, CompilationError::BRACKET_EXPECTED));
+
+    RETURN FunctionCall (arguments, identifier);
+}
+
+static Tree::Node <AstNode> *GetArgumentList (CompilationContext *context) {
+    PushLog (2);
+
+    Tree::Node <AstNode> *argument = GetExpression (context);
+    NotNull (argument);
+
+    Tree::Node <AstNode> *separator = GetKeyword (context, Keyword::ARGUMENT_SEPARATOR, CompilationError::ARGUMENT_SEPARATOR_EXPECTED);
+    
+    if (!separator) {
+        context->errorList.currentIndex--;
+        RETURN ArgumentSeparator (argument, NULL);
+    }
+    
+    Tree::Node <AstNode> *nextArgument = GetArgumentList (context);
+    NotNull (nextArgument);
+
+    separator->left  = argument;
+    argument->parent = separator;
+
+    separator->right     = nextArgument;
+    nextArgument->parent = separator;
+    
+    RETURN separator;
+}
+
+static Tree::Node <AstNode> *GetParameterList (CompilationContext *context) {
+     PushLog (2);
+
+    Tree::Node <AstNode> *parameter = GetDeclaration (context);
+    NotNull (parameter);
+
+    Tree::Node <AstNode> *separator = GetKeyword (context, Keyword::ARGUMENT_SEPARATOR, CompilationError::ARGUMENT_SEPARATOR_EXPECTED);
+    
+    if (!separator) {
+        context->errorList.currentIndex--;
+        RETURN ArgumentSeparator (parameter, NULL);
+    }
+    
+    Tree::Node <AstNode> *nextParameter = GetParameterList (context);
+    NotNull (nextParameter);
+
+    separator->left   = parameter;
+    parameter->parent = separator;
+
+    separator->right      = nextParameter;
+    nextParameter->parent = separator;
+    
+    RETURN separator;
 }
 

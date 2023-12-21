@@ -28,7 +28,29 @@ struct NameTableRecord {
     Keyword     keyword = Keyword::NOT_KEYWORD;
 };
 
+enum class LocalNameType {
+    FUNCTION_IDENTIFIER = 1 << 0,
+    VARIABLE_IDENTIFIER = 1 << 1,
+};
+
+struct LocalNameTableRecord {
+    LocalNameType nameType     = LocalNameType::VARIABLE_IDENTIFIER;
+    size_t        globalNameId = 0;
+};
+
+struct LocalNameTable {
+    int    nameTableId = 0;
+    size_t tableSize   = 0;
+
+    Buffer <LocalNameTableRecord> items = {};
+};
+
 BufferErrorCode InitNameTable (Buffer <NameTableRecord> *nameTable, bool isGlobal);
 BufferErrorCode AddIdentifier (Buffer <NameTableRecord> *nameTable, const char *identifier);
+
+BufferErrorCode AddLocalIdentifier      (int nameTableIndex, Buffer <LocalNameTable> *localTables, LocalNameTableRecord newItem, size_t identifierSize);
+int             AddLocalNameTable       (int nameTableId,    Buffer <LocalNameTable> *localTables);
+int             GetIndexInLocalTable    (int nameTableIndex, Buffer <LocalNameTable> *localTables, size_t globalNameId, LocalNameType nameType);
+int             GetLocalNameTableIndex  (int nameTableId,    Buffer <LocalNameTable> *localTables);
 
 #endif

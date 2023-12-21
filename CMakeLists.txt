@@ -7,16 +7,14 @@ set (RELEASE_FLAGS -O3 -std=c++17)
 
 add_subdirectory (SyntaxTree)
 add_subdirectory (frontend)
-#add_subdirectory (backend)
+add_subdirectory (backend)
 add_subdirectory (libs)
-
-
 
 set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-set_target_properties (frontend Buffer Tree CustomAssert
+set_target_properties (frontend backend Buffer Tree CustomAssert
                        PROPERTIES
                        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
                        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"

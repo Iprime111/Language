@@ -105,14 +105,29 @@ static Tree::Node <AstNode> *GetPrimaryExpression (CompilationContext *context, 
 
         Tree::Node <AstNode> *expression = NextFunction [MAX_PRIORITY] (context, MAX_PRIORITY);
 
-        NotNull (GetDestroyableToken (context, Keyword::LBRACKET, CompilationError::BRACKET_EXPECTED));
+        NotNull (GetDestroyableToken (context, Keyword::RBRACKET, CompilationError::BRACKET_EXPECTED));
 
         RETURN expression;
     } else {
         context->errorList.currentIndex--;
     }
 
+    Tree::Node <AstNode> *functionCall = GetFunctionCall (context);
+    CheckForError (functionCall, CompilationError::FUNCTION_CALL_EXPECTED);
+
+    if (functionCall) {
+        RETURN functionCall;
+    }
+
     Tree::Node <AstNode> *terminalSymbol = GetNameWithType (context, NameType::IDENTIFIER, CompilationError::IDENTIFIER_EXPECTED);
+
+    if (terminalSymbol) {
+        RETURN terminalSymbol;
+    }
+
+    context->errorList.currentIndex--;
+
+    terminalSymbol = GetKeyword (context, Keyword::IN, CompilationError::IN_EXPECTED);
 
     if (terminalSymbol) {
         RETURN terminalSymbol;

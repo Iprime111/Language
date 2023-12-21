@@ -10,20 +10,29 @@ Priority5 ::= Priority4 {['и', 'или'] Priority4}*
 Priority4 ::= Priority3 {['==', '>=', '<=', '>', '<', '!='] Priority3}?
 Priority3 ::= Priority2 {['+', '-'] Priority2}*
 Priority2 ::= Priority1 {['*' , '/'] Priority1}*
-Priority1 ::= ['sin', 'cos', 'floor'] PrimaryExpression | PrimaryExpression
+Priority1 ::= ['sin', 'cos', 'floor', In] PrimaryExpression | PrimaryExpression
 
-PrimaryExpression ::= '(' Priority5 ')' | Identifier | Constant
+PrimaryExpression ::= '(' Priority5 ')' | FunctionCall | Identifier | Constant
 
-If    ::= 'Зачем я пошел на физтех если тут' Expression 'не знаю что делать' Operator
-While ::= 'Физтехи постоянно ноют что'       Expression 'не знаю что делать' Operator
+If       ::= 'Зачем я пошел на Физтех если тут' Expression 'что мне делать' Operator
+While    ::= 'Физтехи постоянно ноют что'       Expression 'что мне делать' Operator
+Return   ::= 'Хочу уже отчислиться отсюда из за' Expression
+Break    ::= 'Меня бросила девушка'
+Continue ::= 'Опять закрывать сессию'
+Out      ::= 'Хочу признаться' Expression
+In       ::= 'Почитал посты'
+Abort    ::= 'Пошел прыгать с КПМ'
 
-Operator ::= If | While | {{AssignmentExpression | Declaration | 'заебало уже' OperatorList 'каждый раз это' } '.'}
+Operator ::= If | While | {{ Abort | Out | Return | Break | Continue | FunctionCall | AssignmentExpression | Declaration | 'заебало уже' OperatorList 'каждый раз это' } '.'}
 OperatorList ::= Operator {OperatorList}?
 
 Declaration ::= TypeSpecifier InitializerDeclarator
 TypeSpecifier ::= 'брс'
 InitializerDeclarator ::= {AssignmentExpression | Identifier}
 
-FunctionDefinition ::= 'Физтех-школа' TypeSpecifier Identifier '(' ')' 'заебало уже' OperatorList 'каждый раз это'
+FunctionDefinition ::= 'Физтех-школа' TypeSpecifier Identifier '(' ParameterList ')' 'заебало уже' OperatorList 'каждый раз это'
+FunctionCall       ::= 'все говорят что' Identifier '(' ArgumentList ')' 
 
+ArgumentList  ::= Expression  {',' ArgumentList}?
+ParameterList ::= Declaration {',' ParameterList}?
 
