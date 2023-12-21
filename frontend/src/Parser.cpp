@@ -185,19 +185,19 @@ static Tree::Node <AstNode> *GetAssignmentExpression (CompilationContext *contex
 
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 
-static Tree::Node <AstNode> *GetOperator (CompilationContext *context) {
+static Tree::Node <AstNode> *GetOperator (CompilationContext *context, int localTableIndex) {
     PushLog (2);
 
     Tree::Node <AstNode> *expectedOperator = NULL;
 
-    expectedOperator = GetConditionOperator (context, Keyword::IF, CompilationError::IF_EXPECTED);
+    expectedOperator = GetConditionOperator (context, Keyword::IF, CompilationError::IF_EXPECTED, localTableIndex);
     CheckForError (expectedOperator, CompilationError::IF_EXPECTED);
 
     if (expectedOperator) {
         RETURN OperatorSeparator (expectedOperator, NULL);   
     }
     
-    expectedOperator = GetConditionOperator (context, Keyword::WHILE, CompilationError::WHILE_EXPECTED);
+    expectedOperator = GetConditionOperator (context, Keyword::WHILE, CompilationError::WHILE_EXPECTED, localTableIndex);
     CheckForError (expectedOperator, CompilationError::WHILE_EXPECTED);
     
     if (expectedOperator) {
@@ -206,55 +206,31 @@ static Tree::Node <AstNode> *GetOperator (CompilationContext *context) {
 
     while (true) {
         expectedOperator = GetKeyword (context, Keyword::ABORT, CompilationError::ABORT_EXPECTED);
-        CheckForError (expectedOperator, CompilationError::ABORT_EXPECTED);
+        TryGetOperator (ABORT_EXPECTED);
 
-        if (expectedOperator)
-            break;
-
-        expectedOperator = GetOutOperator (context);
-        CheckForError (expectedOperator, CompilationError::OUT_EXPECTED);
-
-        if (expectedOperator)
-            break;
+        expectedOperator = GetOutOperator (context, localTableIndex);
+        TryGetOperator (OUT_EXPECTED);
 
         expectedOperator = GetKeyword (context, Keyword::BREAK_OPERATOR, CompilationError::BREAK_EXPECTED);
-        CheckForError (expectedOperator, CompilationError::BREAK_EXPECTED);
-
-        if (expectedOperator)
-            break;
+        TryGetOperator (BREAK_EXPECTED);
 
         expectedOperator = GetKeyword (context, Keyword::CONTINUE_OPERATOR, CompilationError::CONTINUE_EXPECTED);
-        CheckForError (expectedOperator, CompilationError::CONTINUE_EXPECTED);
+        TryGetOperator (CONTINUE_EXPECTED);
 
-        if (expectedOperator)
-            break;
+        expectedOperator = GetReturnOperator (context, localTableIndex);
+        TryGetOperator (RETURN_EXPECTED);
 
-        expectedOperator = GetReturnOperator (context);
-        CheckForError (expectedOperator, CompilationError::RETURN_EXPECTED);
+        expectedOperator = GetFunctionCall (context, localTableIndex);
+        TryGetOperator (FUNCTION_CALL_EXPECTED);
 
-        if (expectedOperator)
-            break;
-
-        expectedOperator = GetFunctionCall (context);
-        CheckForError (expectedOperator, CompilationError::FUNCTION_CALL_EXPECTED);
-
-        if (expectedOperator)
-            break;
-
-        expectedOperator = GetAssignmentExpression (context);
-        CheckForError (expectedOperator, CompilationError::IDENTIFIER_EXPECTED);
-
-        if (expectedOperator)
-            break;
+        expectedOperator = GetAssignmentExpression (context, localTableIndex);
+        TryGetOperator (IDENTIFIER_EXPECTED);
         
-        expectedOperator = GetDeclaration (context);
-        CheckForError (expectedOperator, CompilationError::TYPE_NAME_EXPECTED);
-            
-        if (expectedOperator)
-            break;
+        expectedOperator = GetDeclaration (context, localTableIndex);
+        TryGetOperator (TYPE_NAME_EXPECTED);
 
         NotNull (GetDestroyableToken (context, Keyword::BLOCK_OPEN,  CompilationError::CODE_BLOCK_EXPECTED));
-        expectedOperator = GetOperatorList (context);
+        expectedOperator = GetOperatorList (context, localTableIndex);
         NotNull (GetDestroyableToken (context, Keyword::BLOCK_CLOSE, CompilationError::CODE_BLOCK_EXPECTED));
 
         if (expectedOperator)
