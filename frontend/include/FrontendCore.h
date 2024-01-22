@@ -54,6 +54,9 @@ struct CompilationContext {
     Buffer <ErrorData> errorList = {};
 
     Tree::Tree <AstNode> abstractSyntaxTree = {};
+
+    char *fileContent = NULL;
+    size_t fileLength = 0;
 };
 
 CompilationError InitCompilationContext    (CompilationContext *context);

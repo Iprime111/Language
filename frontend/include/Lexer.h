@@ -9,5 +9,13 @@ enum class StringIntersection {
     FULL_MATCH = 2,
 };
 
+enum class SymbolGroup {
+    ALNUM          = 1 << 0,
+    BRACKET        = 1 << 1,
+    OPERATION      = 1 << 2,
+    INVALID_SYMBOL = 1 << 3,
+    SPACE          = 1 << 4,
+};
+
 CompilationError LexicalAnalysis (CompilationContext *context, const char *fileContent);
 #endif

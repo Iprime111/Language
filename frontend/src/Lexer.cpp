@@ -1,181 +1,83 @@
-#include <cstring>
-#include <ctype.h>
+#include <cctype>
 
-#include "Buffer.h"
-#include "CustomAssert.h"
-#include "FrontendCore.h"
 #include "Lexer.h"
+#include "Buffer.h"
+#include "FrontendCore.h"
 #include "Logger.h"
-#include "NameTable.h"
 #include "SyntaxTree.h"
 
-#define AddToken(node)                                                                                  \
-    do {                                                                                                \
-        Tree::Node <AstNode> *newToken = node;                                                          \
-        if (WriteDataToBuffer (&context->tokens, &newToken, 1) != BufferErrorCode::NO_BUFFER_ERRORS) {  \
-            RETURN CompilationError::TOKEN_BUFFER_ERROR;                                                \
-        }                                                                                               \
-    } while (0)
+#define currentSymbol context->fileContent [*currentIndex]
+#define AddToken(token)                                                                         \
+    if (WriteDataToBuffer (&context->tokens, token, 1) != BufferErrorCode::NO_BUFFER_ERRORS) {  \
+        RETURN CompilationError::TOKEN_BUFFER_ERROR;                                            \
+    }
 
-#define LexerAssert(FUNCTION_CALL)                                                      \
-    do {                                                                                \
-        CompilationError error_ = FUNCTION_CALL;                                        \
-        if (error_ != CompilationError::NO_ERRORS) {                                    \
-            context->error = (CompilationError) ((int) context->error | (int) error_);  \
-            RETURN error_;                                                              \
-        }                                                                               \
-    } while (0)
-
-static CompilationError TokenizeNumber              (CompilationContext *context, const char **symbol);
-static CompilationError TokenizeWord                (CompilationContext *context, const char **symbol);
-static CompilationError TokenizeNewIdentifier       (CompilationContext *context, const char **identifier, size_t length);
-static CompilationError TokenizeExistingIdentifier  (CompilationContext *context, const char **identifier, size_t length, size_t index);
+static CompilationError TokenizeNumber (CompilationContext *context, size_t *currentIndex);
+static CompilationError TokenizeLexeme (CompilationContext *context, size_t *currentIndex);
+static CompilationError GetNextWord    (CompilationContext *context, size_t *currentIndex);
 
 static StringIntersection CheckWordIntersection (const char *word, const char *pattern, size_t wordLength);
-static StringIntersection FindMatch (CompilationContext *context, const char *word, size_t wordLength, size_t *foundNameIndex);
+static StringIntersection FindMaxIntersection   (CompilationContext *context, const char *word, size_t wordLength, size_t *foundNameIndex);
+static SymbolGroup        GetSymbolGroup        (CompilationContext *context, size_t symbolIndex);
 
-static size_t GetNextWordLength (const char *wordBegin);
-
-CompilationError LexicalAnalysis (CompilationContext *context, const char *fileContent) {
+CompilationError LexicalAnalysis (CompilationContext *context) {
     PushLog (1);
 
-    custom_assert (context,     pointer_is_null, CompilationError::CONTEXT_ERROR);
-    custom_assert (fileContent, pointer_is_null, CompilationError::CONTEXT_ERROR);
+    size_t currentIndex = 0;
+
+    while (currentIndex < context->fileLength) {
+        if (isdigit (context->fileContent [currentIndex])) {
+            TokenizeNumber (context, &currentIndex); // TODO: Catch errors
+        } 
+    }
+
+    RETURN CompilationError::NO_ERRORS;
+}
+
+static CompilationError TokenizeNumber (CompilationContext *context, size_t *currentIndex) {
+    PushLog (3);
     
-    const char *symbol = fileContent;
-    context->currentLine = 1;
+    double number = NAN;
+    int numberLength = 0;
 
-    while (*symbol != '\0') {
-
-        if (isspace (*symbol)) {
-            if (*symbol == '\n')
-                context->currentLine++;
-
-            symbol++;
-            continue;
-        }
-
-        if (isdigit (*symbol)) {
-            LexerAssert (TokenizeNumber (context, &symbol));
-            continue;
-        }
-
-        LexerAssert (TokenizeWord (context, &symbol));
-    }
-
-    AddToken (Terminator ());
-
-    RETURN CompilationError::NO_ERRORS;
-}
-
-static CompilationError TokenizeNumber (CompilationContext *context, const char **symbol) {
-    PushLog (3);
-
-    double number       = NAN;
-    int    numberLength = 0;
-            
-    if (sscanf (*symbol, "%lf%n", &number, &numberLength) > 0) {
+    if (sscanf (&currentSymbol, "%lf%n", &number, &numberLength) > 0) {
         AddToken (Const (number));
-        (*symbol) += numberLength;
-
-        RETURN CompilationError::NO_ERRORS;
+        numberLength++;
     }
-
-    RETURN CompilationError::CONSTANT_EXPECTED;
-}
-
-static CompilationError TokenizeWord (CompilationContext *context, const char **symbol) {
-    PushLog (3);
-
-    size_t initialWordLength = 0;
-    size_t wordLength = 0;
-
-    while (true) {
-        size_t nextWordLength = GetNextWordLength (*symbol + wordLength);
-
-        if (initialWordLength == 0)
-            initialWordLength = nextWordLength;
-
-        if (nextWordLength == 0) {
-            if (initialWordLength == 0) {
-                RETURN CompilationError::IDENTIFIER_EXPECTED;
-            }
-
-            RETURN TokenizeNewIdentifier (context, symbol, initialWordLength); 
-        }
-
-        wordLength += nextWordLength;
-
-        size_t foundNameIndex = 0;
-        switch (FindMatch (context, *symbol, wordLength, &foundNameIndex)) {
-
-            case StringIntersection::NO_MATCH: {
-                RETURN TokenizeNewIdentifier (context, symbol, initialWordLength);
-            }
-
-            case StringIntersection::FULL_MATCH: {
-                RETURN TokenizeExistingIdentifier (context, symbol, wordLength, foundNameIndex);
-            }
-
-            case StringIntersection::IS_BEGIN:
-                break;
-        }
-    }
-}
-
-static CompilationError TokenizeNewIdentifier (CompilationContext *context, const char **identifier, size_t length) {
-    PushLog (3);
-
-    char *newIdentifier = (char *) calloc (length + 1, sizeof (char));
-    memcpy (newIdentifier, *identifier, length);
-
-    if (AddIdentifier (&context->nameTable, newIdentifier) != BufferErrorCode::NO_BUFFER_ERRORS) {
-        RETURN CompilationError::NAME_TABLE_ERROR;
-    }
-
-    AddToken (Name (context->nameTable.currentIndex - 1));
-
-    (*identifier) += length;
 
     RETURN CompilationError::NO_ERRORS;
 }
 
-static CompilationError TokenizeExistingIdentifier (CompilationContext *context, const char **identifier, size_t length, size_t index) {
+static CompilationError TokenizeLexeme (CompilationContext *context, size_t *currentIndex) {
     PushLog (3);
 
-    AddToken (Name (index));
+    size_t lexemeLength = 0;
+    StringIntersection intersectionStatus = StringIntersection::IS_BEGIN;
 
-    (*identifier) += length;
+    while () {
+
+    }
 
     RETURN CompilationError::NO_ERRORS;
 }
 
-static size_t GetNextWordLength (const char *wordBegin) {
-    PushLog (4);
+static CompilationError GetNextWord (CompilationContext *context, size_t *currentIndex, size_t *lexemeLength) {
+    PushLog (3);
 
-    if (wordBegin [0] == '\0' || wordBegin [0] == '\n') {
-        RETURN 0;
+    if (*currentIndex < context->fileLength || currentSymbol == '\n') {
+        RETURN CompilationError::TOKEN_BUFFER_ERROR;
     }
 
-    bool punctWord = false;
+    SymbolGroup currentGroup = GetSymbolGroup (context, *currentIndex);
 
-    if (ispunct (wordBegin [0]))
-        punctWord = true;
-
-    size_t nextWordLength = 1;
-
-    while (!isspace (wordBegin [nextWordLength]) && wordBegin [nextWordLength] != '\0') {
-        if (ispunct(wordBegin [nextWordLength]) != punctWord)
-            break;
-
-
-        nextWordLength++;
+    while (*currentIndex < context->fileLength && GetSymbolGroup (context, *currentIndex + *lexemeLength) == currentGroup) {
+        (*lexemeLength)++;
     }
 
-    RETURN nextWordLength;
+    RETURN CompilationError::NO_ERRORS;
 }
 
-static StringIntersection FindMatch (CompilationContext *context, const char *word, size_t wordLength, size_t *foundNameIndex) {
+static StringIntersection FindMaxIntersection (CompilationContext *context, const char *word, size_t wordLength, size_t *foundNameIndex) {
     PushLog (4);
 
     StringIntersection maxIntersection = StringIntersection::NO_MATCH;
@@ -198,17 +100,39 @@ static StringIntersection FindMatch (CompilationContext *context, const char *wo
 }
 
 static StringIntersection CheckWordIntersection (const char *word, const char *pattern, size_t wordLength) {
+    PushLog (4); // FIXME: keywords with same beginning
 
     for (size_t symbol = 0; symbol < wordLength; symbol++) {
         if (pattern [symbol] == '\0')
-            return StringIntersection::NO_MATCH;
+            RETURN StringIntersection::NO_MATCH;
 
         if (pattern [symbol] != word [symbol])
-            return StringIntersection::NO_MATCH;
+            RETURN StringIntersection::NO_MATCH;
     }
 
     if (pattern [wordLength] == '\0')
-        return StringIntersection::FULL_MATCH;
+        RETURN StringIntersection::FULL_MATCH;
 
-    return StringIntersection::IS_BEGIN;
+    RETURN StringIntersection::IS_BEGIN;
+}
+static SymbolGroup GetSymbolGroup (CompilationContext *context, size_t symbolIndex) {
+    PushLog (4);
+
+    char symbol = context->fileContent [symbolIndex];
+
+    if (isalnum (symbol) || symbol == '_') {
+        RETURN SymbolGroup::ALNUM;
+    } else if (symbol == '{' || symbol == '}' || symbol == '(' || symbol == ')' ||
+               symbol == '[' || symbol == ']') {
+
+        RETURN SymbolGroup::BRACKET;
+    } else if (symbol == '+' || symbol == '-' || symbol == '*' || symbol == '/' || 
+               symbol == '=' || symbol == '!' || symbol == '<' || symbol == '>') {
+
+        RETURN SymbolGroup::OPERATION;
+    } else if (isspace (symbol)) {
+        RETURN SymbolGroup::SPACE;
+    } else {
+        RETURN SymbolGroup::INVALID_SYMBOL;
+    }
 }
