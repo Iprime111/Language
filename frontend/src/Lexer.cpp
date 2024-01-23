@@ -7,14 +7,20 @@
 #include "SyntaxTree.h"
 
 #define currentSymbol context->fileContent [*currentIndex]
-#define AddToken(token)                                                                         \
-    if (WriteDataToBuffer (&context->tokens, token, 1) != BufferErrorCode::NO_BUFFER_ERRORS) {  \
-        RETURN CompilationError::TOKEN_BUFFER_ERROR;                                            \
-    }
+#define AddToken(node)                                                                                  \
+    do {                                                                                                \
+        Tree::Node <AstNode> *newToken = node;                                                          \
+        if (WriteDataToBuffer (&context->tokens, &newToken, 1) != BufferErrorCode::NO_BUFFER_ERRORS) {  \
+            RETURN CompilationError::TOKEN_BUFFER_ERROR;                                                \
+        }                                                                                               \
+    } while (0)
 
-static CompilationError TokenizeNumber (CompilationContext *context, size_t *currentIndex);
-static CompilationError TokenizeLexeme (CompilationContext *context, size_t *currentIndex);
-static CompilationError GetNextWord    (CompilationContext *context, size_t *currentIndex);
+static CompilationError TokenizeNumber    (CompilationContext *context, size_t *currentIndex);
+static CompilationError TokenizeWord      (CompilationContext *context, size_t *currentIndex);
+static size_t           GetNextWordLength (CompilationContext *context, size_t currentIndex);
+
+static CompilationError TokenizeNewIdentifier      (CompilationContext *context, size_t *currentIndex, size_t length);
+static CompilationError TokenizeExistingIdentifier (CompilationContext *context, size_t *currentIndex, size_t length, size_t nameIndex);
 
 static StringIntersection CheckWordIntersection (const char *word, const char *pattern, size_t wordLength);
 static StringIntersection FindMaxIntersection   (CompilationContext *context, const char *word, size_t wordLength, size_t *foundNameIndex);
@@ -26,9 +32,16 @@ CompilationError LexicalAnalysis (CompilationContext *context) {
     size_t currentIndex = 0;
 
     while (currentIndex < context->fileLength) {
+        if (isspace (context->fileContent [currentIndex])) {
+            currentIndex++;
+            continue;
+        }
+
         if (isdigit (context->fileContent [currentIndex])) {
             TokenizeNumber (context, &currentIndex); // TODO: Catch errors
-        } 
+        } else {
+            TokenizeWord (context, &currentIndex);
+        }
     }
 
     RETURN CompilationError::NO_ERRORS;
@@ -42,39 +55,99 @@ static CompilationError TokenizeNumber (CompilationContext *context, size_t *cur
 
     if (sscanf (&currentSymbol, "%lf%n", &number, &numberLength) > 0) {
         AddToken (Const (number));
-        numberLength++;
+        (*currentIndex) += (size_t) numberLength;
+
+        RETURN CompilationError::NO_ERRORS;
     }
+
+    RETURN CompilationError::TOKEN_BUFFER_ERROR;
+}
+
+
+static CompilationError TokenizeWord (CompilationContext *context, size_t *currentIndex) {
+    PushLog (3);
+
+    size_t initialWordLength = 0;
+    size_t wordLength = 0;
+
+    while (true) {
+        size_t nextWordLength = GetNextWordLength (context, *currentIndex + wordLength);
+
+        if (initialWordLength == 0)
+            initialWordLength = nextWordLength;
+
+        if (nextWordLength == 0) {
+            if (initialWordLength == 0) {
+                RETURN CompilationError::IDENTIFIER_EXPECTED;
+            }
+
+            RETURN TokenizeNewIdentifier (context, currentIndex, initialWordLength); 
+        }
+
+        wordLength += nextWordLength;
+
+        size_t foundNameIndex = 0;
+        switch (FindMaxIntersection (context, &currentSymbol, wordLength, &foundNameIndex)) {
+
+            case StringIntersection::NO_MATCH: {
+                RETURN TokenizeNewIdentifier (context, currentIndex, initialWordLength);
+            }
+
+            case StringIntersection::FULL_MATCH: {
+                RETURN TokenizeExistingIdentifier (context, currentIndex, wordLength, foundNameIndex);
+            }
+
+            case StringIntersection::IS_BEGIN:
+                break;
+        }
+    }
+}
+
+static CompilationError TokenizeNewIdentifier (CompilationContext *context, size_t *currentIndex, size_t length) {
+    PushLog (3);
+
+    char *newIdentifier = (char *) calloc (length + 1, sizeof (char));
+    memcpy (newIdentifier, &currentSymbol, length);
+
+    if (AddIdentifier (&context->nameTable, newIdentifier) != BufferErrorCode::NO_BUFFER_ERRORS) {
+        RETURN CompilationError::NAME_TABLE_ERROR;
+    }
+
+    AddToken (Name (context->nameTable.currentIndex - 1));
+
+    (*currentIndex) += length;
 
     RETURN CompilationError::NO_ERRORS;
 }
 
-static CompilationError TokenizeLexeme (CompilationContext *context, size_t *currentIndex) {
+static CompilationError TokenizeExistingIdentifier (CompilationContext *context, size_t *currentIndex, size_t length, size_t nameIndex) {
     PushLog (3);
 
-    size_t lexemeLength = 0;
-    StringIntersection intersectionStatus = StringIntersection::IS_BEGIN;
+    AddToken (Name (nameIndex));
 
-    while () {
-
-    }
+    (*currentIndex) += length;
 
     RETURN CompilationError::NO_ERRORS;
 }
 
-static CompilationError GetNextWord (CompilationContext *context, size_t *currentIndex, size_t *lexemeLength) {
+
+static size_t GetNextWordLength (CompilationContext *context, size_t currentIndex) {
     PushLog (3);
 
-    if (*currentIndex < context->fileLength || currentSymbol == '\n') {
-        RETURN CompilationError::TOKEN_BUFFER_ERROR;
+    if (currentIndex > context->fileLength || context->fileContent [currentIndex] == '\n') {
+        RETURN 0;
     }
 
-    SymbolGroup currentGroup = GetSymbolGroup (context, *currentIndex);
+    SymbolGroup currentGroup = GetSymbolGroup (context, currentIndex);
+    size_t length = 0;
 
-    while (*currentIndex < context->fileLength && GetSymbolGroup (context, *currentIndex + *lexemeLength) == currentGroup) {
-        (*lexemeLength)++;
+    while (currentIndex + length < context->fileLength && context->fileContent [currentIndex + length] != '\n'
+           && GetSymbolGroup (context, currentIndex + length) == currentGroup) {
+
+        length++;
     }
 
-    RETURN CompilationError::NO_ERRORS;
+    RETURN length;
 }
 
 static StringIntersection FindMaxIntersection (CompilationContext *context, const char *word, size_t wordLength, size_t *foundNameIndex) {
@@ -103,15 +176,18 @@ static StringIntersection CheckWordIntersection (const char *word, const char *p
     PushLog (4); // FIXME: keywords with same beginning
 
     for (size_t symbol = 0; symbol < wordLength; symbol++) {
-        if (pattern [symbol] == '\0')
+        if (pattern [symbol] == '\0') {
             RETURN StringIntersection::NO_MATCH;
+        }
 
-        if (pattern [symbol] != word [symbol])
+        if (pattern [symbol] != word [symbol]) {
             RETURN StringIntersection::NO_MATCH;
+        }
     }
 
-    if (pattern [wordLength] == '\0')
+    if (pattern [wordLength] == '\0') {
         RETURN StringIntersection::FULL_MATCH;
+    }
 
     RETURN StringIntersection::IS_BEGIN;
 }

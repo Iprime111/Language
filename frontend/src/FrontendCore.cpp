@@ -1,3 +1,4 @@
+#include <cstring>
 #include <stdio.h>
 
 #include "FrontendCore.h"
@@ -9,7 +10,7 @@
 
 static const char *NameTypeToString (NameType type);
 
-CompilationError InitCompilationContext (CompilationContext *context) {
+CompilationError InitCompilationContext (CompilationContext *context, char *fileContent) {
     PushLog (3);
 
     if (InitNameTable (&context->nameTable, true) != BufferErrorCode::NO_BUFFER_ERRORS) {
@@ -25,6 +26,9 @@ CompilationError InitCompilationContext (CompilationContext *context) {
     }
 
     context->error = CompilationError::NO_ERRORS;
+    
+    context->fileContent = fileContent;
+    context->fileLength = strlen (fileContent);
 
     RETURN CompilationError::NO_ERRORS;
 }
@@ -49,6 +53,8 @@ CompilationError DestroyCompilationContext (CompilationContext *context) {
     DestroyBuffer (&context->nameTable);
     DestroyBuffer (&context->errorList);
     DestroyBuffer (&context->tokens);
+
+    free (context->fileContent);
 
     RETURN CompilationError::NO_ERRORS;
 }

@@ -17,5 +17,5 @@ enum class SymbolGroup {
     SPACE          = 1 << 4,
 };
 
-CompilationError LexicalAnalysis (CompilationContext *context, const char *fileContent);
+CompilationError LexicalAnalysis (CompilationContext *context);
 #endif

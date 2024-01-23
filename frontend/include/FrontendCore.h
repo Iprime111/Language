@@ -59,7 +59,7 @@ struct CompilationContext {
     size_t fileLength = 0;
 };
 
-CompilationError InitCompilationContext    (CompilationContext *context);
+CompilationError InitCompilationContext    (CompilationContext *context, char *fileContent);
 CompilationError DestroyCompilationContext (CompilationContext *context);
 
 CompilationError DumpTokenTable (CompilationContext *context);

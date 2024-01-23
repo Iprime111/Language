@@ -22,9 +22,12 @@ int main (int argc, char **argv) {
     if (!sourceData)
         return 0;
 
-    InitCompilationContext (&context);
+    InitCompilationContext (&context, sourceData);
 
-    LexicalAnalysis (&context, sourceData);
+    LexicalAnalysis (&context);
+
+    DumpTokenTable (&context);
+    return 0;
 
     ParseCode (&context);
 
@@ -35,8 +38,6 @@ int main (int argc, char **argv) {
     DumpSyntaxTree (&context, "tree_dump.dot");
 
     DestroyCompilationContext (&context);
-
-    free (sourceData);
 
     return 0;
 }
