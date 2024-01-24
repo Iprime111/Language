@@ -1,9 +1,12 @@
 #include <cctype>
+#include <climits>
+#include <clocale>
 
 #include "Lexer.h"
 #include "Buffer.h"
 #include "FrontendCore.h"
 #include "Logger.h"
+#include "NameTable.h"
 #include "SyntaxTree.h"
 
 #define currentSymbol context->fileContent [*currentIndex]
@@ -26,10 +29,18 @@ static StringIntersection CheckWordIntersection (const char *word, const char *p
 static StringIntersection FindMaxIntersection   (CompilationContext *context, const char *word, size_t wordLength, size_t *foundNameIndex);
 static SymbolGroup        GetSymbolGroup        (CompilationContext *context, size_t symbolIndex);
 
+static SymbolGroup GetPermittedSymbols (SymbolGroup group);
+static size_t      GetMaxWordLength    (SymbolGroup group);
+
+static bool IsCyrillic           (const char *multiByteSymbol);
+static bool IsCyrillicSecondByte (char byte);
+
 CompilationError LexicalAnalysis (CompilationContext *context) {
     PushLog (1);
 
     size_t currentIndex = 0;
+
+    setlocale (LC_ALL, "en_US.utf8");
 
     while (currentIndex < context->fileLength) {
         if (isspace (context->fileContent [currentIndex])) {
@@ -55,7 +66,13 @@ static CompilationError TokenizeNumber (CompilationContext *context, size_t *cur
 
     if (sscanf (&currentSymbol, "%lf%n", &number, &numberLength) > 0) {
         AddToken (Const (number));
+
+        if (context->fileContent [*currentIndex + (size_t) numberLength - 1] == '.') {
+            numberLength--;
+        }
+
         (*currentIndex) += (size_t) numberLength;
+
 
         RETURN CompilationError::NO_ERRORS;
     }
@@ -138,13 +155,25 @@ static size_t GetNextWordLength (CompilationContext *context, size_t currentInde
         RETURN 0;
     }
 
-    SymbolGroup currentGroup = GetSymbolGroup (context, currentIndex);
+    SymbolGroup currentGroup   = GetSymbolGroup (context, currentIndex);
+    SymbolGroup permittedGroup = GetPermittedSymbols (currentGroup);
+
+    size_t maxLength = GetMaxWordLength (currentGroup);
     size_t length = 0;
 
-    while (currentIndex + length < context->fileLength && context->fileContent [currentIndex + length] != '\n'
-           && GetSymbolGroup (context, currentIndex + length) == currentGroup) {
+    while (context->fileContent [currentIndex + length] != '\n'
+           && ((int) currentGroup & (int) permittedGroup) && length < maxLength) {
+
+        if (currentGroup == SymbolGroup::CYRILLIC)
+            length++;
 
         length++;
+
+        if (currentIndex + length < context->fileLength) {
+            currentGroup = GetSymbolGroup (context, currentIndex + length);
+        } else {
+            break;
+        }
     }
 
     RETURN length;
@@ -173,7 +202,7 @@ static StringIntersection FindMaxIntersection (CompilationContext *context, cons
 }
 
 static StringIntersection CheckWordIntersection (const char *word, const char *pattern, size_t wordLength) {
-    PushLog (4); // FIXME: keywords with same beginning
+    PushLog (4); // FIXME: keywords with same beginning (pohui)
 
     for (size_t symbol = 0; symbol < wordLength; symbol++) {
         if (pattern [symbol] == '\0') {
@@ -191,13 +220,53 @@ static StringIntersection CheckWordIntersection (const char *word, const char *p
 
     RETURN StringIntersection::IS_BEGIN;
 }
+
+static size_t GetMaxWordLength (SymbolGroup group) {
+    switch (group) {
+
+        case SymbolGroup::ENGLISH:
+        case SymbolGroup::CYRILLIC:
+        case SymbolGroup::DIGIT:
+        case SymbolGroup::UNDERSCORE:
+        case SymbolGroup::SPACE:
+            return INT_MAX;
+
+        case SymbolGroup::BRACKET:
+        case SymbolGroup::SEPARATOR:
+            return 1;
+
+        case SymbolGroup::OPERATION:
+            return 2;
+
+        case SymbolGroup::INVALID_SYMBOL:
+        default:
+            return 0;
+    }
+}
+
+static SymbolGroup GetPermittedSymbols (SymbolGroup group) {
+    switch (group) {
+
+        case SymbolGroup::ENGLISH:
+        case SymbolGroup::CYRILLIC:
+        case SymbolGroup::DIGIT:
+        case SymbolGroup::UNDERSCORE:
+            return (SymbolGroup) ((int) SymbolGroup::ENGLISH | (int) SymbolGroup::CYRILLIC | (int) SymbolGroup::DIGIT | (int) SymbolGroup::UNDERSCORE);
+
+        default:
+            return group;
+    }
+}
+
 static SymbolGroup GetSymbolGroup (CompilationContext *context, size_t symbolIndex) {
     PushLog (4);
 
     char symbol = context->fileContent [symbolIndex];
 
-    if (isalnum (symbol) || symbol == '_') {
-        RETURN SymbolGroup::ALNUM;
+    if (isalpha (symbol)) {
+        RETURN SymbolGroup::ENGLISH;
+    } else if (isdigit (symbol)) {
+        RETURN SymbolGroup::DIGIT;
     } else if (symbol == '{' || symbol == '}' || symbol == '(' || symbol == ')' ||
                symbol == '[' || symbol == ']') {
 
@@ -208,7 +277,32 @@ static SymbolGroup GetSymbolGroup (CompilationContext *context, size_t symbolInd
         RETURN SymbolGroup::OPERATION;
     } else if (isspace (symbol)) {
         RETURN SymbolGroup::SPACE;
+    } else if (symbol == '_') {
+        RETURN SymbolGroup::UNDERSCORE;
+    } else if (symbol == '.' || symbol == ',') {
+        RETURN SymbolGroup::SEPARATOR;
+    } else if (IsCyrillic (&context->fileContent [symbolIndex])) {
+        RETURN SymbolGroup::CYRILLIC;   
     } else {
         RETURN SymbolGroup::INVALID_SYMBOL;
     }
+}
+
+static bool IsCyrillic (const char *multiByteSymbol) {
+
+    //WARNING: implementation defined
+
+    wchar_t symbol = 0;
+    mbtowc (&symbol, multiByteSymbol, 2);
+
+    char *symbolBytes = (char *) (&symbol);
+
+    if (symbolBytes [1] == 0x04 && IsCyrillicSecondByte (symbolBytes [0]))
+        return true;
+
+    return false;
+}
+
+static bool IsCyrillicSecondByte (char byte) {
+    return (byte >= 0x10 && byte <= 0x4f) || byte == 0x51 || byte == 0x01;
 }
