@@ -27,12 +27,10 @@ int main (int argc, char **argv) {
     LexicalAnalysis (&context);
 
     DumpTokenTable (&context);
-    return 0;
 
     ParseCode (&context);
 
     GenerateErrorHtml (&context, "CompilationReport.html", sourceData);
-
     SaveTree (&context, stdout);
 
     DumpSyntaxTree (&context, "tree_dump.dot");

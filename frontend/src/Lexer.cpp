@@ -55,6 +55,8 @@ CompilationError LexicalAnalysis (CompilationContext *context) {
         }
     }
 
+    AddToken (Terminator ());
+
     RETURN CompilationError::NO_ERRORS;
 }
 

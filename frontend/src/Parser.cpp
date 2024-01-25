@@ -1,3 +1,4 @@
+#include <cstdio>
 #include <stddef.h>
 
 #include "Parser.h"
@@ -41,7 +42,7 @@ CompilationError ParseCode (CompilationContext *context) {
 static Tree::Node <AstNode> *GetGrammar (CompilationContext *context) {
     PushLog (1);
 
-    NotNull (GetDestroyableToken(context, Keyword::INITIAL_OPERATOR, CompilationError::INITIAL_OPERATOR_EXPECTED));
+    NotNull (GetDestroyableToken (context, Keyword::INITIAL_OPERATOR, CompilationError::INITIAL_OPERATOR_EXPECTED));
     
     Tree::Node <AstNode> *rootNode = GetTranslationUnit (context);
     DestroyCurrentNode ();

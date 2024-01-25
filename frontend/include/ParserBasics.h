@@ -5,12 +5,12 @@
     #include "TreeDefinitions.h"
 
     #define TryGetOperator(ERROR)                                       \
-        do {                                                            \
+        {                                                               \
             CheckForError (expectedOperator, CompilationError::ERROR);  \
             if (expectedOperator) {                                     \
                 break;                                                  \
             }                                                           \
-        } while (0)
+        }
 
 
 
