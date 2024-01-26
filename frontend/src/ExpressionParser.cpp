@@ -5,13 +5,13 @@
 #include "SyntaxTree.h"
 #include "ParserBasics.h"
 
-static Tree::Node <AstNode> *GetBinaryOperation       (CompilationContext *context, size_t priority);
-static Tree::Node <AstNode> *GetUnaryOperation        (CompilationContext *context, size_t priority);
-static Tree::Node <AstNode> *GetPrimaryExpression     (CompilationContext *context, size_t priority);
-static Tree::Node <AstNode> *GetComparison            (CompilationContext *context, size_t priority);
-static Tree::Node <AstNode> *GetOperationWithPriority (CompilationContext *context, size_t priority);
+static Tree::Node <AstNode> *GetBinaryOperation       (CompilationContext *context, size_t priority, int localNameTable);
+static Tree::Node <AstNode> *GetUnaryOperation        (CompilationContext *context, size_t priority, int localNameTable);
+static Tree::Node <AstNode> *GetPrimaryExpression     (CompilationContext *context, size_t priority, int localNameTable);
+static Tree::Node <AstNode> *GetComparison            (CompilationContext *context, size_t priority, int localNameTable);
+static Tree::Node <AstNode> *GetOperationWithPriority (CompilationContext *context, size_t priority, int localNameTable);
 
-typedef Tree::Node <AstNode> *(* getter_t) (CompilationContext *, size_t);
+typedef Tree::Node <AstNode> *(* getter_t) (CompilationContext *, size_t, int);
 
 const size_t MAX_PRIORITY = 5;
 
@@ -24,26 +24,26 @@ static const Keyword  Operations   [][6] = {{},
                                             {Keyword::EQUAL, Keyword::GREATER_EQUAL, Keyword::LESS_EQUAL, Keyword::GREATER, Keyword::LESS, Keyword::NOT_EQUAL},
                                             {Keyword::AND,   Keyword::OR}};
 
-Tree::Node <AstNode> *GetExpression (CompilationContext *context) {
+Tree::Node <AstNode> *GetExpression (CompilationContext *context, int localNameTable) {
     PushLog (2);
 
-    RETURN NextFunction [MAX_PRIORITY] (context, MAX_PRIORITY);
+    RETURN NextFunction [MAX_PRIORITY] (context, MAX_PRIORITY, localNameTable);
 }
 
-static Tree::Node <AstNode> *GetBinaryOperation (CompilationContext *context, size_t priority) {
+static Tree::Node <AstNode> *GetBinaryOperation (CompilationContext *context, size_t priority, int localNameTable) {
     PushLog (3);
 
-    Tree::Node <AstNode> *firstValue = NextFunction [priority - 1] (context, priority - 1);
+    Tree::Node <AstNode> *firstValue = NextFunction [priority - 1] (context, priority - 1, localNameTable);
     NotNull (firstValue);
     
     while (true) {
-        Tree::Node <AstNode> *operation = GetOperationWithPriority (context, priority);
+        Tree::Node <AstNode> *operation = GetOperationWithPriority (context, priority, localNameTable);
 
         if (!operation) {
             RETURN firstValue;
         }
 
-        Tree::Node <AstNode> *secondValue = NextFunction [priority - 1] (context, priority - 1);
+        Tree::Node <AstNode> *secondValue = NextFunction [priority - 1] (context, priority - 1, localNameTable);
 
         operation->left    = firstValue;
         firstValue->parent = operation;
@@ -57,12 +57,12 @@ static Tree::Node <AstNode> *GetBinaryOperation (CompilationContext *context, si
 
 
 
-static Tree::Node <AstNode> *GetUnaryOperation (CompilationContext *context, size_t priority) {
+static Tree::Node <AstNode> *GetUnaryOperation (CompilationContext *context, size_t priority, int localNameTable) {
     PushLog (3);
 
-    Tree::Node <AstNode> *operation = GetOperationWithPriority (context, priority);
+    Tree::Node <AstNode> *operation = GetOperationWithPriority (context, priority, localNameTable);
 
-    Tree::Node <AstNode> *value = NextFunction [priority - 1] (context, priority - 1);
+    Tree::Node <AstNode> *value = NextFunction [priority - 1] (context, priority - 1, localNameTable);
     NotNull (value);
 
     if (operation) {
@@ -75,19 +75,19 @@ static Tree::Node <AstNode> *GetUnaryOperation (CompilationContext *context, siz
     RETURN value;
 }
 
-static Tree::Node <AstNode> *GetComparison (CompilationContext *context, size_t priority) {
+static Tree::Node <AstNode> *GetComparison (CompilationContext *context, size_t priority, int localNameTable) {
     PushLog (3);
     
-    Tree::Node <AstNode> *firstValue = NextFunction [priority - 1] (context, priority - 1);
+    Tree::Node <AstNode> *firstValue = NextFunction [priority - 1] (context, priority - 1, localNameTable);
     NotNull (firstValue);
     
-    Tree::Node <AstNode> *operation = GetOperationWithPriority (context, priority);
+    Tree::Node <AstNode> *operation = GetOperationWithPriority (context, priority, localNameTable);
 
     if (!operation) {
         RETURN firstValue;
     }
 
-    Tree::Node <AstNode> *secondValue = NextFunction [priority - 1] (context, priority - 1);
+    Tree::Node <AstNode> *secondValue = NextFunction [priority - 1] (context, priority - 1, localNameTable);
 
     operation->left    = firstValue;
     firstValue->parent = operation;
@@ -98,12 +98,12 @@ static Tree::Node <AstNode> *GetComparison (CompilationContext *context, size_t 
     RETURN operation;
 }
 
-static Tree::Node <AstNode> *GetPrimaryExpression (CompilationContext *context, size_t priority) {
+static Tree::Node <AstNode> *GetPrimaryExpression (CompilationContext *context, size_t priority, int localNameTable) {
     PushLog (3);
 
     if (GetDestroyableToken (context, Keyword::LBRACKET, CompilationError::BRACKET_EXPECTED)) {
 
-        Tree::Node <AstNode> *expression = NextFunction [MAX_PRIORITY] (context, MAX_PRIORITY);
+        Tree::Node <AstNode> *expression = NextFunction [MAX_PRIORITY] (context, MAX_PRIORITY, localNameTable);
 
         NotNull (GetDestroyableToken (context, Keyword::RBRACKET, CompilationError::BRACKET_EXPECTED));
 
@@ -112,7 +112,7 @@ static Tree::Node <AstNode> *GetPrimaryExpression (CompilationContext *context, 
         context->errorList.currentIndex--;
     }
 
-    Tree::Node <AstNode> *functionCall = GetFunctionCall (context);
+    Tree::Node <AstNode> *functionCall = GetFunctionCall (context, localNameTable);
     CheckForError (functionCall, CompilationError::FUNCTION_CALL_EXPECTED);
 
     if (functionCall) {
@@ -122,6 +122,8 @@ static Tree::Node <AstNode> *GetPrimaryExpression (CompilationContext *context, 
     Tree::Node <AstNode> *terminalSymbol = GetNameWithType (context, NameType::IDENTIFIER, CompilationError::IDENTIFIER_EXPECTED);
 
     if (terminalSymbol) {
+        DeclarationAssert (terminalSymbol, LocalNameType::VARIABLE_IDENTIFIER, CompilationError::VARIABLE_NOT_DECLARED);
+
         RETURN terminalSymbol;
     }
 
@@ -140,7 +142,7 @@ static Tree::Node <AstNode> *GetPrimaryExpression (CompilationContext *context, 
     RETURN terminalSymbol;
 }
 
-static Tree::Node <AstNode> *GetOperationWithPriority (CompilationContext *context, size_t priority) {
+static Tree::Node <AstNode> *GetOperationWithPriority (CompilationContext *context, size_t priority, int localNameTable) {
     PushLog (3);
 
     Tree::Node <AstNode> *operation = NULL;

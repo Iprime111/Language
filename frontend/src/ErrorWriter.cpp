@@ -145,6 +145,18 @@ static CompilationError WriteErrorText (Buffer <char> *dataBuffer, const ErrorDa
         WriteErrorDescription (DUMP_ERROR,                      "JAMclub")
         WriteErrorDescription (HTML_ERROR,                      "Какой долбоеб написал сайт конфешнса так, что он не может отобразить мой комментарий")
 
+        WriteErrorDescription (ARGUMENT_SEPARATOR_EXPECTED,     "ARGUMENT_SEPARATOR_EXPECTED")
+        WriteErrorDescription (OUTPUT_FILE_ERROR,               "OUTPUT_FILE_ERROR")
+        WriteErrorDescription (RETURN_EXPECTED,                 "RETURN_EXPECTED")
+        WriteErrorDescription (BREAK_EXPECTED,                  "BREAK_EXPECTED")
+        WriteErrorDescription (CONTINUE_EXPECTED,               "CONTINUE_EXPECTED")
+        WriteErrorDescription (IN_EXPECTED,                     "IN_EXPECTED")
+        WriteErrorDescription (OUT_EXPECTED,                    "OUT_EXPECTED")
+        WriteErrorDescription (ABORT_EXPECTED,                  "ABORT_EXPECTED")
+        WriteErrorDescription (FUNCTION_REDEFINITION,           "FUNCTION_REDEFINITION")
+        WriteErrorDescription (VARIABLE_REDECLARATION,          "VARIABLE_REDECLARATION")
+        WriteErrorDescription (FUNCTION_NOT_DECLARED,           "FUNCTION_NOT_DECLARED")
+        WriteErrorDescription (VARIABLE_NOT_DECLARED,           "VARIABLE_NOT_DECLARED")
     };
 
     #undef WriteErrorDescription

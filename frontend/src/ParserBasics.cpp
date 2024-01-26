@@ -1,5 +1,6 @@
 #include "ParserBasics.h"
 #include "FrontendCore.h"
+#include "NameTable.h"
 #include "SyntaxTree.h"
 
 Tree::Node <AstNode> *GetNameWithType (CompilationContext *context, NameType type, CompilationError error) {
@@ -47,4 +48,22 @@ bool GetDestroyableToken (CompilationContext *context, Keyword keyword, Compilat
     context->tokenIndex++;
 
     RETURN true;
+}
+
+bool IsIdentifierDeclared (CompilationContext *context, int localNameTable, size_t identifierIndex, LocalNameType identifierType) {
+    PushLog (3);
+
+    int localNameIndex = GetIndexInLocalTable (localNameTable, &context->localTables, identifierIndex, identifierType);
+
+    if (localNameIndex >= 0) {
+        RETURN true;
+    }
+
+    localNameIndex = GetIndexInLocalTable (0, &context->localTables, identifierIndex, identifierType);
+
+    if (localNameIndex >= 0) {
+        RETURN true;
+    }
+    
+    RETURN false;
 }

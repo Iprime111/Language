@@ -13,6 +13,12 @@ static const char *NameTypeToString (NameType type);
 CompilationError InitCompilationContext (CompilationContext *context, char *fileContent) {
     PushLog (3);
 
+    if (InitBuffer (&context->localTables) != BufferErrorCode::NO_BUFFER_ERRORS) {
+        RETURN CompilationError::NAME_TABLE_ERROR;
+    }
+
+    AddLocalNameTable (0, &context->localTables);
+
     if (InitNameTable (&context->nameTable, true) != BufferErrorCode::NO_BUFFER_ERRORS) {
         RETURN CompilationError::NAME_TABLE_ERROR;
     }
@@ -50,6 +56,11 @@ CompilationError DestroyCompilationContext (CompilationContext *context) {
         }
     }
 
+    for (size_t localTableIndex = 0; localTableIndex < context->localTables.currentIndex; localTableIndex++) {
+        DestroyBuffer (&context->localTables.data [localTableIndex].items);
+    }
+
+    DestroyBuffer (&context->localTables);
     DestroyBuffer (&context->nameTable);
     DestroyBuffer (&context->errorList);
     DestroyBuffer (&context->tokens);

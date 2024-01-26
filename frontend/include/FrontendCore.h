@@ -34,6 +34,10 @@ enum class CompilationError {
     IN_EXPECTED                  = 1 << 24,
     OUT_EXPECTED                 = 1 << 25,
     ABORT_EXPECTED               = 1 << 26,
+    FUNCTION_REDEFINITION        = 1 << 27,
+    VARIABLE_REDECLARATION       = 1 << 28,
+    FUNCTION_NOT_DECLARED        = 1 << 29,
+    VARIABLE_NOT_DECLARED        = 1 << 30,
 };
 
 struct ErrorData {
@@ -43,7 +47,8 @@ struct ErrorData {
 };
 
 struct CompilationContext {
-    Buffer <NameTableRecord>        nameTable = {};
+    Buffer <NameTableRecord>        nameTable   = {};
+    Buffer <LocalNameTable>         localTables = {};
     Buffer <Tree::Node <AstNode> *> tokens    = {};
 
     size_t tokenIndex = 0;

@@ -71,7 +71,7 @@ BufferErrorCode AddLocalIdentifier (int nameTableIndex, Buffer <LocalNameTable> 
     RETURN WriteDataToBuffer (&localTables->data [nameTableIndex].items, &newItem, 1);
 }
 
-int GetLocalNameTable (int nameTableId, Buffer <LocalNameTable> *localTables) {
+int GetLocalNameTableIndex (int nameTableId, Buffer <LocalNameTable> *localTables) {
     PushLog (4);
 
     custom_assert (localTables, pointer_is_null, -1);
