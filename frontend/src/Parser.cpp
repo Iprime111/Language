@@ -128,7 +128,8 @@ static Tree::Node <AstNode> *GetFunctionDefinition (CompilationContext *context,
     NotNull (GetDestroyableToken (context, Keyword::BLOCK_OPEN, CompilationError::CODE_BLOCK_EXPECTED));
 
     Tree::Node <AstNode> *functionContent = GetOperatorList (context, newNameTableIndex);
-
+    CheckForError (functionContent, CompilationError::OPERATOR_NOT_FOUND);
+    
     NotNull (GetDestroyableToken (context, Keyword::BLOCK_CLOSE, CompilationError::CODE_BLOCK_EXPECTED));
 
     RETURN FunctionDefinition (type, FunctionArguments (parameters, functionContent), identifierIndex);
@@ -222,7 +223,7 @@ static Tree::Node <AstNode> *GetOperator (CompilationContext *context, int local
         RETURN OperatorSeparator (expectedOperator, NULL);   
     }
 
-    while (true) {
+    do {
         expectedOperator = GetKeyword (context, Keyword::ABORT, CompilationError::ABORT_EXPECTED);
         TryGetOperator (ABORT_EXPECTED);
 
@@ -249,13 +250,10 @@ static Tree::Node <AstNode> *GetOperator (CompilationContext *context, int local
 
         NotNull (GetDestroyableToken (context, Keyword::BLOCK_OPEN,  CompilationError::CODE_BLOCK_EXPECTED));
         expectedOperator = GetOperatorList (context, localNameTable);
+        SyntaxAssert (expectedOperator, CompilationError::OPERATOR_NOT_FOUND);
         NotNull (GetDestroyableToken (context, Keyword::BLOCK_CLOSE, CompilationError::CODE_BLOCK_EXPECTED));
 
-        if (expectedOperator)
-            break;
-
-        RETURN NULL;
-    }
+    } while (0);
 
     Tree::Node <AstNode> *separator = GetKeyword (context, Keyword::OPERATOR_SEPARATOR, CompilationError::OPERATOR_SEPARATOR_EXPECTED);
     NotNull (separator);
@@ -276,11 +274,10 @@ static Tree::Node <AstNode> *GetOperatorList (CompilationContext *context, int l
 
     firstOperator->right = secondOperator;
 
-    if (!secondOperator) {
-        context->errorList.currentIndex--;
-    } else {
+    CheckForError (secondOperator, CompilationError::OPERATOR_NOT_FOUND);
+
+    if (secondOperator)
         secondOperator->parent = firstOperator;
-    }
 
     RETURN firstOperator;
 }

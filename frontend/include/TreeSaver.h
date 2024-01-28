@@ -6,6 +6,7 @@
 
 const size_t MAX_NUMBER_LENGTH = 32;
 
-CompilationError SaveTree (CompilationContext *context, FILE *stream);
+CompilationError SaveTree       (CompilationContext *context, FILE *stream);
+CompilationError SaveNameTables (CompilationContext *context, FILE *stream);
 
 #endif

@@ -6,6 +6,7 @@
 #include "Dump.h"
 #include "ErrorWriter.h"
 #include "TreeSaver.h"
+#include <cstdio>
 
 static char *GetSourceFileContent (const char *filename);
 
@@ -31,7 +32,9 @@ int main (int argc, char **argv) {
     ParseCode (&context);
 
     GenerateErrorHtml (&context, "CompilationReport.html", sourceData);
-    SaveTree (&context, stdout);
+    SaveTree          (&context, stdout);
+    printf ("\n");
+    SaveNameTables    (&context, stdout);
 
     DumpSyntaxTree (&context, "tree_dump.dot");
 

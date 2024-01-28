@@ -7,7 +7,7 @@
 #include "FrontendCore.h"
 #include "Logger.h"
 
-#define WriteToHtml(data) \
+#define WriteToHtml(data)                                                                   \
     do {                                                                                    \
         if (WriteStringToBuffer (dataBuffer, data) != BufferErrorCode::NO_BUFFER_ERRORS) {  \
             RETURN CompilationError::HTML_ERROR;                                            \

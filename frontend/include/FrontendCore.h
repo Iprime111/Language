@@ -38,6 +38,7 @@ enum class CompilationError {
     VARIABLE_REDECLARATION       = 1 << 28,
     FUNCTION_NOT_DECLARED        = 1 << 29,
     VARIABLE_NOT_DECLARED        = 1 << 30,
+    OPERATOR_NOT_FOUND           = 1 << 31,
 };
 
 struct ErrorData {
