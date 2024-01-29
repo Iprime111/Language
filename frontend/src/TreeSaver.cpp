@@ -16,7 +16,9 @@
 static CompilationError SaveTreeInternal (CompilationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, size_t keywordsCount);
 static CompilationError WriteNodeContent (CompilationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, size_t keywordsCount);
 
-static CompilationError SaveLocalTable   (CompilationContext *context, size_t localTableIndex, Buffer <char> *outputBuffer, FILE *stream);
+static CompilationError SaveLocalTable   (CompilationContext *context, size_t localTableIndex, Buffer <char> *outputBuffer,
+                                          FILE *stream, size_t keywordsCount);
+
 static CompilationError SaveGlobalTable  (CompilationContext *context, Buffer <char> *outputBuffer, size_t keywordsCount);
 static size_t           GetKeywordsCount (CompilationContext *context);
 
@@ -41,7 +43,7 @@ CompilationError SaveNameTables (CompilationContext *context, FILE *stream) {
     }
 
     for (size_t localTableIndex = 0; localTableIndex < context->localTables.currentIndex; localTableIndex++) {
-        SaveLocalTable (context, localTableIndex, &outputBuffer, stream);
+        SaveLocalTable (context, localTableIndex, &outputBuffer, stream, keywordsCount);
     }
 
     fwrite (outputBuffer.data, outputBuffer.currentIndex, 1, stream);
@@ -51,7 +53,7 @@ CompilationError SaveNameTables (CompilationContext *context, FILE *stream) {
     RETURN CompilationError::NO_ERRORS;
 }
 
-static CompilationError SaveLocalTable (CompilationContext *context, size_t localTableIndex, Buffer <char> *outputBuffer, FILE *stream) {
+static CompilationError SaveLocalTable (CompilationContext *context, size_t localTableIndex, Buffer <char> *outputBuffer, FILE *stream, size_t keywordsCount) {
     PushLog (3);
 
     char numberBuffer [MAX_NUMBER_LENGTH] = "";
@@ -63,7 +65,7 @@ static CompilationError SaveLocalTable (CompilationContext *context, size_t loca
     for (size_t itemIndex = 0; itemIndex < context->localTables.data [localTableIndex].items.currentIndex; itemIndex++) {
         LocalNameTableRecord *item = &context->localTables.data [localTableIndex].items.data [itemIndex];
 
-        snprintf (numberBuffer, MAX_NUMBER_LENGTH, "%lu", item->globalNameId);
+        snprintf (numberBuffer, MAX_NUMBER_LENGTH, "%lu", item->globalNameId - keywordsCount);
         WriteString (numberBuffer);
 
         WriteString (" ");

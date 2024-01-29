@@ -1,3 +1,5 @@
+#include <cstdio>
+
 #include "AssemblyGaynerator.h"
 #include "BackendCore.h"
 #include "Buffer.h"
@@ -5,7 +7,6 @@
 #include "Logger.h"
 #include "NameTable.h"
 #include "SyntaxTree.h"
-#include <cstdio>
 
 #define WriteString(data)                                                                       \
     do {                                                                                        \

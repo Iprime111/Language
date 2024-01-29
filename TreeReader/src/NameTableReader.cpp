@@ -7,16 +7,16 @@
 static TranslationError ReadGlobalTable (Buffer <NameTableRecord> *globalTable, char **fileContent);
 static TranslationError ReadLocalTable (Buffer <LocalNameTable> *localTables, size_t tableIndex, char **fileContent);
 
-TranslationError ReadNameTables (Buffer <NameTableRecord> *globalTable, Buffer <LocalNameTable> *localTables, char **fileContent) {
+TranslationError ReadNameTables (Buffer <NameTableRecord> *globalTable, Buffer <LocalNameTable> *localTables, char *fileContent) {
     PushLog (3);
 
-    ReadGlobalTable (globalTable, fileContent);
+    ReadGlobalTable (globalTable, &fileContent);
 
     size_t tablesCount = 0;
-    sscanf (*fileContent, "%lu", &tablesCount);
+    sscanf (fileContent, "%lu", &tablesCount);
 
     for (size_t tableIndex = 0; tableIndex  < tablesCount; tableIndex++) {
-        ReadLocalTable (localTables, tableIndex, fileContent);
+        ReadLocalTable (localTables, tableIndex, &fileContent);
     }
 
     RETURN TranslationError::NO_ERRORS;
