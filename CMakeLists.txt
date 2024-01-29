@@ -6,6 +6,7 @@ set (DEBUG_FLAGS -ggdb3 -O0 -Wall -Wextra -Weffc++ -Waggressive-loop-optimizatio
 set (RELEASE_FLAGS -O3 -std=c++17)
 
 add_subdirectory (SyntaxTree)
+add_subdirectory (TreeReader)
 add_subdirectory (frontend)
 add_subdirectory (backend)
 add_subdirectory (libs)

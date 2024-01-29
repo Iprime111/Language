@@ -1,8 +1,6 @@
-#include <memory_resource>
 #include <stddef.h>
 #include <ctype.h>
 
-#include "BackendCore.h"
 #include "CustomAssert.h"
 #include "Logger.h"
 #include "NameTable.h"

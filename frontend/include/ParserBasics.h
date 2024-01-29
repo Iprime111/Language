@@ -9,7 +9,7 @@
                         IDENTIFIER->nodeData.content.nameTableIndex, IDENTIFIER_TYPE), ERROR)
 
     #define RedeclarationAssert(IDENTIFIER, IDENTIFIER_TYPE, ERROR)                                             \
-        SyntaxAssert (!IsIdentifierDeclared (context, localNameTable,                                           \
+        SyntaxAssert (!IsLocalIdentifierDeclared (context, localNameTable,                                      \
                         IDENTIFIER->nodeData.content.nameTableIndex, IDENTIFIER_TYPE), ERROR)
 
     #define TryGetOperator(ERROR)                                                                               \
@@ -19,8 +19,6 @@
                 break;                                                                                          \
             }                                                                                                   \
         }
-
-
 
     #define SyntaxAssert(EXPRESSION, ERROR)                                                                     \
         do {                                                                                                    \
@@ -64,6 +62,7 @@
     Tree::Node <AstNode> *GetConstant     (CompilationContext *context);
     Tree::Node <AstNode> *GetFunctionCall (CompilationContext *context, int localNameTable);
 
-    bool GetDestroyableToken  (CompilationContext *context, Keyword keyword, CompilationError error);
-    bool IsIdentifierDeclared (CompilationContext *context, int localNameTable, size_t identifierIndex, LocalNameType identifierType);
+    bool GetDestroyableToken       (CompilationContext *context, Keyword keyword, CompilationError error);
+    bool IsIdentifierDeclared      (CompilationContext *context, int localNameTable, size_t identifierIndex, LocalNameType identifierType);
+    bool IsLocalIdentifierDeclared (CompilationContext *context, int localNameTable, size_t identifierIndex, LocalNameType identifierType);
 #endif 

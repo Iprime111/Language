@@ -128,8 +128,11 @@ static Tree::Node <AstNode> *GetFunctionDefinition (CompilationContext *context,
     NotNull (GetDestroyableToken (context, Keyword::BLOCK_OPEN, CompilationError::CODE_BLOCK_EXPECTED));
 
     Tree::Node <AstNode> *functionContent = GetOperatorList (context, newNameTableIndex);
+
+    DumpToken (context, functionContent);
+
     CheckForError (functionContent, CompilationError::OPERATOR_NOT_FOUND);
-    
+
     NotNull (GetDestroyableToken (context, Keyword::BLOCK_CLOSE, CompilationError::CODE_BLOCK_EXPECTED));
 
     RETURN FunctionDefinition (type, FunctionArguments (parameters, functionContent), identifierIndex);
@@ -248,10 +251,10 @@ static Tree::Node <AstNode> *GetOperator (CompilationContext *context, int local
         expectedOperator = GetDeclaration (context, localNameTable);
         TryGetOperator (TYPE_NAME_EXPECTED);
 
-        NotNull (GetDestroyableToken (context, Keyword::BLOCK_OPEN,  CompilationError::CODE_BLOCK_EXPECTED));
+        NotNull (GetDestroyableToken (context, Keyword::BLOCK_OPEN,  CompilationError::OPERATOR_NOT_FOUND));
         expectedOperator = GetOperatorList (context, localNameTable);
-        SyntaxAssert (expectedOperator, CompilationError::OPERATOR_NOT_FOUND);
-        NotNull (GetDestroyableToken (context, Keyword::BLOCK_CLOSE, CompilationError::CODE_BLOCK_EXPECTED));
+        NotNull (expectedOperator);
+        NotNull (GetDestroyableToken (context, Keyword::BLOCK_CLOSE, CompilationError::OPERATOR_NOT_FOUND));
 
     } while (0);
 
@@ -267,7 +270,7 @@ static Tree::Node <AstNode> *GetOperator (CompilationContext *context, int local
 static Tree::Node <AstNode> *GetOperatorList (CompilationContext *context, int localNameTable) {
     PushLog (2);
     
-    Tree::Node <AstNode> *firstOperator  = GetOperator (context, localNameTable);
+    Tree::Node <AstNode> *firstOperator  = GetOperator     (context, localNameTable);
     NotNull (firstOperator);
 
     Tree::Node <AstNode> *secondOperator = GetOperatorList (context, localNameTable);
@@ -278,6 +281,7 @@ static Tree::Node <AstNode> *GetOperatorList (CompilationContext *context, int l
 
     if (secondOperator)
         secondOperator->parent = firstOperator;
+
 
     RETURN firstOperator;
 }

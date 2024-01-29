@@ -86,6 +86,12 @@ CompilationError DumpTokenTable (CompilationContext *context) {
 CompilationError DumpToken (CompilationContext *context, Tree::Node <AstNode> *token) {
     PushLog (3);
 
+    if (token == NULL) {
+        printf ("NULL\n");
+
+        RETURN CompilationError::NO_ERRORS;
+    }
+
     if (token->nodeData.type == NodeType::CONSTANT) {
         printf ("Constant: %lg\n", token->nodeData.content.number);
     } else if (token->nodeData.type == NodeType::NAME) {

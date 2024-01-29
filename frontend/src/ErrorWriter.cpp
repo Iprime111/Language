@@ -157,6 +157,8 @@ static CompilationError WriteErrorText (Buffer <char> *dataBuffer, const ErrorDa
         WriteErrorDescription (VARIABLE_REDECLARATION,          "VARIABLE_REDECLARATION")
         WriteErrorDescription (FUNCTION_NOT_DECLARED,           "FUNCTION_NOT_DECLARED")
         WriteErrorDescription (VARIABLE_NOT_DECLARED,           "VARIABLE_NOT_DECLARED")
+        WriteErrorDescription (OPERATOR_NOT_FOUND,              "OPERATOR_NOT_FOUND")
+        WriteErrorDescription (FUNCTION_CALL_EXPECTED,          "FUNCTION_CALL_EXPECTED")
     };
 
     #undef WriteErrorDescription
