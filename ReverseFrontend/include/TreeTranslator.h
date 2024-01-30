@@ -18,7 +18,6 @@ const size_t MAX_NUMBER_LENGTH = 32;
 #define WriteWordNode(function)         \
     do {                                \
         CallbackFunction (function);    \
-        WriteString (" ");              \
     } while (0)
 
 #define Traversal(nextDirection) TreeTraversal (context, node->nextDirection, outputBuffer)
