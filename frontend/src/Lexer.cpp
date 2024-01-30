@@ -43,6 +43,9 @@ CompilationError LexicalAnalysis (CompilationContext *context) {
     setlocale (LC_ALL, "en_US.utf8");
 
     while (currentIndex < context->fileLength) {
+        if (context->fileContent [currentIndex] == '\n')
+            context->currentLine++;
+
         if (isspace (context->fileContent [currentIndex])) {
             currentIndex++;
             continue;
@@ -67,7 +70,10 @@ static CompilationError TokenizeNumber (CompilationContext *context, size_t *cur
     int numberLength = 0;
 
     if (sscanf (&currentSymbol, "%lf%n", &number, &numberLength) > 0) {
-        AddToken (Const (number));
+        Tree::Node <AstNode> *constToken = Const (number);
+        constToken->nodeData.line = context->currentLine;
+
+        AddToken (constToken);
 
         if (context->fileContent [*currentIndex + (size_t) numberLength - 1] == '.') {
             numberLength--;
@@ -132,7 +138,10 @@ static CompilationError TokenizeNewIdentifier (CompilationContext *context, size
         RETURN CompilationError::NAME_TABLE_ERROR;
     }
 
-    AddToken (Name (context->nameTable.currentIndex - 1));
+    Tree::Node <AstNode> *identifierToken = Name (context->nameTable.currentIndex - 1);
+    identifierToken->nodeData.line = context->currentLine;
+
+    AddToken (identifierToken);
 
     (*currentIndex) += length;
 
@@ -142,7 +151,10 @@ static CompilationError TokenizeNewIdentifier (CompilationContext *context, size
 static CompilationError TokenizeExistingIdentifier (CompilationContext *context, size_t *currentIndex, size_t length, size_t nameIndex) {
     PushLog (3);
 
-    AddToken (Name (nameIndex));
+    Tree::Node <AstNode> *identifierToken = Name (nameIndex);
+    identifierToken->nodeData.line = context->currentLine;
+
+    AddToken (identifierToken);
 
     (*currentIndex) += length;
 

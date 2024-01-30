@@ -18,7 +18,7 @@ const size_t MAX_PRIORITY = 5;
 static const getter_t NextFunction    [] = {GetPrimaryExpression, GetUnaryOperation, GetBinaryOperation, GetBinaryOperation, GetComparison, GetBinaryOperation};
 static const size_t   OperationsCount [] = {0, 3, 2, 2, 6, 2};
 static const Keyword  Operations   [][6] = {{},
-                                            {Keyword::SIN,   Keyword::COS,           Keyword::NOT},
+                                            {Keyword::SIN,   Keyword::COS,           Keyword::NOT,        Keyword::FLOOR},
                                             {Keyword::MUL,   Keyword::DIV},
                                             {Keyword::ADD,   Keyword::SUB},
                                             {Keyword::EQUAL, Keyword::GREATER_EQUAL, Keyword::LESS_EQUAL, Keyword::GREATER, Keyword::LESS, Keyword::NOT_EQUAL},

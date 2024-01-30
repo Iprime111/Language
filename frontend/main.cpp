@@ -20,23 +20,34 @@ int main (int argc, char **argv) {
 
     char *sourceData = GetSourceFileContent (argv [1]);
 
-    if (!sourceData)
+    if (!sourceData) {
+        printf ("Can not read source data");
         return 0;
+    }
 
     InitCompilationContext (&context, sourceData);
 
     LexicalAnalysis (&context);
 
-    DumpTokenTable (&context);
-
     ParseCode (&context);
 
     GenerateErrorHtml (&context, "CompilationReport.html", sourceData);
-    SaveTree          (&context, stdout);
-    printf ("\n");
-    SaveNameTables    (&context, stdout);
 
-    DumpSyntaxTree (&context, "tree_dump.dot");
+    FILE *nameTableFile = fopen ("NameTables.tmp", "w");
+    FILE *treeFile      = fopen ("SyntaxTree.tmp", "w");
+
+    if (!nameTableFile || !treeFile) {
+        printf ("Error while opening output file\n");
+        return 0;
+    }
+
+    SaveTree          (&context, treeFile);
+    SaveNameTables    (&context, nameTableFile);
+
+    fclose (nameTableFile);
+    fclose (treeFile);
+
+    DumpSyntaxTree (&context, "TreeDump.dot");
 
     DestroyCompilationContext (&context);
 

@@ -15,13 +15,16 @@ const size_t MAX_NUMBER_LENGTH = 32;
 
 #define CallbackFunction(function) function (context, node, outputBuffer)
 
-#define WriteWordNode(function)         \
-    do {                                \
-        CallbackFunction (function);    \
-    } while (0)
-
 #define Traversal(nextDirection) TreeTraversal (context, node->nextDirection, outputBuffer)
 
+#define Indentation() WriteIndentation (context, outputBuffer)
+
 TranslationError TranslateTree (TranslationContext *context, FILE *stream);
+
+enum class BracketsPlacement {
+    NO_BRACKETS = 0,
+    LEFT        = 1 << 0,
+    RIGHT       = 1 << 1,
+};
 
 #endif

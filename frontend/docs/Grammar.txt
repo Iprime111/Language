@@ -10,9 +10,9 @@ Priority5 ::= Priority4 {['и', 'или'] Priority4}*
 Priority4 ::= Priority3 {['==', '>=', '<=', '>', '<', '!='] Priority3}?
 Priority3 ::= Priority2 {['+', '-'] Priority2}*
 Priority2 ::= Priority1 {['*' , '/'] Priority1}*
-Priority1 ::= ['sin', 'cos', 'floor', In] PrimaryExpression | PrimaryExpression
+Priority1 ::= ['sin', 'cos', 'floor', 'не'] PrimaryExpression | PrimaryExpression
 
-PrimaryExpression ::= '(' Priority5 ')' | FunctionCall | Identifier | Constant
+PrimaryExpression ::= '(' Priority5 ')' | FunctionCall | Identifier | Constant | In
 
 If       ::= 'Зачем я пошел на Физтех если тут' Expression 'что мне делать' Operator
 While    ::= 'Физтехи постоянно ноют что'       Expression 'что мне делать' Operator

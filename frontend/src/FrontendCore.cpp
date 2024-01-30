@@ -35,6 +35,7 @@ CompilationError InitCompilationContext (CompilationContext *context, char *file
     
     context->fileContent = fileContent;
     context->fileLength = strlen (fileContent);
+    context->currentLine = 1;
 
     RETURN CompilationError::NO_ERRORS;
 }

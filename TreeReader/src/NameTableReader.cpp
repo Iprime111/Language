@@ -16,6 +16,9 @@ TranslationError ReadNameTables (Buffer <NameTableRecord> *globalTable, Buffer <
     sscanf (fileContent, "%lu", &tablesCount);
 
     for (size_t tableIndex = 0; tableIndex  < tablesCount; tableIndex++) {
+
+        AddLocalNameTable (0, localTables);
+
         ReadLocalTable (localTables, tableIndex, &fileContent);
     }
 
@@ -37,10 +40,9 @@ static TranslationError ReadGlobalTable (Buffer <NameTableRecord> *globalTable, 
     for (size_t globalTableRecord = 0; globalTableRecord < tableSize; globalTableRecord++) {
         
         char *newIdentifier  = NULL;
-        int identifierLength = 0; 
-        sscanf (*fileContent, "%ms[^\n]%n", &newIdentifier, &identifierLength);
+        sscanf (*fileContent, "%ms[^\n]", &newIdentifier);
         
-        (*fileContent) += identifierLength;
+        (*fileContent) += strlen (newIdentifier) + 1;
         
         AddIdentifier (globalTable, newIdentifier);
     }

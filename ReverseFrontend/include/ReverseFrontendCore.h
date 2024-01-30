@@ -11,6 +11,8 @@ struct TranslationContext {
     Buffer <NameTableRecord> nameTable   = {};
     Buffer <LocalNameTable>  localTables = {};
 
+    size_t indentationLevel = 0;
+
     TranslationError error = TranslationError::NO_ERRORS;
 };
 
