@@ -17,7 +17,7 @@ CompilationError InitCompilationContext (CompilationContext *context, char *file
         RETURN CompilationError::NAME_TABLE_ERROR;
     }
 
-    AddLocalNameTable (0, &context->localTables);
+    AddLocalNameTable (-1, &context->localTables);
 
     if (InitNameTable (&context->nameTable, true) != BufferErrorCode::NO_BUFFER_ERRORS) {
         RETURN CompilationError::NAME_TABLE_ERROR;

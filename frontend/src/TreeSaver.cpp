@@ -58,7 +58,14 @@ static CompilationError SaveLocalTable (CompilationContext *context, size_t loca
 
     char numberBuffer [MAX_NUMBER_LENGTH] = "";
 
-    snprintf (numberBuffer, MAX_NUMBER_LENGTH, "%lu", context->localTables.data [localTableIndex].items.currentIndex);
+    snprintf    (numberBuffer, MAX_NUMBER_LENGTH, "%lu", context->localTables.data [localTableIndex].items.currentIndex);
+    WriteString (numberBuffer);
+    WriteString (" ");
+
+    int nameTableId = context->localTables.data [localTableIndex].nameTableId;
+    nameTableId     = nameTableId - (nameTableId > 0 ? (int) keywordsCount : 0);
+
+    snprintf    (numberBuffer, MAX_NUMBER_LENGTH, "%d", nameTableId);
     WriteString (numberBuffer);
     WriteString ("\n");
 

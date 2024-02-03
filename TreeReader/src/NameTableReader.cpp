@@ -12,8 +12,12 @@ TranslationError ReadNameTables (Buffer <NameTableRecord> *globalTable, Buffer <
 
     ReadGlobalTable (globalTable, &fileContent);
 
-    size_t tablesCount = 0;
-    sscanf (fileContent, "%lu", &tablesCount);
+    size_t tablesCount       = 0;
+    int    countNumberLength = 0;
+
+    sscanf (fileContent, "%lu%n", &tablesCount, &countNumberLength);
+
+    fileContent += countNumberLength;
 
     for (size_t tableIndex = 0; tableIndex  < tablesCount; tableIndex++) {
 
@@ -54,11 +58,16 @@ static TranslationError ReadLocalTable (Buffer <LocalNameTable> *localTables, si
     PushLog (3);
 
     size_t tableSize        = 0;
+    int    nameTableId      = 0;
     int    sizeNumberLength = 0;
 
-    sscanf (*fileContent, "%lu%n", &tableSize, &sizeNumberLength);
+    sscanf (*fileContent, "%lu %d%n", &tableSize, &nameTableId, &sizeNumberLength);
+
+    localTables->data [tableIndex].nameTableId = nameTableId;
 
     (*fileContent) += sizeNumberLength;
+
+    fprintf (stderr, "Name table size: %lu, ID: %d\n", tableSize, nameTableId);
 
     for (size_t tableRecord = 0; tableRecord < tableSize; tableRecord++) {
 
@@ -71,7 +80,7 @@ static TranslationError ReadLocalTable (Buffer <LocalNameTable> *localTables, si
         (*fileContent) += infoLength;
 
         AddLocalIdentifier (tableIndex, localTables, 
-                            LocalNameTableRecord {.nameType = (LocalNameType) nameType, .globalNameId = globalTableIndex}, 1);
+                            LocalNameTableRecord {.nameType = (LocalNameType) nameType, .globalNameId = globalTableIndex}, 0);
     }
 
     RETURN TranslationError::NO_ERRORS;

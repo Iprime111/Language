@@ -7,6 +7,7 @@
 #include "Logger.h"
 #include "NameTable.h"
 #include "SyntaxTree.h"
+#include "TreeReader.h"
 
 #define WriteString(data)                                                                       \
     do {                                                                                        \
@@ -26,12 +27,17 @@ static TranslationError NewVariable               (TranslationContext *context, 
 static TranslationError WriteFunctionCall         (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex);
 static TranslationError WriteKeyword              (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex);
 static TranslationError WriteIdentifierMemoryCell (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex);
-static TranslationError WriteLabel                (TranslationContext *context, Buffer <char> *outputBuffer, size_t labelIndex);
+
+static TranslationError WriteComment              (TranslationContext *context, Buffer <char> *outputBuffer, char *comment);
+static TranslationError WriteCreationSource       (TranslationContext *context, Buffer <char> *outputBuffer, CreationData creationData);
+
+static TranslationError WriteLabel                (TranslationContext *context, Buffer <char> *outputBuffer, char *labelName, size_t labelIndex);
 
 TranslationError GenerateAssembly (TranslationContext *context, FILE *outputStream) {
     PushLog (1);
 
-    custom_assert (context, pointer_is_null, TranslationError::CONTEXT_ERROR);
+    custom_assert (context,      pointer_is_null, TranslationError::CONTEXT_ERROR);
+    custom_assert (outputStream, pointer_is_null, TranslationError::OUTPUT_FILE_ERROR);
 
     Buffer <char> outputBuffer = {};
 
@@ -169,17 +175,18 @@ static TranslationError WriteIdentifierMemoryCell (TranslationContext *context, 
 static TranslationError NewFunction (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex) {
     PushLog (4);
 
+    int tableIndex = GetLocalNameTableIndex ((int) node->nodeData.content.nameTableIndex, &context->localTables);
+
+    Source ((size_t) tableIndex, "FUNCTION LABEL", "FUNCTION DECLARATION");
     WriteString (context->nameTable.data [node->nodeData.content.nameTableIndex].name);
     WriteString (":\n");
 
-    int newTableIndex = AddLocalNameTable ((int) node->nodeData.content.nameTableIndex, &context->localTables);
-
-    if (newTableIndex < 0) {
+    if (tableIndex < 0) {
         RETURN TranslationError::NAME_TABLE_ERROR;
     }
 
     if (node->right) {
-        TreeTraversal (context, node->right, outputBuffer, newTableIndex);
+        TreeTraversal (context, node->right, outputBuffer, tableIndex);
     } else {
         RETURN TranslationError::TREE_ERROR;
     }
@@ -191,8 +198,7 @@ static TranslationError NewVariable (TranslationContext *context, Tree::Node <As
     PushLog (4);
 
     //TODO: variable size
-    AddLocalIdentifier (currentNameTableIndex, &context->localTables, 
-                        LocalNameTableRecord {.nameType = LocalNameType::VARIABLE_IDENTIFIER, .globalNameId = node->nodeData.content.nameTableIndex}, 1);
+    context->localTables.data [currentNameTableIndex].tableSize += 1;
 
     if (node->right && node->right->nodeData.type == NodeType::KEYWORD) {
         TreeTraversal (context, node->right, outputBuffer, currentNameTableIndex);
@@ -204,13 +210,19 @@ static TranslationError NewVariable (TranslationContext *context, Tree::Node <As
 static TranslationError WriteFunctionCall (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex) {
     PushLog (4);
 
+    size_t blockIndex = ++context->operatorsCount.callCount;
+    char  *blockName  = "CALL OPERATOR";
+
     if (!node->right) {
         RETURN TranslationError::TREE_ERROR;
     }
 
     context->areCallArguments = true;
 
+    Source      (blockIndex, "STACK FRAME SAVE", blockName);
     WriteString ("\tpush rbp\n");
+
+    Source      (blockIndex, "CALL ARGUMENTS", blockName);
 
     if (node->left) {
         TreeTraversal (context, node->left, outputBuffer, currentNameTableIndex);
@@ -219,10 +231,12 @@ static TranslationError WriteFunctionCall (TranslationContext *context, Tree::No
     char stackFrameSizeBuffer [MAX_NUMBER_LENGTH] = "";
     snprintf (stackFrameSizeBuffer, MAX_NUMBER_LENGTH, "%lu", context->localTables.data [currentNameTableIndex].tableSize);
     
+    Source      (blockIndex, "STACK FRAME CHANGE", blockName);
     WriteString ("\tpush rbp+");
     WriteString (stackFrameSizeBuffer);
     WriteString ("\n\tpop rbp\n");
     
+    Source      (blockIndex, "FUNCTION CALL", blockName);
     WriteString ("\tcall ");
     WriteString (context->nameTable.data [node->right->nodeData.content.nameTableIndex].name);
     WriteString ("\n\tpop rbp\n");
@@ -234,14 +248,43 @@ static TranslationError WriteFunctionCall (TranslationContext *context, Tree::No
     RETURN TranslationError::NO_ERRORS;
 }
 
-static TranslationError WriteLabel (TranslationContext *context, Buffer <char> *outputBuffer, size_t labelIndex) {
+static TranslationError WriteLabel (TranslationContext *context, Buffer <char> *outputBuffer, char *labelName, size_t labelIndex) {
     PushLog (4);
     
     char labelIndexBuffer [MAX_NUMBER_LENGTH] = "";
     snprintf (labelIndexBuffer, MAX_NUMBER_LENGTH, "%lu", labelIndex);
 
-    WriteString ("L");
+    WriteString (labelName);
+    WriteString ("_");
     WriteString (labelIndexBuffer);
+
+    RETURN TranslationError::NO_ERRORS;
+}
+
+static TranslationError WriteComment (TranslationContext *context, Buffer <char> *outputBuffer, char *comment) {
+    PushLog (4);
+
+    WriteString ("; ");
+    WriteString (comment);
+    WriteString ("\n");
+
+    RETURN TranslationError::NO_ERRORS;
+}
+
+static TranslationError WriteCreationSource (TranslationContext *context, Buffer <char> *outputBuffer, CreationData crationData) {
+    PushLog (4);
+
+    char numberBuffer [MAX_NUMBER_LENGTH] = "";
+    snprintf (numberBuffer, MAX_NUMBER_LENGTH, "%lu", crationData.blockIndex);
+
+    WriteString ("\n; CODE BLOCK: ");
+    WriteString (crationData.blockName);
+    WriteString (", SOURCE: ");
+    WriteString (crationData.blockSource);
+    WriteString (" (#");
+    WriteString (numberBuffer);
+    WriteString (")\n");
+
 
     RETURN TranslationError::NO_ERRORS;
 }
@@ -257,33 +300,54 @@ static TranslationError WriteKeyword (TranslationContext *context, Tree::Node <A
 
     switch (node->nodeData.content.keyword) {
         AssemblyOperator (IF, {
+            size_t blockIndex = ++context->operatorsCount.ifCount;
+            char  *blockName   = "IF STATEMENT";
 
+            Source (blockIndex, "IF CONDITION", blockName);
             Traversal (left);
             WriteString ("\tpush 0\n\tje ");
-            size_t labelIndex = context->labelIndex++;
-            Label (labelIndex);
+
+            Label ("IF_END", blockIndex);
             WriteString ("\n");
+            Source (blockIndex, "IF BODY", blockName);
             Traversal (right);
-            NewLabel (labelIndex);
+            NewLabel ("IF_END", blockIndex);
         })
 
         AssemblyOperator (WHILE, {
-            
+            size_t blockIndex = ++context->operatorsCount.whileCount;
+            char  *blockName  = "WHILE CYCLE"; 
+
+            Source (blockIndex, "WHILE CONDITION", blockName);
             context->lastCycleBeginLabel = context->labelIndex++;
-            NewLabel (context->lastCycleBeginLabel);
+            NewLabel ("WHILE_BEGIN", blockIndex);
             Traversal (left);
             WriteString ("\tpush 0\n\tje ");
             context->lastCycleEndLabel = context->labelIndex++;
-            Label (context->lastCycleEndLabel);
+            Label ("WHILE_END", blockIndex);
             WriteString ("\n");
+
+            Source (blockIndex, "WHILE BODY", blockName);
             Traversal (right);
+
+            Source (blockIndex, "WHILE END JUMP", blockName);
             WriteString ("\tjmp ");
-            Label (context->lastCycleBeginLabel);
+            Label ("WHILE_BEGIN", blockIndex);
             WriteString ("\n");
-            NewLabel (context->lastCycleEndLabel);
+            NewLabel ("WHILE_END", blockIndex);
         })
 
-        AssemblyOperator (ASSIGNMENT,         Traversal (left); WriteString ("\tpop "); MemoryCell (right);)
+        AssemblyOperator (ASSIGNMENT, {
+            size_t blockIndex = ++context->operatorsCount.assignmentCount;
+            char  *blockName  = "ASSIGNMENT OPERATOR";
+
+            Source (blockIndex, "ASSIGNMENT EXPRESSION", blockName);
+            Traversal (left);
+            Source (blockIndex, "ASSIGNMENT CELL", blockName);
+            WriteString ("\tpop ");
+            MemoryCell (right);
+        })
+
         AssemblyOperator (SIN,                UnaryOperation  ("sin"))
         AssemblyOperator (COS,                UnaryOperation  ("cos"))
         AssemblyOperator (FLOOR,              UnaryOperation  ("floor"))
@@ -302,8 +366,8 @@ static TranslationError WriteKeyword (TranslationContext *context, Tree::Node <A
         AssemblyOperator (ABORT,              WriteString     ("\thlt\n");)
         AssemblyOperator (NOT,                ToLogicExpression (left); LogicJump ("je");)
         AssemblyOperator (RETURN_OPERATOR,    Traversal (right); WriteString ("\tpop rax\n\tret\n");)
-        AssemblyOperator (BREAK_OPERATOR,     WriteString ("\tjmp "); Label (context->lastCycleEndLabel);   WriteString ("\n");)
-        AssemblyOperator (CONTINUE_OPERATOR,  WriteString ("\tjmp "); Label (context->lastCycleBeginLabel); WriteString ("\n");)
+        AssemblyOperator (BREAK_OPERATOR,     WriteString ("\tjmp "); Label ("WHILE_END", context->operatorsCount.whileCount);   WriteString ("\n");) //FIXME: inner breaks
+        AssemblyOperator (CONTINUE_OPERATOR,  WriteString ("\tjmp "); Label ("WHILE_END", context->operatorsCount.whileCount); WriteString ("\n");)
         AssemblyOperator (IN,                 WriteString ("\tin\n");)
         AssemblyOperator (OUT,                Traversal (right); WriteString ("\tout\n");)
         AssemblyOperator (OPERATOR_SEPARATOR, BothWayTraversal ();)

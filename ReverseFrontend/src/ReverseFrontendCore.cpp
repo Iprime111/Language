@@ -1,10 +1,6 @@
 #include "ReverseFrontendCore.h"
 #include "Buffer.h"
 
-TranslationError InitTranslationContext (TranslationContext *context) {
-    PushLog (2);
-}
-
 TranslationError DestroyTranslationContext (TranslationContext *context) {
     PushLog (2);
 

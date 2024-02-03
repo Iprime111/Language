@@ -14,6 +14,7 @@ target_link_libraries (${PROJECT_NAME} PRIVATE CustomAssert)
 target_link_libraries (${PROJECT_NAME} PRIVATE Tree)
 target_link_libraries (${PROJECT_NAME} PRIVATE Buffer)
 
+target_link_libraries (${PROJECT_NAME} PRIVATE TreeReader)
 target_link_libraries (${PROJECT_NAME} PRIVATE SyntaxTree)
 
 add_subdirectory (src)

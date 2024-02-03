@@ -3,15 +3,15 @@
 
 #include "NameTable.h"
 #include "SyntaxTree.h"
+#include "TreeReader.h"
 
-enum class TranslationError {
-    NO_ERRORS         = 0,
-    CONTEXT_ERROR     = 1 << 0,
-    NAME_TABLE_ERROR  = 1 << 1,
-    INPUT_FILE_ERROR  = 1 << 2,
-    DUMP_ERROR        = 1 << 3,
-    OUTPUT_FILE_ERROR = 1 << 4,
-    TREE_ERROR        = 1 << 5,
+struct OperatorsCount {
+
+    size_t ifCount              = 0;
+    size_t whileCount           = 0;
+    size_t assignmentCount      = 0;
+    size_t callCount            = 0;
+    size_t logicExpressionCount = 0;
 };
 
 struct TranslationContext {
@@ -28,6 +28,8 @@ struct TranslationContext {
     bool areCallArguments = false;
 
     size_t labelIndex = 0;
+
+    OperatorsCount operatorsCount = {};
 };
 
 TranslationError InitTranslationContext    (TranslationContext *context);

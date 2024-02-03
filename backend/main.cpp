@@ -3,53 +3,58 @@
 #include "TreeReader.h"
 #include "Dump.h"
 
-static char *GetTreeFileContent (const char *filename);
+static char *GetFileContent (const char *filename);
 
 int main (int argc, char **argv) {
 
-    TranslationContext context = {};
-
-    if (argc < 2) {
-        printf ("Console argument (tree file name) expected\n");
+    if (argc < 3) {
+        printf ("Console arguments (syntax tree file and name table file paths) expected\n");
         return 0;
     }
 
-    char *treeData = GetTreeFileContent (argv [1]);
+    char *treeData      = GetFileContent (argv [1]);
+    char *nameTableData = GetFileContent (argv [2]);
 
-    if (!treeData)
+    if (!treeData || !nameTableData) {
+        printf ("Can not read data from file\n");
         return 0;
+    }
 
-    InitTranslationContext (&context);
+    TranslationContext context = {};
 
-    ReadSyntaxTree (&context, treeData);
-    DumpSyntaxTree (&context, "tree_dump.dot");
+    ReadSyntaxTree (&context.abstractSyntaxTree, treeData);
+    ReadNameTables (&context.nameTable, &context.localTables, nameTableData);
+
+    free (treeData);
+    free (nameTableData);
+
+    DumpSyntaxTree (&context, "TreeDump.dot");
     
     GenerateAssembly (&context, stdout);
 
     DestroyTranslationContext (&context);
-    free (treeData);
 }
 
-static char *GetTreeFileContent (const char *filename) {
+static char *GetFileContent (const char *filename) {
     PushLog (4);
 
-    FILE *treeFile = fopen (filename, "r");
+    FILE *sourceFile = fopen (filename, "r");
 
-    if (!treeFile) {
-        printf ("Can not open tree file\n");
+    if (!sourceFile) {
+        printf ("Can not open source file\n");
         return NULL;
     }
     
-    fseek (treeFile, 0, SEEK_END);
-    size_t fileSize = (size_t) ftell (treeFile);
-    fseek (treeFile, 0, SEEK_SET);
+    fseek (sourceFile, 0, SEEK_END);
+    size_t fileSize = (size_t) ftell (sourceFile);
+    fseek (sourceFile, 0, SEEK_SET);
 
-    char *treeData = (char *) calloc (fileSize + 1, sizeof (char));
-    fread (treeData, fileSize, 1, treeFile);
+    char *sourceData = (char *) calloc (fileSize + 1, sizeof (char));
+    fread (sourceData, fileSize, 1, sourceFile);
 
-    treeData [fileSize] = '\0';
+    sourceData [fileSize] = '\0';
     
-    fclose (treeFile);
+    fclose (sourceFile);
 
-    RETURN treeData;
+    RETURN sourceData;
 }
