@@ -36,8 +36,9 @@ static TranslationError WriteLabel                (TranslationContext *context, 
 TranslationError GenerateAssembly (TranslationContext *context, FILE *outputStream) {
     PushLog (1);
 
-    custom_assert (context,      pointer_is_null, TranslationError::CONTEXT_ERROR);
-    custom_assert (outputStream, pointer_is_null, TranslationError::OUTPUT_FILE_ERROR);
+    custom_assert (context,                          pointer_is_null, TranslationError::CONTEXT_ERROR);
+    custom_assert (context->abstractSyntaxTree.root, pointer_is_null, TranslationError::TREE_ERROR);
+    custom_assert (outputStream,                     pointer_is_null, TranslationError::OUTPUT_FILE_ERROR);
 
     Buffer <char> outputBuffer = {};
 

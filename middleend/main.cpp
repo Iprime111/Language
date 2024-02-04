@@ -1,7 +1,6 @@
-#include "Dump.h"
-#include "ReverseFrontendCore.h"
+#include "MiddleEndCore.h"
+#include "Optimizations.h"
 #include "TreeReader.h"
-#include "TreeTranslator.h"
 
 static char *GetFileContent (const char *filename);
 
@@ -28,9 +27,7 @@ int main (int argc, char **argv) {
     free (treeData);
     free (nameTableData);
 
-    DumpSyntaxTree (&context, "dump.dot");
-
-    TranslateTree (&context, stdout);
+    DoOptimizations (&context);
 
     DestroyTranslationContext (&context);
 }
