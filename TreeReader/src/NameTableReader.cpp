@@ -1,5 +1,6 @@
 
 #include "Buffer.h"
+#include "CustomAssert.h"
 #include "Logger.h"
 #include "NameTable.h"
 #include "TreeReader.h"
@@ -9,6 +10,10 @@ static TranslationError ReadLocalTable (Buffer <LocalNameTable> *localTables, si
 
 TranslationError ReadNameTables (Buffer <NameTableRecord> *globalTable, Buffer <LocalNameTable> *localTables, char *fileContent) {
     PushLog (3);
+
+    custom_assert (globalTable, pointer_is_null, TranslationError::NAME_TABLE_ERROR);
+    custom_assert (localTables, pointer_is_null, TranslationError::NAME_TABLE_ERROR);
+    custom_assert (fileContent, pointer_is_null, TranslationError::INPUT_FILE_ERROR);
 
     ReadGlobalTable (globalTable, &fileContent);
 
@@ -66,8 +71,6 @@ static TranslationError ReadLocalTable (Buffer <LocalNameTable> *localTables, si
     localTables->data [tableIndex].nameTableId = nameTableId;
 
     (*fileContent) += sizeNumberLength;
-
-    fprintf (stderr, "Name table size: %lu, ID: %d\n", tableSize, nameTableId);
 
     for (size_t tableRecord = 0; tableRecord < tableSize; tableRecord++) {
 

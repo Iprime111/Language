@@ -12,6 +12,7 @@ struct TranslationContext {
     Buffer <LocalNameTable>  localTables = {};
 
     size_t indentationLevel = 0;
+    size_t entryPoint       = 0;
 
     TranslationError error = TranslationError::NO_ERRORS;
 };

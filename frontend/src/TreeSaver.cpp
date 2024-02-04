@@ -1,4 +1,5 @@
 #include "Buffer.h"
+#include "CustomAssert.h"
 #include "FrontendCore.h"
 #include "Logger.h"
 #include "NameTable.h"
@@ -107,6 +108,9 @@ static CompilationError SaveGlobalTable (CompilationContext *context, Buffer <ch
 CompilationError SaveTree (CompilationContext *context, FILE *stream) {
     PushLog (3);
 
+    custom_assert (context, pointer_is_null, CompilationError::CONTEXT_ERROR);
+    custom_assert (stream,  pointer_is_null, CompilationError::OUTPUT_FILE_ERROR);  
+
     Buffer <char> outputBuffer = {};
 
     if (InitBuffer (&outputBuffer) != BufferErrorCode::NO_BUFFER_ERRORS) {
@@ -114,6 +118,12 @@ CompilationError SaveTree (CompilationContext *context, FILE *stream) {
     }
 
     size_t keywordsCount = GetKeywordsCount (context);
+
+    char numberBuffer [MAX_NUMBER_LENGTH] = "";
+    snprintf (numberBuffer, MAX_NUMBER_LENGTH, "%lu", context->entryPoint - keywordsCount);
+
+    WriteStringToBuffer (&outputBuffer, numberBuffer);
+    WriteStringToBuffer (&outputBuffer, " ");
 
     SaveTreeInternal (context, context->abstractSyntaxTree.root, &outputBuffer, keywordsCount);
 

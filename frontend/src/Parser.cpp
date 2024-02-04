@@ -44,6 +44,14 @@ static Tree::Node <AstNode> *GetGrammar (CompilationContext *context) {
 
     NotNull (GetDestroyableToken (context, Keyword::INITIAL_OPERATOR, CompilationError::INITIAL_OPERATOR_EXPECTED));
     
+    Tree::Node <AstNode> *entryPointIdentifier = GetNameWithType (context, NameType::IDENTIFIER, CompilationError::IDENTIFIER_EXPECTED);
+    NotNull (entryPointIdentifier);
+
+    NotNull (GetDestroyableToken (context, Keyword::OPERATOR_SEPARATOR, CompilationError::OPERATOR_SEPARATOR_EXPECTED));
+
+    context->entryPoint = entryPointIdentifier->nodeData.content.nameTableIndex;
+    Tree::DestroySingleNode (entryPointIdentifier);
+    
     Tree::Node <AstNode> *rootNode = GetTranslationUnit (context);
     DestroyCurrentNode ();
 
@@ -128,8 +136,6 @@ static Tree::Node <AstNode> *GetFunctionDefinition (CompilationContext *context,
     NotNull (GetDestroyableToken (context, Keyword::BLOCK_OPEN, CompilationError::CODE_BLOCK_EXPECTED));
 
     Tree::Node <AstNode> *functionContent = GetOperatorList (context, newNameTableIndex);
-
-    DumpToken (context, functionContent);
 
     CheckForError (functionContent, CompilationError::OPERATOR_NOT_FOUND);
 

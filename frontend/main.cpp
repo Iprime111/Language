@@ -1,4 +1,5 @@
-#include "Buffer.h"
+#include <stdio.h>
+
 #include "FrontendCore.h"
 #include "Lexer.h"
 #include "Logger.h"
@@ -6,7 +7,6 @@
 #include "Dump.h"
 #include "ErrorWriter.h"
 #include "TreeSaver.h"
-#include <cstdio>
 
 static char *GetSourceFileContent (const char *filename);
 
@@ -28,6 +28,7 @@ int main (int argc, char **argv) {
     InitCompilationContext (&context, sourceData);
 
     LexicalAnalysis (&context);
+    DumpTokenTable  (&context);
 
     ParseCode (&context);
 

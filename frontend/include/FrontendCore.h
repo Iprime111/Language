@@ -63,6 +63,8 @@ struct CompilationContext {
 
     char *fileContent = NULL;
     size_t fileLength = 0;
+
+    size_t entryPoint = 9;
 };
 
 CompilationError InitCompilationContext    (CompilationContext *context, char *fileContent);

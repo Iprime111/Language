@@ -21,11 +21,16 @@ static TranslationError DummyRead    (char **dataString, Tree::Node <AstNode> *n
 
 static const reader_t Readers [7] = {ReadConstant, ReadName, ReadKeyword, ReadName, DummyRead, ReadName, DummyRead};
 
-TranslationError ReadSyntaxTree (Tree::Tree <AstNode> *tree, char *fileContent) {
+TranslationError ReadSyntaxTree (Tree::Tree <AstNode> *tree, size_t *entryPoint, char *fileContent) {
     PushLog (3);
 
     custom_assert (tree,        pointer_is_null, TranslationError::CONTEXT_ERROR);
     custom_assert (fileContent, pointer_is_null, TranslationError::INPUT_FILE_ERROR);
+
+    int entryPointLength = 0;
+    sscanf (fileContent, "%lu%n", entryPoint, &entryPointLength);
+
+    fileContent += entryPointLength;
 
     tree->root = ReadSyntaxTreeInternal (tree, &fileContent);
 

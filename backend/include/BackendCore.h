@@ -27,7 +27,7 @@ struct TranslationContext {
 
     bool areCallArguments = false;
 
-    size_t labelIndex = 0;
+    size_t entryPoint = 0;
 
     OperatorsCount operatorsCount = {};
 };

@@ -14,7 +14,7 @@ enum class TranslationError {
     TREE_ERROR        = 1 << 5,
 };
 
-TranslationError ReadSyntaxTree (Tree::Tree <AstNode> *tree, char *fileContent);
+TranslationError ReadSyntaxTree (Tree::Tree <AstNode> *tree, size_t *entryPoint, char *fileContent);
 TranslationError ReadNameTables (Buffer <NameTableRecord> *globalTable, Buffer <LocalNameTable> *localTables, char *fileContent);
 
 #endif

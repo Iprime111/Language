@@ -31,7 +31,7 @@ KEYWORD (RBRACKET,            83, ")",                                 NameType:
 KEYWORD (BLOCK_OPEN,          84, "заебало уже",                       NameType::SEPARATOR)
 KEYWORD (BLOCK_CLOSE,         85, "каждый раз это",                    NameType::SEPARATOR)
 KEYWORD (CONDITION_SEPARATOR, 86, "что мне делать",                    NameType::SEPARATOR)
-KEYWORD (INITIAL_OPERATOR,    87, "Сап конфешнс",                      NameType::SEPARATOR)
+KEYWORD (INITIAL_OPERATOR,    87, "Сап конфешнс, пишу о",              NameType::SEPARATOR)
 KEYWORD (FUNCTION_CALL,       88, "все говорят что",                   NameType::SEPARATOR)
                                                                        
 KEYWORD (NUMBER,              51, "брс",                               NameType::TYPE_NAME)

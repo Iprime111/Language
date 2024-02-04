@@ -34,11 +34,15 @@ static const char *functionCall       = GetKeyword (Keyword::FUNCTION_CALL);
 static const char *rBracket           = GetKeyword (Keyword::RBRACKET);
 static const char *lBracket           = GetKeyword (Keyword::LBRACKET);
 static const char *initialOperator    = GetKeyword (Keyword::INITIAL_OPERATOR);
+static const char *operatorSeparator  = GetKeyword (Keyword::OPERATOR_SEPARATOR);
 
 #define KeywordCase(WORD) case Keyword::WORD:
 
 TranslationError TranslateTree (TranslationContext *context, FILE *stream) {
     PushLog (1);
+
+    custom_assert (context, pointer_is_null, TranslationError::CONTEXT_ERROR);
+    custom_assert (stream,  pointer_is_null, TranslationError::OUTPUT_FILE_ERROR);
 
     Buffer <char> outputBuffer = {};
 
@@ -47,6 +51,18 @@ TranslationError TranslateTree (TranslationContext *context, FILE *stream) {
     }
 
     if (WriteStringToBuffer (&outputBuffer, initialOperator) != BufferErrorCode::NO_BUFFER_ERRORS) {
+        RETURN TranslationError::OUTPUT_FILE_ERROR;
+    }
+
+    if (WriteStringToBuffer (&outputBuffer, " ") != BufferErrorCode::NO_BUFFER_ERRORS) {
+        RETURN TranslationError::OUTPUT_FILE_ERROR;
+    }
+
+    if (WriteStringToBuffer (&outputBuffer, context->nameTable.data [context->entryPoint].name) != BufferErrorCode::NO_BUFFER_ERRORS) {
+        RETURN TranslationError::OUTPUT_FILE_ERROR;
+    }
+
+    if (WriteStringToBuffer (&outputBuffer, operatorSeparator) != BufferErrorCode::NO_BUFFER_ERRORS) {
         RETURN TranslationError::OUTPUT_FILE_ERROR;
     }
 
@@ -140,16 +156,17 @@ static TranslationError WriteKeyword (TranslationContext *context, Tree::Node <A
     switch (node->nodeData.content.keyword) {
 
         KeywordCase (OPERATOR_SEPARATOR) { WriteOperatorSeparator (context, node, outputBuffer, keyword); break; }
-        KeywordCase (ARGUMENT_SEPARATOR) { Traversal (left); if (node->right) { WriteString (keyword); WriteString (" ");  Traversal (right); } break;}
+        KeywordCase (ARGUMENT_SEPARATOR) { Traversal (left); if (node->right) { WriteString (keyword); WriteString (" ");  Traversal (right); } break; }
 
         KeywordCase (WHILE)
         KeywordCase (IF)                 { WriteConditionalOperator (context, node, outputBuffer, keyword); break; }
 
-        KeywordCase(ASSIGNMENT)          { Traversal (right); WriteString (" "); WriteString (keyword); WriteString (" "); Traversal (left); break;}
+        KeywordCase(ASSIGNMENT)          { Traversal (right); WriteString (" "); WriteString (keyword); WriteString (" "); Traversal (left); break; }
 
-        KeywordCase (NUMBER)             KeywordCase (BREAK_OPERATOR)
-        KeywordCase (CONTINUE_OPERATOR)  KeywordCase (ABORT)         
-                                         { WriteString (keyword); WriteString (" "); break; }
+        KeywordCase (BREAK_OPERATOR)     KeywordCase (CONTINUE_OPERATOR)  
+        KeywordCase (ABORT)              { WriteString (keyword); break; }
+
+        KeywordCase (NUMBER)             { WriteString (keyword); WriteString (" "); break; }
 
         KeywordCase (RETURN_OPERATOR)    KeywordCase (SIN)
         KeywordCase (COS)                KeywordCase (FLOOR)
@@ -307,7 +324,9 @@ static BracketsPlacement GetBracketsPlacement (Tree::Node <AstNode> *node) {
 static size_t DeterminePriority (Tree::Node <AstNode> *node) {
     PushLog (4);
 
-    custom_assert (node, pointer_is_null, 0);
+    if (!node) {
+        RETURN 0;
+    }
 
     switch (node->nodeData.content.keyword) {
         KeywordCase (IN)                                    { RETURN 0; }

@@ -23,7 +23,7 @@ int main (int argc, char **argv) {
 
     TranslationContext context = {};
 
-    ReadSyntaxTree (&context.abstractSyntaxTree, treeData);
+    ReadSyntaxTree (&context.abstractSyntaxTree, &context.entryPoint, treeData);
     ReadNameTables (&context.nameTable, &context.localTables, nameTableData);
 
     free (treeData);

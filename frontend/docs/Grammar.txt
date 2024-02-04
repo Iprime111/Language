@@ -1,4 +1,4 @@
-Grammar ::= 'Сап конфешнс' TranslationUnit Terminator
+Grammar ::= 'Сап конфешнс, пишу о' Identifier '.'TranslationUnit Terminator
 TranslationUnit ::= ExternalDeclaration '.' {TranslationUnit}?
 
 ExternalDeclaration ::= FunctionDefinition | Declaration

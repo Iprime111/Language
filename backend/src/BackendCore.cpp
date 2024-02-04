@@ -19,7 +19,6 @@ TranslationError InitTranslationContext (TranslationContext *context) {
 
     AddLocalNameTable (0, &context->localTables);
 
-    context->labelIndex = 0;
     context->error      = TranslationError::NO_ERRORS;
 
     RETURN TranslationError::NO_ERRORS;

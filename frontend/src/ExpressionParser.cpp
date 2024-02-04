@@ -16,9 +16,9 @@ typedef Tree::Node <AstNode> *(* getter_t) (CompilationContext *, size_t, int);
 const size_t MAX_PRIORITY = 5;
 
 static const getter_t NextFunction    [] = {GetPrimaryExpression, GetUnaryOperation, GetBinaryOperation, GetBinaryOperation, GetComparison, GetBinaryOperation};
-static const size_t   OperationsCount [] = {0, 3, 2, 2, 6, 2};
+static const size_t   OperationsCount [] = {0, 5, 2, 2, 6, 2};
 static const Keyword  Operations   [][6] = {{},
-                                            {Keyword::SIN,   Keyword::COS,           Keyword::NOT,        Keyword::FLOOR},
+                                            {Keyword::SIN,   Keyword::COS,           Keyword::NOT,        Keyword::FLOOR,   Keyword::SUB},
                                             {Keyword::MUL,   Keyword::DIV},
                                             {Keyword::ADD,   Keyword::SUB},
                                             {Keyword::EQUAL, Keyword::GREATER_EQUAL, Keyword::LESS_EQUAL, Keyword::GREATER, Keyword::LESS, Keyword::NOT_EQUAL},
@@ -68,6 +68,11 @@ static Tree::Node <AstNode> *GetUnaryOperation (CompilationContext *context, siz
     if (operation) {
         operation->right = value;
         value->parent    = operation;
+
+        if (context->nameTable.data [operation->nodeData.content.nameTableIndex].keyword == Keyword::SUB) {
+            operation->left         = Const (0);
+            operation->left->parent = operation;
+        }
 
         value = operation;
     }

@@ -16,9 +16,9 @@
         }                                                                                       \
     } while (0)
 
-static TranslationError SetRbp (Buffer <char> *outputBuffer);
+static TranslationError LoadProgram               (TranslationContext *context, Buffer <char> *outputBuffer);
 
-static TranslationError TreeTraversal (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex);
+static TranslationError TreeTraversal             (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex);
 
 static TranslationError WriteConstant             (double constant, Buffer <char> *outputBuffer);
 static TranslationError WriteIdentifier           (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex);
@@ -45,7 +45,7 @@ TranslationError GenerateAssembly (TranslationContext *context, FILE *outputStre
         RETURN TranslationError::OUTPUT_FILE_ERROR;
     }
 
-    SetRbp (&outputBuffer);
+    LoadProgram (context, &outputBuffer);
     TreeTraversal (context, context->abstractSyntaxTree.root, &outputBuffer, 0);
 
     fwrite (outputBuffer.data, outputBuffer.currentIndex, 1, outputStream);
@@ -55,15 +55,21 @@ TranslationError GenerateAssembly (TranslationContext *context, FILE *outputStre
     RETURN TranslationError::NO_ERRORS;
 }
 
-static TranslationError SetRbp (Buffer <char> *outputBuffer) {
+static TranslationError LoadProgram (TranslationContext *context, Buffer <char> *outputBuffer) {
     PushLog (4);
 
     char initialAddressBuffer [MAX_NUMBER_LENGTH] = "";
     snprintf (initialAddressBuffer, MAX_NUMBER_LENGTH, "%d", INITIAL_ADDRESS);
 
+    Source      (0, "SETTING RBP", "PROGRAM LOADER");
     WriteString ("\tpush ");
     WriteString (initialAddressBuffer);
     WriteString ("\n\tpop rbp\n");
+
+    Source      (0, "ENTRY POINT CALL", "PROGRAMM LOADER");
+    WriteString ("\tcall ");
+    WriteString (context->nameTable.data [context->entryPoint].name);
+    WriteString ("\n\thlt");
 
     RETURN TranslationError::NO_ERRORS;
 }
@@ -319,11 +325,9 @@ static TranslationError WriteKeyword (TranslationContext *context, Tree::Node <A
             char  *blockName  = "WHILE CYCLE"; 
 
             Source (blockIndex, "WHILE CONDITION", blockName);
-            context->lastCycleBeginLabel = context->labelIndex++;
             NewLabel ("WHILE_BEGIN", blockIndex);
             Traversal (left);
             WriteString ("\tpush 0\n\tje ");
-            context->lastCycleEndLabel = context->labelIndex++;
             Label ("WHILE_END", blockIndex);
             WriteString ("\n");
 
