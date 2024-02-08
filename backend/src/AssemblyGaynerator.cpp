@@ -28,7 +28,6 @@ static TranslationError WriteFunctionCall         (TranslationContext *context, 
 static TranslationError WriteKeyword              (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex);
 static TranslationError WriteIdentifierMemoryCell (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex);
 
-static TranslationError WriteComment              (TranslationContext *context, Buffer <char> *outputBuffer, char *comment);
 static TranslationError WriteCreationSource       (TranslationContext *context, Buffer <char> *outputBuffer, CreationData creationData);
 
 static TranslationError WriteLabel                (TranslationContext *context, Buffer <char> *outputBuffer, char *labelName, size_t labelIndex);
@@ -268,16 +267,6 @@ static TranslationError WriteLabel (TranslationContext *context, Buffer <char> *
     RETURN TranslationError::NO_ERRORS;
 }
 
-static TranslationError WriteComment (TranslationContext *context, Buffer <char> *outputBuffer, char *comment) {
-    PushLog (4);
-
-    WriteString ("; ");
-    WriteString (comment);
-    WriteString ("\n");
-
-    RETURN TranslationError::NO_ERRORS;
-}
-
 static TranslationError WriteCreationSource (TranslationContext *context, Buffer <char> *outputBuffer, CreationData crationData) {
     PushLog (4);
 
@@ -356,6 +345,7 @@ static TranslationError WriteKeyword (TranslationContext *context, Tree::Node <A
         AssemblyOperator (SIN,                UnaryOperation  ("sin"))
         AssemblyOperator (COS,                UnaryOperation  ("cos"))
         AssemblyOperator (FLOOR,              UnaryOperation  ("floor"))
+        AssemblyOperator (SQRT,               UnaryOperation  ("sqrt"))
         AssemblyOperator (ADD,                BinaryOperation ("add"))
         AssemblyOperator (SUB,                BinaryOperation ("sub"))
         AssemblyOperator (MUL,                BinaryOperation ("mul"))
@@ -382,21 +372,14 @@ static TranslationError WriteKeyword (TranslationContext *context, Tree::Node <A
             } else {
                 Traversal (right); 
                 Traversal (left); 
-                WriteString ("\tpop "); 
-                MemoryCell (left); 
+                if (node->left) { 
+                    WriteString ("\tpop "); 
+                    MemoryCell  (left);
+                }
             }
         })
 
-        case Keyword::FUNCTION_CALL:
-        case Keyword::FUNCTION_DEFINITION:
-        case Keyword::LBRACKET:
-        case Keyword::RBRACKET:
-        case Keyword::BLOCK_OPEN:
-        case Keyword::BLOCK_CLOSE:
-        case Keyword::CONDITION_SEPARATOR:
-        case Keyword::INITIAL_OPERATOR:
-        case Keyword::NOT_KEYWORD:
-        case Keyword::NUMBER: {
+        default: {
             RETURN TranslationError::TREE_ERROR;
         }
 

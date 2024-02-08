@@ -29,8 +29,8 @@ struct NameTableRecord {
 };
 
 enum class LocalNameType {
-    FUNCTION_IDENTIFIER = 1 << 0,
-    VARIABLE_IDENTIFIER = 1 << 1,
+    VARIABLE_IDENTIFIER = 1 << 0,
+    FUNCTION_IDENTIFIER = 1 << 1,
 };
 
 struct LocalNameTableRecord {

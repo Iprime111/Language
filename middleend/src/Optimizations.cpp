@@ -68,7 +68,7 @@ static double EvalOptimizationInternal (TranslationContext *context, Tree::Node 
 
     #undef OPERATION
 
-    if (evalResult != NAN && evalResult != INFINITY) {
+    if (!isnan (evalResult) && !isinf(evalResult)) {
         SubstituteNode (context, node, Const (evalResult));
         *treeChanged = true;
     }

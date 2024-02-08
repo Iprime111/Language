@@ -8,7 +8,7 @@
 enum class CompilationError {
     NO_ERRORS                    = 0,
     CONTEXT_ERROR                = 1 << 0,
-    NAME_TABLE_ERROR             = 1 << 1,
+    DERIVATIVE_EXPECTED          = 1 << 1,
     TOKEN_BUFFER_ERROR           = 1 << 2,
     FUNCTION_CALL_EXPECTED       = 1 << 3,
     IDENTIFIER_EXPECTED          = 1 << 4,

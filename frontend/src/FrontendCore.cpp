@@ -14,13 +14,13 @@ CompilationError InitCompilationContext (CompilationContext *context, char *file
     PushLog (3);
 
     if (InitBuffer (&context->localTables) != BufferErrorCode::NO_BUFFER_ERRORS) {
-        RETURN CompilationError::NAME_TABLE_ERROR;
+        RETURN CompilationError::CONTEXT_ERROR;
     }
 
     AddLocalNameTable (-1, &context->localTables);
 
     if (InitNameTable (&context->nameTable, true) != BufferErrorCode::NO_BUFFER_ERRORS) {
-        RETURN CompilationError::NAME_TABLE_ERROR;
+        RETURN CompilationError::CONTEXT_ERROR;
     }
 
     if (InitBuffer (&context->tokens) != BufferErrorCode::NO_BUFFER_ERRORS) {
@@ -28,7 +28,7 @@ CompilationError InitCompilationContext (CompilationContext *context, char *file
     }
 
     if (InitBuffer (&context->errorList) != BufferErrorCode::NO_BUFFER_ERRORS) {
-        RETURN CompilationError::NAME_TABLE_ERROR; 
+        RETURN CompilationError::CONTEXT_ERROR; 
     }
 
     context->error = CompilationError::NO_ERRORS;

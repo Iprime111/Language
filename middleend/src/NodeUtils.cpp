@@ -40,3 +40,24 @@ Tree::TreeEdge GetNodeDirection (Tree::Node <AstNode> *node) {
 
 }
 
+Tree::Node <AstNode> *CopySubtree (Tree::Node <AstNode> *subtreeRoot) {
+
+    Tree::Node <AstNode> *rootCopy = {};
+    Tree::InitNode (&rootCopy);
+
+    rootCopy->nodeData = subtreeRoot->nodeData;
+
+    #define CopyRootSubtree(direction)                                      \
+        if (subtreeRoot->direction) {                                       \
+            rootCopy->direction = CopySubtree (subtreeRoot->direction);     \
+            rootCopy->direction->parent = rootCopy;                         \
+        }
+
+    CopyRootSubtree (left);
+    CopyRootSubtree (right);
+
+    #undef CopyRootSubtree
+
+    return rootCopy;
+}
+

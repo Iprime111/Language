@@ -103,7 +103,7 @@ static TranslationError ReadConstant (char **dataString, Tree::Node <AstNode> *n
 static TranslationError ReadKeyword (char **dataString, Tree::Node <AstNode> *newNode) {
     PushLog (4);
     
-    int keywordIndex = NAN;
+    int keywordIndex = 0;
     int length   = 0;
     sscanf (*dataString, "%d%n", &keywordIndex, &length);
 

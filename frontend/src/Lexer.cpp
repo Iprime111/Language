@@ -135,7 +135,7 @@ static CompilationError TokenizeNewIdentifier (CompilationContext *context, size
     memcpy (newIdentifier, &currentSymbol, length);
 
     if (AddIdentifier (&context->nameTable, newIdentifier) != BufferErrorCode::NO_BUFFER_ERRORS) {
-        RETURN CompilationError::NAME_TABLE_ERROR;
+        RETURN CompilationError::CONTEXT_ERROR;
     }
 
     Tree::Node <AstNode> *identifierToken = Name (context->nameTable.currentIndex - 1);

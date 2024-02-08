@@ -5,8 +5,6 @@
 #include "TreeDefinitions.h"
 #include "TreeReader.h"
 
-const double EPS = 1e-7;
-
 struct SpecialValue {
     Tree::TreeEdge validEdge  = Tree::NO_EDGE;
     double         validValue = NAN;

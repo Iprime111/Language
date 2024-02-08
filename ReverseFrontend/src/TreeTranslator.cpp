@@ -345,7 +345,7 @@ static size_t DeterminePriority (Tree::Node <AstNode> *node) {
         KeywordCase (AND)     KeywordCase (OR)              { RETURN 5; }
 
         KeywordCase (OUT)     KeywordCase (RETURN_OPERATOR) { RETURN 6; }
-    }
 
-    RETURN 0;
+        default: { RETURN 0; }
+    }
 }

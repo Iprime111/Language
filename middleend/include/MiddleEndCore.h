@@ -5,6 +5,8 @@
 #include "SyntaxTree.h"
 #include "TreeReader.h"
 
+const double EPS = 1e-7;
+
 struct TranslationContext {
     Tree::Tree <AstNode>     abstractSyntaxTree = {};
 

@@ -1,5 +1,6 @@
 #include "MiddleEndCore.h"
 #include "Optimizations.h"
+#include "Differentiator.h"
 #include "TreeReader.h"
 
 static char *GetFileContent (const char *filename);
@@ -26,8 +27,9 @@ int main (int argc, char **argv) {
 
     free (treeData);
     free (nameTableData);
-
-    DoOptimizations (&context);
+    
+    DifferentiationTraversal (&context, context.abstractSyntaxTree.root);
+    DoOptimizations          (&context);
 
     DestroyTranslationContext (&context);
 }

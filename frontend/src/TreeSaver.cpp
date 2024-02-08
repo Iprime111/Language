@@ -40,7 +40,7 @@ CompilationError SaveNameTables (CompilationContext *context, FILE *stream) {
     snprintf (numberBuffer, MAX_NUMBER_LENGTH + 1, "%lu\n", context->localTables.currentIndex);
 
     if (WriteStringToBuffer (&outputBuffer, numberBuffer) != BufferErrorCode::NO_BUFFER_ERRORS) {
-        RETURN CompilationError::NAME_TABLE_ERROR;
+        RETURN CompilationError::CONTEXT_ERROR;
     }
 
     for (size_t localTableIndex = 0; localTableIndex < context->localTables.currentIndex; localTableIndex++) {

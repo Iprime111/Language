@@ -9,10 +9,10 @@ Expression ::= Priority5
 Priority5 ::= Priority4 {['и', 'или'] Priority4}*
 Priority4 ::= Priority3 {['==', '>=', '<=', '>', '<', '!='] Priority3}?
 Priority3 ::= Priority2 {['+', '-'] Priority2}*
-Priority2 ::= Priority1 {['*' , '/'] Priority1}*
-Priority1 ::= ['sin', 'cos', 'floor', 'не'] PrimaryExpression | PrimaryExpression
+Priority2 ::= Priority1 {['*', '/'] Priority1}*
+Priority1 ::= ['sin', 'cos', 'корень', 'floor', 'не'] PrimaryExpression | PrimaryExpression
 
-PrimaryExpression ::= '(' Priority5 ')' | FunctionCall | Identifier | Constant | In
+PrimaryExpression ::= '(' Priority5 ')' | Diff | FunctionCall | Identifier | Constant | In
 
 If       ::= 'Зачем я пошел на Физтех если тут' Expression 'что мне делать' Operator
 While    ::= 'Физтехи постоянно ноют что'       Expression 'что мне делать' Operator
@@ -35,4 +35,10 @@ FunctionCall       ::= 'все говорят что' Identifier '(' ArgumentLis
 
 ArgumentList  ::= Expression  {',' ArgumentList}?
 ParameterList ::= Declaration {',' ParameterList}?
+
+Diff := 'производная' '(' Identifier ',' DiffPriority3 ')' //TODO: change to square brackets
+
+DiffPriority3 ::= DiffPriority2 {['+', '-'] DiffPriority2}*
+DiffPriority2 ::= DiffPriority1 {['*', '/'] DiffPriority1}*
+DiffPriority1 ::= ['sin', 'cos'] PrimaryExpression | PrimaryExpression
 

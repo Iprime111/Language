@@ -4,6 +4,7 @@
 #include "Logger.h"
 #include "NameTable.h"
 #include "TreeReader.h"
+#include <clocale>
 
 static TranslationError ReadGlobalTable (Buffer <NameTableRecord> *globalTable, char **fileContent);
 static TranslationError ReadLocalTable (Buffer <LocalNameTable> *localTables, size_t tableIndex, char **fileContent);
@@ -49,11 +50,14 @@ static TranslationError ReadGlobalTable (Buffer <NameTableRecord> *globalTable, 
     for (size_t globalTableRecord = 0; globalTableRecord < tableSize; globalTableRecord++) {
         
         char *newIdentifier  = NULL;
-        sscanf (*fileContent, "%ms[^\n]", &newIdentifier);
+        int   identifierSize = 0;
+        sscanf (*fileContent, "%ms%n[^\n]", &newIdentifier, &identifierSize);
         
-        (*fileContent) += strlen (newIdentifier) + 1;
+        (*fileContent) += identifierSize;
         
         AddIdentifier (globalTable, newIdentifier);
+
+        printf ("New name: %s\n", newIdentifier);
     }
 
     RETURN TranslationError::NO_ERRORS;

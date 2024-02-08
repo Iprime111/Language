@@ -12,6 +12,8 @@ KEYWORD (ADD,                 24, "+",                                 NameType:
 KEYWORD (SUB,                 25, "-",                                 NameType::OPERATOR)
 KEYWORD (MUL,                 26, "*",                                 NameType::OPERATOR)
 KEYWORD (DIV,                 27, "/",                                 NameType::OPERATOR)
+KEYWORD (DIFF,                28, "производная",                       NameType::OPERATOR)
+KEYWORD (SQRT,                29, "корень",                            NameType::OPERATOR)
 KEYWORD (EQUAL,               31, "==",                                NameType::OPERATOR)
 KEYWORD (LESS,                32, "<",                                 NameType::OPERATOR)
 KEYWORD (GREATER,             33, ">",                                 NameType::OPERATOR)

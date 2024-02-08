@@ -3,6 +3,7 @@
 #include "NameTable.h"
 #include "SyntaxTree.h"
 #include "TreeDump.h"
+#include "TreeReader.h"
 #include <cstdio>
 
 static TranslationError EmitDumpHeader      (TranslationContext *context, Buffer <char> *dumpBuffer);
@@ -56,6 +57,10 @@ TranslationError DumpSyntaxTree (TranslationContext *context, char *dumpFilename
 
 static TranslationError EmitNode (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *dumpBuffer) {
     PushLog (3);
+
+    if (!node) {
+        RETURN TranslationError::NO_ERRORS;
+    }
 
     char indexBuffer [MAX_NODE_INDEX_LENGTH] = "";
     sprintf (indexBuffer, "%lu", (unsigned long) node);
@@ -191,13 +196,11 @@ static const char *GetNodeColor (TranslationContext *context, Tree::Node <AstNod
     if (node->nodeData.type == NodeType::CONSTANT) {
         RETURN DUMP_CONSTANT_NODE_OUTLINE_COLOR;
     } else if (node->nodeData.type == NodeType::NAME) {
-        if (context->nameTable.data [node->nodeData.content.nameTableIndex].type == NameType::IDENTIFIER) {
-            RETURN DUMP_IDENTIFIER_NODE_OUTLINE_COLOR;    
-        } else {
-            RETURN DUMP_KEYWORD_NODE_OUTLINE_COLOR;
-        }
+        RETURN DUMP_IDENTIFIER_NODE_OUTLINE_COLOR;
+    } else if (node->nodeData.type == NodeType::KEYWORD) {
+        RETURN DUMP_KEYWORD_NODE_OUTLINE_COLOR;
     } else {
-       RETURN DUMP_SERVICE_NODE_OUTLINE_COLOR;
+        RETURN DUMP_SERVICE_NODE_OUTLINE_COLOR;
     }
 
 }
