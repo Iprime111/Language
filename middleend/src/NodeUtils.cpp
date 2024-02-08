@@ -4,25 +4,44 @@
 #include "TreeReader.h"
 #include "NodeUtils.h"
 
+static TranslationError SubstituteTreeSegment (TranslationContext *context, Tree::Node<AstNode> *oldNode, Tree::Node<AstNode> *newNode);
+
 TranslationError SubstituteNode (TranslationContext *context, Tree::Node <AstNode> *oldNode, Tree::Node <AstNode> *newNode) {
+    PushLog (4);
+
+    TranslationError error = SubstituteTreeSegment (context, oldNode, newNode);
+    
+    Tree::DestroySingleNode (oldNode);
+
+    RETURN error;
+}
+
+TranslationError SubstituteSubtree (TranslationContext *context, Tree::Node <AstNode> *oldNode, Tree::Node <AstNode> *newNode) {
+    PushLog (4);
+
+    TranslationError error = SubstituteTreeSegment (context, oldNode, newNode);
+    
+    Tree::DestroySubtreeNode (&context->abstractSyntaxTree, oldNode);
+
+    RETURN error;
+}
+
+static TranslationError SubstituteTreeSegment (TranslationContext *context, Tree::Node<AstNode> *oldNode, Tree::Node<AstNode> *newNode) {
     PushLog (4);
 
     Tree::TreeEdge edge = GetNodeDirection (oldNode);
 
-    newNode->parent = oldNode->parent;
-
     if (edge == Tree::LEFT_CHILD) {
-        newNode->parent->left  = newNode;
-        RETURN TranslationError::NO_ERRORS;
+        oldNode->parent->left  = newNode;
 
     } else if (edge == Tree::RIGHT_CHILD) {
-        newNode->parent->right = newNode; 
-        RETURN TranslationError::NO_ERRORS;
+        oldNode->parent->right = newNode; 
     }
 
-    Tree::DestroySubtreeNode (&context->abstractSyntaxTree, oldNode);
+    if (newNode)
+        newNode->parent = oldNode->parent;
 
-    RETURN TranslationError::TREE_ERROR;
+    RETURN TranslationError::NO_ERRORS;
 }
 
 Tree::TreeEdge GetNodeDirection (Tree::Node <AstNode> *node) {

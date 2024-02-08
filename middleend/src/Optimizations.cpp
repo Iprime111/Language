@@ -52,28 +52,33 @@ static double EvalOptimizationInternal (TranslationContext *context, Tree::Node 
 
     switch (node->nodeData.type) {
 
-        case NodeType::CONSTANT: RETURN node->nodeData.content.number;
-        case NodeType::KEYWORD:  break;
-        default:                 RETURN NAN;
+        case NodeType::CONSTANT: { RETURN node->nodeData.content.number; }
+        case NodeType::KEYWORD:  { break; }
+        default:                 { Eval (left); Eval (right); RETURN NAN; }
     };
 
     double evalResult = NAN;
 
     #define OPERATION(KWORD, EVAL_FUNCTION, ...)                \
-        if (node->nodeData.content.keyword == Keyword::KWORD) { \
+        case (Keyword::KWORD): {                                \
             evalResult = EVAL_FUNCTION;                         \
+            break;                                              \
         }
 
-    #include "Operations.def"
+    switch (node->nodeData.content.keyword) {
+        #include "Operations.def"
+        default: { Eval (left); Eval (right); RETURN NAN; }
+    }
 
     #undef OPERATION
 
-    if (!isnan (evalResult) && !isinf(evalResult)) {
-        SubstituteNode (context, node, Const (evalResult));
+    if (!isnan (evalResult) && !isinf (evalResult)) {
+
+        SubstituteSubtree (context, node, Const (evalResult));
         *treeChanged = true;
     }
 
-    RETURN NAN;
+    RETURN evalResult;
 }
 
 static TranslationError SpecialValuesOptimizationInternal (TranslationContext *context, Tree::Node <AstNode> *node, bool *treeChanged) {
@@ -112,7 +117,7 @@ static TranslationError ProcessSpecialValue (TranslationContext *context, Tree::
         do {                                                                                                            \
             if ((Tree::child & specialValue.validEdge) && node->dir && node->dir->nodeData.type == NodeType::CONSTANT   \
                 && abs (node->dir->nodeData.content.number - specialValue.validValue) < EPS) {                          \
-                SubstituteNode (context, node, Const (specialValue.result));                                            \
+                SubstituteSubtree (context, node, Const (specialValue.result));                                         \
                 *treeChanged = true;                                                                                    \
                 RETURN TranslationError::NO_ERRORS;                                                                     \
             }                                                                                                           \

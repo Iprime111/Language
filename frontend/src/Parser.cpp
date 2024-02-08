@@ -55,6 +55,11 @@ static Tree::Node <AstNode> *GetGrammar (CompilationContext *context) {
     Tree::Node <AstNode> *rootNode = GetTranslationUnit (context);
     DestroyCurrentNode ();
 
+    int localNameTable = 0;
+    for (size_t callIndex = 0; callIndex < context->functionCalls.currentIndex; callIndex++) {
+        DeclarationAssert (context->functionCalls.data [callIndex], LocalNameType::FUNCTION_IDENTIFIER, CompilationError::FUNCTION_NOT_DECLARED);
+    }
+
     RETURN rootNode;
 }
 
@@ -354,7 +359,7 @@ Tree::Node <AstNode> *GetFunctionCall (CompilationContext *context, int localNam
 
     Tree::Node <AstNode> *identifier = GetNameWithType (context, NameType::IDENTIFIER, CompilationError::IDENTIFIER_EXPECTED);
     NotNull (identifier);
-    DeclarationAssert (identifier, LocalNameType::FUNCTION_IDENTIFIER, CompilationError::FUNCTION_NOT_DECLARED);
+    WriteDataToBuffer (&context->functionCalls, &identifier, 1);
 
     NotNull (GetDestroyableToken (context, Keyword::LBRACKET, CompilationError::BRACKET_EXPECTED));
 

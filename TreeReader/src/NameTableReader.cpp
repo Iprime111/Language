@@ -56,8 +56,6 @@ static TranslationError ReadGlobalTable (Buffer <NameTableRecord> *globalTable, 
         (*fileContent) += identifierSize;
         
         AddIdentifier (globalTable, newIdentifier);
-
-        printf ("New name: %s\n", newIdentifier);
     }
 
     RETURN TranslationError::NO_ERRORS;

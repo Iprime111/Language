@@ -2,10 +2,12 @@
 #include "Optimizations.h"
 #include "Differentiator.h"
 #include "TreeReader.h"
+#include "TreeSaver.h"
 
 static char *GetFileContent (const char *filename);
 
 int main (int argc, char **argv) {
+    PushLog (1);
 
      if (argc < 3) {
         printf ("Console arguments (syntax tree file and name table file paths) expected\n");
@@ -30,6 +32,16 @@ int main (int argc, char **argv) {
     
     DifferentiationTraversal (&context, context.abstractSyntaxTree.root);
     DoOptimizations          (&context);
+
+    FILE *treeFile = fopen (argv [1], "w");
+
+    if (!treeFile) {
+        printf ("Can not open tree file for writing\n");
+        RETURN 0;
+    }
+
+    SaveTree (&context, treeFile);
+    fclose   (treeFile);
 
     DestroyTranslationContext (&context);
 }

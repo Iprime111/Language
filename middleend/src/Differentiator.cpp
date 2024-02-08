@@ -49,11 +49,16 @@ TranslationError DifferentiationTraversal (TranslationContext *context, Tree::No
     }
 
     if (node->nodeData.type == NodeType::KEYWORD && node->nodeData.content.keyword == Keyword::DIFF) {
-        if (node->left) {
+        if (!node->left) {
             RETURN TranslationError::TREE_ERROR;
         }
 
-        node = DifferentiateInternal (context, node, node->left->nodeData.content.nameTableIndex);
+        Tree::Node <AstNode> *newNode = DifferentiateInternal (context, node->right, node->left->nodeData.content.nameTableIndex);
+
+        Tree::DestroySingleNode (node->left);
+        SubstituteNode (context, node, newNode);
+
+        node = newNode;
     }
 
     DifferentiationTraversal (context, node->left);
@@ -69,35 +74,39 @@ static Tree::Node <AstNode> *DifferentiateInternal (TranslationContext *context,
         RETURN NULL;
     }
 
+    Tree::Node <AstNode> *newNode = NULL;
+
     if (node->nodeData.type == NodeType::CONSTANT ||
         (node->nodeData.type == NodeType::NAME && node->nodeData.content.nameTableIndex != identifierIndex)) {
+
+        newNode = Const (0);
+        SubstituteNode (context, node, NULL);
         
-        Tree::DestroySingleNode (node);
-        RETURN Const (0);
+        RETURN newNode;
     }
 
     if (node->nodeData.type == NodeType::NAME && node->nodeData.content.nameTableIndex == identifierIndex) {
         
-        Tree::DestroySingleNode (node);
-        RETURN Const (1);
+        newNode = Const (1);
+        SubstituteNode (context, node, NULL);
+        
+        RETURN newNode;
     }
 
     if (node->nodeData.type != NodeType::KEYWORD) {
-        Diff (left);
-        Diff (right);
-
         RETURN node;
     }
 
-    Tree::Node <AstNode> *newNode = NULL;
 
     switch (node->nodeData.content.keyword) {
-        case Keyword::ADD:
+        case Keyword::ADD: {
+            newNode = Add (Diff (left), Diff (right));
+            break;
+        }
+
         case Keyword::SUB: {
-            node->left  = Diff (left);
-            node->right = Diff (right);
-        
-            RETURN node;
+            newNode = Sub (Diff (left), Diff (right));
+            break;
         }
 
         case Keyword::SIN: {
@@ -138,10 +147,12 @@ static Tree::Node <AstNode> *DifferentiateInternal (TranslationContext *context,
             break;
         }
 
-        default: {RETURN node;} 
+        default: {
+            RETURN node;
+        } 
     }
     
-    SubstituteNode (context, node, newNode);
+    SubstituteNode (context, node, NULL);
     RETURN newNode;
 }
 

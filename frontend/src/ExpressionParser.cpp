@@ -226,7 +226,7 @@ static bool IsDiffOperation (CompilationContext *context, Tree::Node <AstNode> *
     }
 
     for (size_t operationIndex = 0; operationIndex < DiffOperationsCount; operationIndex++) {
-        if (context->nameTable.data [currentNameTableIndex].keyword == DiffOperations [operationIndex]) {
+        if (context->nameTable.data [operation->nodeData.content.nameTableIndex].keyword == DiffOperations [operationIndex]) {
             RETURN true;
         }
     }

@@ -5,10 +5,12 @@
 #include "TreeDefinitions.h"
 #include "TreeReader.h"
 
-Tree::TreeEdge        GetNodeDirection (Tree::Node <AstNode> *node);
-Tree::Node <AstNode> *CopySubtree      (Tree::Node <AstNode> *subtreeRoot);
+Tree::TreeEdge        GetNodeDirection  (Tree::Node <AstNode> *node);
+Tree::Node <AstNode> *CopySubtree       (Tree::Node <AstNode> *subtreeRoot);
 
-TranslationError      SubstituteNode   (TranslationContext *context, Tree::Node <AstNode> *oldNode, Tree::Node <AstNode> *newNode);
+TranslationError      SubstituteNode    (TranslationContext *context, Tree::Node <AstNode> *oldNode, Tree::Node <AstNode> *newNode);
+TranslationError      SubstituteSubtree (TranslationContext *context, Tree::Node <AstNode> *oldNode, Tree::Node <AstNode> *newNode);
+
 
 
 #endif 

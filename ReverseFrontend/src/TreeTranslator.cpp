@@ -94,9 +94,10 @@ static TranslationError TreeTraversal (TranslationContext *context, Tree::Node <
         case NodeType::KEYWORD:    { CallbackFunction (WriteKeyword);    break;}
 
         case NodeType::FUNCTION_DEFINITION: {
-            Traversal (left); 
             WriteString (functionDefinition);
-            WriteString (" "); CallbackFunction (WriteIdentifier); 
+            WriteString (" ");
+            Traversal (left);
+            CallbackFunction (WriteIdentifier); 
             Traversal (right); 
             break;
         }

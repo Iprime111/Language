@@ -31,6 +31,10 @@ CompilationError InitCompilationContext (CompilationContext *context, char *file
         RETURN CompilationError::CONTEXT_ERROR; 
     }
 
+     if (InitBuffer (&context->functionCalls) != BufferErrorCode::NO_BUFFER_ERRORS) {
+        RETURN CompilationError::CONTEXT_ERROR; 
+    }
+
     context->error = CompilationError::NO_ERRORS;
     
     context->fileContent = fileContent;
@@ -65,6 +69,7 @@ CompilationError DestroyCompilationContext (CompilationContext *context) {
     DestroyBuffer (&context->nameTable);
     DestroyBuffer (&context->errorList);
     DestroyBuffer (&context->tokens);
+    DestroyBuffer (&context->functionCalls);
 
     free (context->fileContent);
 

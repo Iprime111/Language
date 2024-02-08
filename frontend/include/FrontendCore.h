@@ -64,7 +64,9 @@ struct CompilationContext {
     char *fileContent = NULL;
     size_t fileLength = 0;
 
-    size_t entryPoint = 9;
+    size_t entryPoint = 0;
+
+    Buffer <Tree::Node <AstNode> *> functionCalls = {};
 };
 
 CompilationError InitCompilationContext    (CompilationContext *context, char *fileContent);

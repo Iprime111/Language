@@ -7,17 +7,17 @@ OPERATION (DIV,           Eval (left) / Eval (right),             SpecialValue {
 OPERATION (SIN,           sin  (Eval (right)),                    {})
 OPERATION (COS,           cos  (Eval (right)),                    {})
 OPERATION (SQRT,          sqrt (Eval (right)),                    {})
-OPERATION (FLOOR,         (double) ((long long) Eval (right)),    {})
-OPERATION (NOT,           (double) (abs (Eval (right)) < EPS),               {})
-OPERATION (EQUAL,         (double) (abs (Eval (left) - Eval(right))  <   EPS), {})
-OPERATION (LESS,          (double) ((Eval (left) - Eval (right))     <  -EPS), {})
-OPERATION (GREATER,       (double) ((Eval (left) - Eval (right))     >   EPS), {})
-OPERATION (LESS_EQUAL,    (double) ((Eval (left) - Eval (right))     <   EPS), {})
-OPERATION (GREATER_EQUAL, (double) ((Eval (left) - Eval (right))     >  -EPS), {})
-OPERATION (NOT_EQUAL,     (double) (abs (Eval (left) - Eval (right)) > EPS), {})
+//OPERATION (FLOOR,         (double) ((long long) Eval (right)),    {})
+//OPERATION (NOT,           (double) (abs (Eval (right)) < EPS),               {})
+//OPERATION (EQUAL,         (double) (abs (Eval (left) - Eval(right))  <   EPS), {})
+//OPERATION (LESS,          (double) ((Eval (left) - Eval (right))     <  -EPS), {})
+//OPERATION (GREATER,       (double) ((Eval (left) - Eval (right))     >   EPS), {})
+//OPERATION (LESS_EQUAL,    (double) ((Eval (left) - Eval (right))     <   EPS), {})
+//OPERATION (GREATER_EQUAL, (double) ((Eval (left) - Eval (right))     >  -EPS), {})
+//OPERATION (NOT_EQUAL,     (double) (abs (Eval (left) - Eval (right)) > EPS), {})
 
-OPERATION (AND, (double) (abs (Eval (left)) > EPS && abs (Eval (right)) > EPS), 
-            SpecialValue {.validEdge = (Tree::TreeEdge) ((int) Tree::LEFT_CHILD | (int) Tree::RIGHT_CHILD), .validValue = 0, .result = 0})
+//OPERATION (AND, (double) (abs (Eval (left)) > EPS && abs (Eval (right)) > EPS), 
+            //SpecialValue {.validEdge = (Tree::TreeEdge) ((int) Tree::LEFT_CHILD | (int) Tree::RIGHT_CHILD), .validValue = 0, .result = 0})
 
-OPERATION (OR, (double) (abs (Eval (left)) > EPS ||abs (Eval (right)) > EPS),
-            SpecialValue {.validEdge = (Tree::TreeEdge) ((int) Tree::LEFT_CHILD | (int) Tree::RIGHT_CHILD), .validValue = 1, .result = 1})
+//OPERATION (OR, (double) (abs (Eval (left)) > EPS ||abs (Eval (right)) > EPS),
+           //SpecialValue {.validEdge = (Tree::TreeEdge) ((int) Tree::LEFT_CHILD | (int) Tree::RIGHT_CHILD), .validValue = 1, .result = 1})
