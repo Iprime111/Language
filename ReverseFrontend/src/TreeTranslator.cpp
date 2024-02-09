@@ -90,7 +90,7 @@ static TranslationError TreeTraversal (TranslationContext *context, Tree::Node <
 
         case NodeType::TERMINATOR: { RETURN TranslationError::TREE_ERROR; }
         case NodeType::CONSTANT:   { CallbackFunction (WriteConstant);   break;}
-        case NodeType::NAME:       { CallbackFunction (WriteIdentifier); break;}
+        case NodeType::STRING:     { CallbackFunction (WriteIdentifier); break;}
         case NodeType::KEYWORD:    { CallbackFunction (WriteKeyword);    break;}
 
         case NodeType::FUNCTION_DEFINITION: {
@@ -160,12 +160,12 @@ static TranslationError WriteKeyword (TranslationContext *context, Tree::Node <A
         KeywordCase (ARGUMENT_SEPARATOR) { Traversal (left); if (node->right) { WriteString (keyword); WriteString (" ");  Traversal (right); } break; }
 
         KeywordCase (WHILE)
-        KeywordCase (IF)                 { WriteConditionalOperator (context, node, outputBuffer, keyword); break; }
+        KeywordCase (IF)                 { WriteString ("\n"); WriteConditionalOperator (context, node, outputBuffer, keyword); break; }
 
         KeywordCase(ASSIGNMENT)          { Traversal (right); WriteString (" "); WriteString (keyword); WriteString (" "); Traversal (left); break; }
 
         KeywordCase (BREAK_OPERATOR)     KeywordCase (CONTINUE_OPERATOR)  
-        KeywordCase (ABORT)              { WriteString (keyword); break; }
+        KeywordCase (ABORT)              { Indentation (); WriteString (keyword); break; }
 
         KeywordCase (NUMBER)             { WriteString (keyword); WriteString (" "); break; }
 
@@ -178,7 +178,7 @@ static TranslationError WriteKeyword (TranslationContext *context, Tree::Node <A
         KeywordCase (GREATER_EQUAL)      KeywordCase (NOT_EQUAL)
         KeywordCase (AND)                KeywordCase (OR)
         KeywordCase (NOT)                KeywordCase (IN)
-        KeywordCase (OUT)                { WriteOperator (context, node, outputBuffer, keyword); break; }
+        KeywordCase (OUT)                {  WriteOperator (context, node, outputBuffer, keyword); break; }
     
         default: break;
     }
@@ -189,6 +189,7 @@ static TranslationError WriteKeyword (TranslationContext *context, Tree::Node <A
 static TranslationError WriteConditionalOperator (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, const char *keyword) {
     PushLog (2);
 
+    Indentation ();
     WriteString (keyword);
     WriteString (" ");
     Traversal (left);
@@ -226,7 +227,7 @@ static TranslationError WriteOperatorSeparator (TranslationContext *context, Tre
 
     if (isValuable) {
         WriteString (keyword);  
-        WriteString ("\n");
+        WriteString ("\n\n");
     }
 
     Traversal (right);

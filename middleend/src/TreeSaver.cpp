@@ -82,7 +82,7 @@ static TranslationError WriteNodeContent (TranslationContext *context, Tree::Nod
         case NodeType::CONSTANT:
             PrintNode ("%lg", node->nodeData.content.number);
 
-        case NodeType::NAME:
+        case NodeType::STRING:
             PrintNode ("%lu", node->nodeData.content.nameTableIndex);
 
         case NodeType::VARIABLE_DECLARATION:

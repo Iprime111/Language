@@ -2,15 +2,16 @@
 #include "Logger.h"
 #include "NameTable.h"
 #include "SyntaxTree.h"
-#include "TreeDump.h"
 #include "TreeReader.h"
 #include <cstdio>
 
 static TranslationError EmitDumpHeader      (TranslationContext *context, Buffer <char> *dumpBuffer);
 static TranslationError EmitNodeData        (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *dumpBuffer);
 static TranslationError EmitNode            (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *dumpBuffer);
-static const  char     *GetNodeColor        (TranslationContext *context, Tree::Node <AstNode> *node);
 static TranslationError EmitNodeConnections (Tree::Node <AstNode> *node, Buffer <char> *dumpBuffer);
+
+static const char *GetOutlineColor    (TranslationContext *context, Tree::Node <AstNode> *node);
+static const char *GetBackgroundColor (TranslationContext *context, Tree::Node <AstNode> *node);
 
 #define WriteToDumpWithErrorCheck(dumpBuffer, data)                                                     \
     do {                                                                                                \
@@ -58,28 +59,28 @@ TranslationError DumpSyntaxTree (TranslationContext *context, char *dumpFilename
 static TranslationError EmitNode (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *dumpBuffer) {
     PushLog (3);
 
-    if (!node) {
-        RETURN TranslationError::NO_ERRORS;
-    }
-
     char indexBuffer [MAX_NODE_INDEX_LENGTH] = "";
     sprintf (indexBuffer, "%lu", (unsigned long) node);
 
     WriteToDumpWithErrorCheck (dumpBuffer, "\t");
     WriteToDumpWithErrorCheck (dumpBuffer, indexBuffer);
-    WriteToDumpWithErrorCheck (dumpBuffer, " [style=\"filled,rounded\" shape=\"record\" fillcolor=\"" DUMP_NODE_COLOR "\" color=\"");
+    WriteToDumpWithErrorCheck (dumpBuffer, " [style=\"filled,rounded\" shape=\"record\" fillcolor=\"");
 
-    const char *nodeColor = GetNodeColor (context, node);
-    if (!nodeColor) {
+    const char *outlineColor    = GetOutlineColor    (context, node);
+    const char *backgroundColor = GetBackgroundColor (context, node); 
+
+    if (!outlineColor || !backgroundColor) {
         RETURN TranslationError::DUMP_ERROR;
     }
 
-    WriteToDumpWithErrorCheck (dumpBuffer, nodeColor);
-    WriteToDumpWithErrorCheck (dumpBuffer, "\" label=\"{ ");
+    WriteToDumpWithErrorCheck (dumpBuffer, backgroundColor);
+    WriteToDumpWithErrorCheck (dumpBuffer, "\" color=\"");
+    WriteToDumpWithErrorCheck (dumpBuffer, outlineColor);
+    WriteToDumpWithErrorCheck (dumpBuffer, "\" label=\"");
 
     EmitNodeData (context, node, dumpBuffer);
 
-    WriteToDumpWithErrorCheck (dumpBuffer, " }\"]\n");
+    WriteToDumpWithErrorCheck (dumpBuffer, "\"]\n");
 
     EmitNodeConnections (node, dumpBuffer);
 
@@ -90,6 +91,7 @@ static TranslationError EmitNode (TranslationContext *context, Tree::Node <AstNo
         EmitNode (context, node->right, dumpBuffer);
 
     RETURN TranslationError::NO_ERRORS;
+
 }
 
 static TranslationError EmitNodeData (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *dumpBuffer) {
@@ -97,56 +99,70 @@ static TranslationError EmitNodeData (TranslationContext *context, Tree::Node <A
 
     char indexBuffer [MAX_NODE_INDEX_LENGTH] = "";
 
+    WriteToDumpWithErrorCheck (dumpBuffer, "{ Address: ");
+    
+    snprintf (indexBuffer, MAX_NODE_INDEX_LENGTH, "%p", node);
+    WriteToDumpWithErrorCheck (dumpBuffer, indexBuffer);
+    WriteToDumpWithErrorCheck (dumpBuffer, " | Type: ");
+
     switch (node->nodeData.type) {
         case NodeType::CONSTANT: {
-            snprintf (indexBuffer, MAX_NODE_INDEX_LENGTH, "%lf", node->nodeData.content.number);
+            WriteToDumpWithErrorCheck (dumpBuffer, "Constant |");
 
-            WriteToDumpWithErrorCheck (dumpBuffer, "{");
+            snprintf (indexBuffer, MAX_NODE_INDEX_LENGTH, "%lf", node->nodeData.content.number);
             WriteToDumpWithErrorCheck (dumpBuffer, indexBuffer);
 
             break;
         }
 
-        case NodeType::NAME: {
-            WriteToDumpWithErrorCheck (dumpBuffer, "{");
-            WriteToDumpWithErrorCheck (dumpBuffer, context->nameTable.data [node->nodeData.content.nameTableIndex].name);
+        case NodeType::STRING: {
+            WriteToDumpWithErrorCheck (dumpBuffer, "Identifier | Value: [");
+
+            const char *name = context->nameTable.data [node->nodeData.content.nameTableIndex].name;
+
+            if (name [0] == '>' || name [0] == '<') {
+                WriteToDumpWithErrorCheck (dumpBuffer, "\\");
+            }
+
+            WriteToDumpWithErrorCheck (dumpBuffer, name);
+            WriteToDumpWithErrorCheck (dumpBuffer, "]");
 
             break;
-        }   
+        }
 
         case NodeType::KEYWORD: {
+            WriteToDumpWithErrorCheck (dumpBuffer, "Operator | ");
+
             snprintf (indexBuffer, MAX_NODE_INDEX_LENGTH, "%d", (int) node->nodeData.content.keyword);
-
-            WriteToDumpWithErrorCheck (dumpBuffer, "{");
             WriteToDumpWithErrorCheck (dumpBuffer, indexBuffer);
-
             break;
         }
 
         case NodeType::FUNCTION_DEFINITION: {
-            WriteToDumpWithErrorCheck (dumpBuffer, "{Function definition: ");
+            WriteToDumpWithErrorCheck (dumpBuffer, "Function definition | Value: [");
             WriteToDumpWithErrorCheck (dumpBuffer, context->nameTable.data [node->nodeData.content.nameTableIndex].name);
+            WriteToDumpWithErrorCheck (dumpBuffer, "]");
 
             break;
         }
 
         case NodeType::FUNCTION_ARGUMENTS: {
-            WriteToDumpWithErrorCheck (dumpBuffer, "{Arguments");
+            WriteToDumpWithErrorCheck (dumpBuffer, "Arguments");
             break;
         }
 
         case NodeType::VARIABLE_DECLARATION: {
-            WriteToDumpWithErrorCheck (dumpBuffer, "{Variable declaration");
+            WriteToDumpWithErrorCheck (dumpBuffer, "Variable declaration");
             break;
         }
 
         case NodeType::FUNCTION_CALL: {
-            WriteToDumpWithErrorCheck (dumpBuffer, "{Function call");
+            WriteToDumpWithErrorCheck (dumpBuffer, "Function call");
             break;
         }
 
         case NodeType::TERMINATOR: {
-            WriteToDumpWithErrorCheck (dumpBuffer, "{Terminator");
+            WriteToDumpWithErrorCheck (dumpBuffer, "Terminator");
             break;
         }
 
@@ -155,13 +171,21 @@ static TranslationError EmitNodeData (TranslationContext *context, Tree::Node <A
         }
     }
 
-    WriteToDumpWithErrorCheck (dumpBuffer, "}");
+    WriteToDumpWithErrorCheck (dumpBuffer, " | {<left> left: ");
+    
+    snprintf (indexBuffer, MAX_NODE_INDEX_LENGTH, "%p", node->left);
+    WriteToDumpWithErrorCheck (dumpBuffer, indexBuffer);
+
+    WriteToDumpWithErrorCheck (dumpBuffer, " | <right> right: ");
+
+    snprintf (indexBuffer, MAX_NODE_INDEX_LENGTH, "%p", node->right);
+    WriteToDumpWithErrorCheck (dumpBuffer, indexBuffer);
+
+    WriteToDumpWithErrorCheck (dumpBuffer, "}}");
 
 
     RETURN TranslationError::NO_ERRORS;
 }
-
-
 
 static TranslationError EmitNodeConnections (Tree::Node <AstNode> *node, Buffer <char> *dumpBuffer) {
     PushLog (3);
@@ -190,25 +214,38 @@ static TranslationError EmitNodeConnections (Tree::Node <AstNode> *node, Buffer 
     RETURN TranslationError::NO_ERRORS;
 }
 
-static const char *GetNodeColor (TranslationContext *context, Tree::Node <AstNode> *node) {
+static const char *GetOutlineColor (TranslationContext *context, Tree::Node <AstNode> *node) {
     PushLog (4);
 
     if (node->nodeData.type == NodeType::CONSTANT) {
         RETURN DUMP_CONSTANT_NODE_OUTLINE_COLOR;
-    } else if (node->nodeData.type == NodeType::NAME) {
+    } else if (node->nodeData.type == NodeType::STRING) {
         RETURN DUMP_IDENTIFIER_NODE_OUTLINE_COLOR;
     } else if (node->nodeData.type == NodeType::KEYWORD) {
         RETURN DUMP_KEYWORD_NODE_OUTLINE_COLOR;
     } else {
         RETURN DUMP_SERVICE_NODE_OUTLINE_COLOR;
     }
+}
 
+static const char *GetBackgroundColor (TranslationContext *context, Tree::Node <AstNode> *node) {
+    PushLog (4);
+
+    if (node->nodeData.type == NodeType::CONSTANT) {
+        RETURN DUMP_CONSTANT_NODE_BACKGROUND_COLOR;
+    } else if (node->nodeData.type == NodeType::STRING) {
+        RETURN DUMP_IDENTIFIER_NODE_BACKGROUND_COLOR;
+    } else if (node->nodeData.type == NodeType::KEYWORD) {
+        RETURN DUMP_KEYWORD_NODE_BACKGROUND_COLOR;
+    } else {
+        RETURN DUMP_SERVICE_NODE_BACKGROUND_COLOR;
+    }
 }
 
 static TranslationError EmitDumpHeader (TranslationContext *context, Buffer <char> *dumpBuffer) {
     PushLog (4);
 
-    WriteToDumpWithErrorCheck (dumpBuffer, "digraph {\n\tbgcolor=\"" DUMP_BACKGROUND_COLOR "\"\n");
+    WriteToDumpWithErrorCheck (dumpBuffer, "digraph {\n");
 
     RETURN TranslationError::NO_ERRORS;
 }

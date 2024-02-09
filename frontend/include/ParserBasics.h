@@ -57,7 +57,7 @@
             }                                                                                                   \
         } while (0)
 
-    Tree::Node <AstNode> *GetNameWithType (CompilationContext *context, NameType type,   CompilationError error);
+    Tree::Node <AstNode> *GetStringToken (CompilationContext *context, NameType type,   CompilationError error);
     Tree::Node <AstNode> *GetKeyword      (CompilationContext *context, Keyword keyword, CompilationError error);
     Tree::Node <AstNode> *GetConstant     (CompilationContext *context);
     Tree::Node <AstNode> *GetFunctionCall (CompilationContext *context, int localNameTableId);

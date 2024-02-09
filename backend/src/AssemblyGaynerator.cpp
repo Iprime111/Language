@@ -106,7 +106,7 @@ static TranslationError TreeTraversal (TranslationContext *context, Tree::Node <
             break;
         }
 
-        NextCall (NAME,                 WriteIdentifier);
+        NextCall (STRING,                 WriteIdentifier);
         NextCall (KEYWORD,              WriteKeyword);
         NextCall (FUNCTION_DEFINITION,  NewFunction);
         NextCall (VARIABLE_DECLARATION, NewVariable);

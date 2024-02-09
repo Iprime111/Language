@@ -100,7 +100,7 @@ CompilationError DumpToken (CompilationContext *context, Tree::Node <AstNode> *t
 
     if (token->nodeData.type == NodeType::CONSTANT) {
         printf ("Constant: %lg\n", token->nodeData.content.number);
-    } else if (token->nodeData.type == NodeType::NAME) {
+    } else if (token->nodeData.type == NodeType::STRING) {
         printf ("Name: (type: \"%-10s\") <%s>\n", NameTypeToString (context->nameTable.data [token->nodeData.content.nameTableIndex].type), context->nameTable.data [token->nodeData.content.nameTableIndex].name);
     } else {
         printf ("Service node\n");

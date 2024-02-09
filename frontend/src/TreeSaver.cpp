@@ -159,7 +159,7 @@ static CompilationError WriteNodeContent (CompilationContext *context, Tree::Nod
 
     char numberBuffer [MAX_NUMBER_LENGTH] = "";
 
-    if (node->nodeData.type == NodeType::NAME) {
+    if (node->nodeData.type == NodeType::STRING) {
         if (context->nameTable.data [node->nodeData.content.nameTableIndex].keyword == Keyword::NOT_KEYWORD) {
             WriteString ("2 ");
 

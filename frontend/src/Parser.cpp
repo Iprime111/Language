@@ -43,23 +43,24 @@ static Tree::Node <AstNode> *GetGrammar (CompilationContext *context) {
     PushLog (1);
 
     NotNull (GetTokenAndDestroy (context, Keyword::INITIAL_OPERATOR, CompilationError::INITIAL_OPERATOR_EXPECTED));
-   //TODO: GetStringToken () 
-    Tree::Node <AstNode> *entryPointIdentifier = GetNameWithType (context, NameType::IDENTIFIER, CompilationError::IDENTIFIER_EXPECTED);
+
+    Tree::Node <AstNode> *entryPointIdentifier = GetStringToken (context, NameType::IDENTIFIER, CompilationError::IDENTIFIER_EXPECTED);
     NotNull (entryPointIdentifier);
 
     NotNull (GetTokenAndDestroy (context, Keyword::OPERATOR_SEPARATOR, CompilationError::OPERATOR_SEPARATOR_EXPECTED));
 
     context->entryPoint = entryPointIdentifier->nodeData.content.nameTableIndex;
-    Tree::DestroySingleNode (entryPointIdentifier);
     
     Tree::Node <AstNode> *rootNode = GetTranslationUnit (context);
+    NotNull (rootNode);
     DestroyCurrentNode ();
     
-    //TODO: localNameTableId
     int localNameTableId = 0;
     for (size_t callIndex = 0; callIndex < context->functionCalls.currentIndex; callIndex++) {
         DeclarationAssert (context->functionCalls.data [callIndex], LocalNameType::FUNCTION_IDENTIFIER, CompilationError::FUNCTION_NOT_DECLARED);
     }
+
+    Tree::DestroySingleNode (entryPointIdentifier);
 
     RETURN rootNode;
 }
@@ -72,7 +73,7 @@ static Tree::Node <AstNode> *GetTranslationUnit (CompilationContext *context) {
     NotNull (externalDeclaration);
 
     //TODO: STRING
-    SyntaxAssert (currentToken->nodeData.type == NodeType::NAME && 
+    SyntaxAssert (currentToken->nodeData.type == NodeType::STRING && 
                     context->nameTable.data [currentNameTableIndex].keyword == Keyword::OPERATOR_SEPARATOR, 
                     CompilationError::OPERATOR_SEPARATOR_EXPECTED);
 
@@ -114,10 +115,10 @@ static Tree::Node <AstNode> *GetFunctionDefinition (CompilationContext *context,
 
     NotNull (GetTokenAndDestroy (context, Keyword::FUNCTION_DEFINITION, CompilationError::FUNCTION_EXPECTED));
 
-    Tree::Node <AstNode> *type = GetNameWithType (context, NameType::TYPE_NAME, CompilationError::TYPE_NAME_EXPECTED);
+    Tree::Node <AstNode> *type = GetStringToken (context, NameType::TYPE_NAME, CompilationError::TYPE_NAME_EXPECTED);
     NotNull (type);
 
-    Tree::Node <AstNode> *identifier = GetNameWithType (context, NameType::IDENTIFIER, CompilationError::IDENTIFIER_EXPECTED);
+    Tree::Node <AstNode> *identifier = GetStringToken (context, NameType::IDENTIFIER, CompilationError::IDENTIFIER_EXPECTED);
     NotNull (identifier);
 
     size_t identifierIndex = identifier->nodeData.content.nameTableIndex;
@@ -154,10 +155,10 @@ static Tree::Node <AstNode> *GetFunctionDefinition (CompilationContext *context,
 static Tree::Node <AstNode> *GetDeclaration (CompilationContext *context, int localNameTableId) {
     PushLog (2);
    
-    Tree::Node <AstNode> *type = GetNameWithType (context, NameType::TYPE_NAME, CompilationError::TYPE_NAME_EXPECTED);
+    Tree::Node <AstNode> *type = GetStringToken (context, NameType::TYPE_NAME, CompilationError::TYPE_NAME_EXPECTED);
     NotNull (type);
 
-    Tree::Node <AstNode> *identifier = GetNameWithType (context, NameType::IDENTIFIER, CompilationError::IDENTIFIER_EXPECTED);
+    Tree::Node <AstNode> *identifier = GetStringToken (context, NameType::IDENTIFIER, CompilationError::IDENTIFIER_EXPECTED);
     NotNull (identifier);
     context->tokenIndex--;
 
@@ -190,7 +191,7 @@ static Tree::Node <AstNode> *GetInitializerDeclarator (CompilationContext *conte
     CheckForError (initializer, CompilationError::ASSIGNMENT_EXPECTED);
     context->tokenIndex--; 
 
-    initializer = GetNameWithType (context, NameType::IDENTIFIER, CompilationError::IDENTIFIER_EXPECTED);
+    initializer = GetStringToken (context, NameType::IDENTIFIER, CompilationError::IDENTIFIER_EXPECTED);
 
     RETURN initializer;
 }
@@ -198,7 +199,7 @@ static Tree::Node <AstNode> *GetInitializerDeclarator (CompilationContext *conte
 static Tree::Node <AstNode> *GetAssignmentExpression (CompilationContext *context, int localNameTableId) {
     PushLog (2);
 
-    Tree::Node <AstNode> *identifier = GetNameWithType (context, NameType::IDENTIFIER, CompilationError::IDENTIFIER_EXPECTED);
+    Tree::Node <AstNode> *identifier = GetStringToken (context, NameType::IDENTIFIER, CompilationError::IDENTIFIER_EXPECTED);
     NotNull (identifier);
     DeclarationAssert (identifier, LocalNameType::VARIABLE_IDENTIFIER, CompilationError::VARIABLE_NOT_DECLARED);
 
@@ -355,7 +356,7 @@ Tree::Node <AstNode> *GetFunctionCall (CompilationContext *context, int localNam
 
     NotNull (GetTokenAndDestroy (context, Keyword::FUNCTION_CALL, CompilationError::FUNCTION_CALL_EXPECTED));
 
-    Tree::Node <AstNode> *identifier = GetNameWithType (context, NameType::IDENTIFIER, CompilationError::IDENTIFIER_EXPECTED);
+    Tree::Node <AstNode> *identifier = GetStringToken (context, NameType::IDENTIFIER, CompilationError::IDENTIFIER_EXPECTED);
     NotNull (identifier);
     WriteDataToBuffer (&context->functionCalls, &identifier, 1);
 

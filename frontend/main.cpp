@@ -24,15 +24,20 @@ int main (int argc, char **argv) {
         printf ("Can not read source data");
         return 0;
     }
+    
+    printf ("Reading code...\n");
 
     InitCompilationContext (&context, sourceData);
 
     LexicalAnalysis (&context);
-    DumpTokenTable  (&context);
+
+    printf ("Parsing tokens...\n");
 
     ParseCode (&context);
 
-    GenerateErrorHtml (&context, "CompilationReport.html", sourceData);
+    printf ("Generating report...\n");
+
+    GenerateErrorHtml (&context, "CompilationReport.html");
 
     FILE *nameTableFile = fopen ("NameTables.tmp", "w");
     FILE *treeFile      = fopen ("SyntaxTree.tmp", "w");
@@ -48,7 +53,7 @@ int main (int argc, char **argv) {
     fclose (nameTableFile);
     fclose (treeFile);
 
-    DumpSyntaxTree (&context, "TreeDump.dot");
+    DumpSyntaxTree (&context, "TreeDumpFrontend.dot");
 
     DestroyCompilationContext (&context);
 

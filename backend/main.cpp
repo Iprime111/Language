@@ -28,7 +28,7 @@ int main (int argc, char **argv) {
     free (treeData);
     free (nameTableData);
 
-    DumpSyntaxTree (&context, "TreeDump.dot");
+    DumpSyntaxTree (&context, "TreeDumpBackend.dot");
     
     GenerateAssembly (&context, stdout);
 

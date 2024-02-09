@@ -102,7 +102,7 @@ static TranslationError EmitNodeData (TranslationContext *context, Tree::Node <A
             break;
         }
 
-        case NodeType::NAME: {
+        case NodeType::STRING: {
             WriteToDumpWithErrorCheck (dumpBuffer, "{");
             WriteToDumpWithErrorCheck (dumpBuffer, context->nameTable.data [node->nodeData.content.nameTableIndex].name);
 
@@ -190,7 +190,7 @@ static const char *GetNodeColor (TranslationContext *context, Tree::Node <AstNod
 
     if (node->nodeData.type == NodeType::CONSTANT) {
         RETURN DUMP_CONSTANT_NODE_OUTLINE_COLOR;
-    } else if (node->nodeData.type == NodeType::NAME) {
+    } else if (node->nodeData.type == NodeType::STRING) {
         if (context->nameTable.data [node->nodeData.content.nameTableIndex].type == NameType::IDENTIFIER) {
             RETURN DUMP_IDENTIFIER_NODE_OUTLINE_COLOR;    
         } else {

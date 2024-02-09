@@ -130,7 +130,7 @@ static Tree::Node <AstNode> *GetDerivative (CompilationContext *context, int loc
 
     NotNull (GetTokenAndDestroy (context, Keyword::LBRACKET, CompilationError::BRACKET_EXPECTED));
 
-    Tree::Node <AstNode> *identifier = GetNameWithType (context, NameType::IDENTIFIER, CompilationError::IDENTIFIER_EXPECTED);
+    Tree::Node <AstNode> *identifier = GetStringToken (context, NameType::IDENTIFIER, CompilationError::IDENTIFIER_EXPECTED);
     NotNull (identifier);
     DeclarationAssert (identifier, LocalNameType::VARIABLE_IDENTIFIER, CompilationError::VARIABLE_NOT_DECLARED);
 
@@ -171,7 +171,7 @@ static Tree::Node <AstNode> *GetPrimaryExpression (CompilationContext *context, 
         RETURN functionCall;
     }
 
-    Tree::Node <AstNode> *terminalSymbol = GetNameWithType (context, NameType::IDENTIFIER, CompilationError::IDENTIFIER_EXPECTED);
+    Tree::Node <AstNode> *terminalSymbol = GetStringToken (context, NameType::IDENTIFIER, CompilationError::IDENTIFIER_EXPECTED);
 
     if (terminalSymbol) {
         DeclarationAssert (terminalSymbol, LocalNameType::VARIABLE_IDENTIFIER, CompilationError::VARIABLE_NOT_DECLARED);
@@ -221,7 +221,7 @@ static Tree::Node <AstNode> *GetOperationWithPriority (CompilationContext *conte
 static bool IsDiffOperation (CompilationContext *context, Tree::Node <AstNode> *operation) {
     PushLog (4);
 
-    if (!operation || operation->nodeData.type != NodeType::NAME) {
+    if (!operation || operation->nodeData.type != NodeType::STRING) {
         RETURN false;
     }
 

@@ -3,6 +3,6 @@
 
 #include "FrontendCore.h"
 
-CompilationError GenerateErrorHtml (CompilationContext *context, const char *filename, const char *programText);
+CompilationError GenerateErrorHtml (CompilationContext *context, const char *filename);
 
 #endif

@@ -111,7 +111,7 @@ static CompilationError EmitNodeData (CompilationContext *context, Tree::Node <A
             break;
         }
 
-        case NodeType::NAME: {
+        case NodeType::STRING: {
             switch (context->nameTable.data [node->nodeData.content.nameTableIndex].type) {
                 case NameType::IDENTIFIER:
                     WriteToDumpWithErrorCheck (dumpBuffer, "Identifier"); break;
@@ -221,7 +221,7 @@ static const char *GetOutlineColor (CompilationContext *context, Tree::Node <Ast
     if (node->nodeData.type == NodeType::CONSTANT) {
             RETURN DUMP_CONSTANT_NODE_OUTLINE_COLOR;
 
-    } else if (node->nodeData.type == NodeType::NAME) {
+    } else if (node->nodeData.type == NodeType::STRING) {
         if (context->nameTable.data [node->nodeData.content.nameTableIndex].type == NameType::IDENTIFIER) {
             
             RETURN DUMP_IDENTIFIER_NODE_OUTLINE_COLOR;    
@@ -241,7 +241,7 @@ static const char *GetBackgroundColor (CompilationContext *context, Tree::Node <
     if (node->nodeData.type == NodeType::CONSTANT) {
             RETURN DUMP_CONSTANT_NODE_BACKGROUND_COLOR;
 
-    } else if (node->nodeData.type == NodeType::NAME) {
+    } else if (node->nodeData.type == NodeType::STRING) {
         if (context->nameTable.data [node->nodeData.content.nameTableIndex].type == NameType::IDENTIFIER) {
 
             RETURN DUMP_IDENTIFIER_NODE_BACKGROUND_COLOR;    

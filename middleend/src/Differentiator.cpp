@@ -77,7 +77,7 @@ static Tree::Node <AstNode> *DifferentiateInternal (TranslationContext *context,
     Tree::Node <AstNode> *newNode = NULL;
 
     if (node->nodeData.type == NodeType::CONSTANT ||
-        (node->nodeData.type == NodeType::NAME && node->nodeData.content.nameTableIndex != identifierIndex)) {
+        (node->nodeData.type == NodeType::STRING && node->nodeData.content.nameTableIndex != identifierIndex)) {
 
         newNode = Const (0);
         SubstituteNode (context, node, NULL);
@@ -85,7 +85,7 @@ static Tree::Node <AstNode> *DifferentiateInternal (TranslationContext *context,
         RETURN newNode;
     }
 
-    if (node->nodeData.type == NodeType::NAME && node->nodeData.content.nameTableIndex == identifierIndex) {
+    if (node->nodeData.type == NodeType::STRING && node->nodeData.content.nameTableIndex == identifierIndex) {
         
         newNode = Const (1);
         SubstituteNode (context, node, NULL);
