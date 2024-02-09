@@ -107,8 +107,8 @@ static CompilationError WriteErrors (Buffer <char> *dataBuffer, CompilationConte
 
     WriteToHtml ("<ul class=\"comments-block\">");
 
-    for (size_t errorIndex = 0; errorIndex < context->errorList.currentIndex; errorIndex++) {
-        WriteError (dataBuffer, &context->errorList.data [errorIndex]);
+    for (size_t errorIndex = 0; errorIndex < context->errorBuffer.currentIndex; errorIndex++) {
+        WriteError (dataBuffer, &context->errorBuffer.data [errorIndex]);
     }
 
     WriteToHtml ("</ul>");

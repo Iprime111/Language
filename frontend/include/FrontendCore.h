@@ -57,7 +57,7 @@ struct CompilationContext {
     int currentLine = 0;
 
     CompilationError   error     = CompilationError::NO_ERRORS;
-    Buffer <ErrorData> errorList = {};
+    Buffer <ErrorData> errorBuffer = {};
 
     Tree::Tree <AstNode> abstractSyntaxTree = {};
 

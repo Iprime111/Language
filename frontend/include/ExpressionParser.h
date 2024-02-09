@@ -5,6 +5,6 @@
 #include "SyntaxTree.h"
 #include "TreeDefinitions.h"
 
-Tree::Node <AstNode> *GetExpression (CompilationContext *context, int localNameTable);
+Tree::Node <AstNode> *GetExpression (CompilationContext *context, int localNameTableId);
 
 #endif

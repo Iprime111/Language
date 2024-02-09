@@ -27,7 +27,7 @@ CompilationError InitCompilationContext (CompilationContext *context, char *file
         RETURN CompilationError::TOKEN_BUFFER_ERROR;
     }
 
-    if (InitBuffer (&context->errorList) != BufferErrorCode::NO_BUFFER_ERRORS) {
+    if (InitBuffer (&context->errorBuffer) != BufferErrorCode::NO_BUFFER_ERRORS) {
         RETURN CompilationError::CONTEXT_ERROR; 
     }
 
@@ -67,7 +67,7 @@ CompilationError DestroyCompilationContext (CompilationContext *context) {
 
     DestroyBuffer (&context->localTables);
     DestroyBuffer (&context->nameTable);
-    DestroyBuffer (&context->errorList);
+    DestroyBuffer (&context->errorBuffer);
     DestroyBuffer (&context->tokens);
     DestroyBuffer (&context->functionCalls);
 

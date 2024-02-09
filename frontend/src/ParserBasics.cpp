@@ -36,7 +36,7 @@ Tree::Node <AstNode> *GetConstant (CompilationContext *context) {
     RETURN returnValue;
 }
 
-bool GetDestroyableToken (CompilationContext *context, Keyword keyword, CompilationError error) {
+bool GetTokenAndDestroy (CompilationContext *context, Keyword keyword, CompilationError error) {
     PushLog (3);
 
     if (!GetKeyword (context, keyword, error)) {
@@ -50,10 +50,10 @@ bool GetDestroyableToken (CompilationContext *context, Keyword keyword, Compilat
     RETURN true;
 }
 
-bool IsIdentifierDeclared (CompilationContext *context, int localNameTable, size_t identifierIndex, LocalNameType identifierType) {
+bool IsIdentifierDeclared (CompilationContext *context, int localNameTableId, size_t identifierIndex, LocalNameType identifierType) {
     PushLog (3);
 
-    if (IsLocalIdentifierDeclared (context, localNameTable, identifierIndex, identifierType)) {
+    if (IsLocalIdentifierDeclared (context, localNameTableId, identifierIndex, identifierType)) {
         RETURN true;
     }
 
@@ -66,10 +66,10 @@ bool IsIdentifierDeclared (CompilationContext *context, int localNameTable, size
     RETURN false;
 }
 
-bool IsLocalIdentifierDeclared (CompilationContext *context, int localNameTable, size_t identifierIndex, LocalNameType identifierType) {
+bool IsLocalIdentifierDeclared (CompilationContext *context, int localNameTableId, size_t identifierIndex, LocalNameType identifierType) {
     PushLog (3);
 
-    int localNameIndex = GetIndexInLocalTable (localNameTable, &context->localTables, identifierIndex, identifierType);
+    int localNameIndex = GetIndexInLocalTable (localNameTableId, &context->localTables, identifierIndex, identifierType);
 
     if (localNameIndex >= 0) {
         RETURN true;
