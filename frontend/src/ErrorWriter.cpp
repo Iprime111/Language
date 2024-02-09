@@ -125,8 +125,8 @@ static CompilationError WriteErrorText (Buffer <char> *dataBuffer, const ErrorDa
             break;
 
     switch (error->error) {
-        WriteErrorDescription (NO_ERRORS,                       "Вообще не знаю, зачем я это пишу, моя жизнь точно такая же")
-        WriteErrorDescription (CONTEXT_ERROR,                   "У меня одного пустой пост и вк висит?")
+        WriteErrorDescription (NO_ERRORS,                       "Нет ошибок. (Это сообщение возникло по ошибке)")
+        WriteErrorDescription (CONTEXT_ERROR,                   "")
         WriteErrorDescription (DERIVATIVE_EXPECTED,             "DERIVATIVE_EXPECTED")
         WriteErrorDescription (TOKEN_BUFFER_ERROR,              "Какие же физтехи слабые, не могут написать пост без нытья")
         WriteErrorDescription (IDENTIFIER_EXPECTED,             "Опять посты пишут отсталые школьники из ФТЛ, которые даже нормально название придумать не могут")

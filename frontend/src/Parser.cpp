@@ -34,16 +34,16 @@ CompilationError ParseCode (CompilationContext *context) {
     context->tokenIndex = 0;
     context->abstractSyntaxTree.root = GetGrammar (context);
 
-    RETURN context->error;
+   RETURN context->error;
 }
 
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 
 static Tree::Node <AstNode> *GetGrammar (CompilationContext *context) {
     PushLog (1);
-
+    // TODO: GetAndDestroy ()
     NotNull (GetDestroyableToken (context, Keyword::INITIAL_OPERATOR, CompilationError::INITIAL_OPERATOR_EXPECTED));
-    
+   //TODO: GetStringToken () 
     Tree::Node <AstNode> *entryPointIdentifier = GetNameWithType (context, NameType::IDENTIFIER, CompilationError::IDENTIFIER_EXPECTED);
     NotNull (entryPointIdentifier);
 
@@ -54,7 +54,8 @@ static Tree::Node <AstNode> *GetGrammar (CompilationContext *context) {
     
     Tree::Node <AstNode> *rootNode = GetTranslationUnit (context);
     DestroyCurrentNode ();
-
+    
+    //TODO: localNameTableId
     int localNameTable = 0;
     for (size_t callIndex = 0; callIndex < context->functionCalls.currentIndex; callIndex++) {
         DeclarationAssert (context->functionCalls.data [callIndex], LocalNameType::FUNCTION_IDENTIFIER, CompilationError::FUNCTION_NOT_DECLARED);
@@ -70,6 +71,7 @@ static Tree::Node <AstNode> *GetTranslationUnit (CompilationContext *context) {
 
     NotNull (externalDeclaration);
 
+    //TODO: STRING
     SyntaxAssert (currentToken->nodeData.type == NodeType::NAME && 
                     context->nameTable.data [currentNameTableIndex].keyword == Keyword::OPERATOR_SEPARATOR, 
                     CompilationError::OPERATOR_SEPARATOR_EXPECTED);
@@ -124,9 +126,9 @@ static Tree::Node <AstNode> *GetFunctionDefinition (CompilationContext *context,
                           (LocalNameType) ((int) LocalNameType::VARIABLE_IDENTIFIER | (int) LocalNameType::FUNCTION_IDENTIFIER), 
                           CompilationError::FUNCTION_REDEFINITION);
 
-    context->tokenIndex--;
+    --context->tokenIndex;
     DestroyCurrentNode ();
-    context->tokenIndex++;
+    ++context->tokenIndex;
      
     int newNameTableIndex = AddLocalNameTable ((int) identifierIndex, &context->localTables);
     AddLocalIdentifier (0, &context->localTables, 
@@ -186,7 +188,7 @@ static Tree::Node <AstNode> *GetInitializerDeclarator (CompilationContext *conte
     }
 
     CheckForError (initializer, CompilationError::ASSIGNMENT_EXPECTED);
-    context->tokenIndex--;
+    context->tokenIndex--; 
 
     initializer = GetNameWithType (context, NameType::IDENTIFIER, CompilationError::IDENTIFIER_EXPECTED);
 
@@ -238,6 +240,7 @@ static Tree::Node <AstNode> *GetOperator (CompilationContext *context, int local
     }
 
     do {
+// TODO: MORE LOCAL DEFINES TO GOD OF DEFINES!
         expectedOperator = GetKeyword (context, Keyword::ABORT, CompilationError::ABORT_EXPECTED);
         TryGetOperator (ABORT_EXPECTED);
 
@@ -405,6 +408,7 @@ static Tree::Node <AstNode> *GetParameterList (CompilationContext *context, int 
     Tree::Node <AstNode> *separator = GetKeyword (context, Keyword::ARGUMENT_SEPARATOR, CompilationError::ARGUMENT_SEPARATOR_EXPECTED);
     
     if (!separator) {
+        // TODO: Do not name not lists with list
         context->errorList.currentIndex--;
         RETURN ArgumentSeparator (parameter, NULL);
     }

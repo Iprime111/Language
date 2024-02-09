@@ -23,6 +23,7 @@ Out      ::= 'Хочу признаться' Expression
 In       ::= 'Почитал посты'
 Abort    ::= 'Пошел прыгать с КПМ'
 
+TODO: Statement
 Operator ::= If | While | {{ Abort | Out | Return | Break | Continue | FunctionCall | AssignmentExpression | Declaration | 'заебало уже' OperatorList 'каждый раз это' } '.'}
 OperatorList ::= Operator {OperatorList}?
 
@@ -41,4 +42,4 @@ Diff := 'производная' '(' Identifier ',' DiffPriority3 ')' //TODO: ch
 DiffPriority3 ::= DiffPriority2 {['+', '-'] DiffPriority2}*
 DiffPriority2 ::= DiffPriority1 {['*', '/'] DiffPriority1}*
 DiffPriority1 ::= ['sin', 'cos'] PrimaryExpression | PrimaryExpression
-
+Identifier ::= [a-zA-Z_]+[0-9A-Za-z_]*

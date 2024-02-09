@@ -5,7 +5,7 @@
 #include "Buffer.h"
 #include "SyntaxTree.h"
 
-enum class CompilationError {
+enum class CompilationError: long long int {
     NO_ERRORS                    = 0,
     CONTEXT_ERROR                = 1 << 0,
     DERIVATIVE_EXPECTED          = 1 << 1,
