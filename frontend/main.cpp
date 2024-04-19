@@ -24,7 +24,7 @@ int main (int argc, char **argv) {
         printf ("Can not read source data");
         return 0;
     }
-    
+
     printf ("Reading code...\n");
 
     InitCompilationContext (&context, sourceData);
@@ -69,7 +69,7 @@ static char *GetSourceFileContent (const char *filename) {
         printf ("Can not open source file\n");
         return NULL;
     }
-    
+
     fseek (sourceFile, 0, SEEK_END);
     size_t fileSize = (size_t) ftell (sourceFile);
     fseek (sourceFile, 0, SEEK_SET);
@@ -78,7 +78,7 @@ static char *GetSourceFileContent (const char *filename) {
     fread (sourceData, fileSize, 1, sourceFile);
 
     sourceData [fileSize] = '\0';
-    
+
     fclose (sourceFile);
 
     RETURN sourceData;
