@@ -1,8 +1,8 @@
 #include <stdio.h>
+#include <cassert>
 
 #include "FrontendCore.h"
 #include "Lexer.h"
-#include "Logger.h"
 #include "Parser.h"
 #include "Dump.h"
 #include "ErrorWriter.h"
@@ -61,7 +61,7 @@ int main (int argc, char **argv) {
 }
 
 static char *GetSourceFileContent (const char *filename) {
-    PushLog (4);
+    assert (filename);
 
     FILE *sourceFile = fopen (filename, "r");
 
@@ -81,5 +81,5 @@ static char *GetSourceFileContent (const char *filename) {
 
     fclose (sourceFile);
 
-    RETURN sourceData;
+    return sourceData;
 }

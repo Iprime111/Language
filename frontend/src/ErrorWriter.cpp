@@ -1,3 +1,4 @@
+#include <cassert>
 #include <stdio.h>
 #include <unistd.h>
 #include <libgen.h>
@@ -11,7 +12,7 @@
 #define WriteToHtml(data)                                                                   \
     do {                                                                                    \
         if (WriteStringToBuffer (dataBuffer, data) != BufferErrorCode::NO_BUFFER_ERRORS) {  \
-            RETURN CompilationError::HTML_ERROR;                                            \
+            return CompilationError::HTML_ERROR;                                            \
         }                                                                                   \
     } while (0)
 
@@ -24,18 +25,19 @@ static CompilationError WriteProgramText        (CompilationContext *contex, Buf
 static CompilationError WriteErrors             (Buffer <char> *dataBuffer, CompilationContext *context);
 
 CompilationError GenerateErrorHtml (CompilationContext *context, const char *filename) {
-    PushLog (3);
+    assert (context);
+    assert (filename);
 
     FILE *errorsFile = fopen (filename, "w");
 
     if (!errorsFile) {
-        RETURN CompilationError::HTML_ERROR;
+        return CompilationError::HTML_ERROR;
     }
 
     Buffer <char> dataBuffer = {};
 
     if (InitBuffer (&dataBuffer) != BufferErrorCode::NO_BUFFER_ERRORS) {
-        RETURN CompilationError::HTML_ERROR;
+        return CompilationError::HTML_ERROR;
     }
 
     char *executablePath = (char *) calloc (FILENAME_MAX, sizeof (char));
@@ -64,16 +66,17 @@ CompilationError GenerateErrorHtml (CompilationContext *context, const char *fil
     free (executablePath);
     fclose (errorsFile);
 
-    RETURN CompilationError::NO_ERRORS;
+    return CompilationError::NO_ERRORS;
 }
 
 static CompilationError CopyResourceFileContent (const char *sourceFilename, FILE *outputFile) {
-    PushLog (4);
+    assert (sourceFilename);
+    assert (outputFile);
 
     FILE *source = fopen (sourceFilename, "r");
 
     if (!source) {
-        RETURN CompilationError::HTML_ERROR;
+        return CompilationError::HTML_ERROR;
     }
 
     fseek (source, 0, SEEK_END);
@@ -89,11 +92,12 @@ static CompilationError CopyResourceFileContent (const char *sourceFilename, FIL
 
     free (fileData);
 
-    RETURN CompilationError::NO_ERRORS;
+    return CompilationError::NO_ERRORS;
 }
 
 static CompilationError WriteProgramText (CompilationContext *context, Buffer <char> *dataBuffer) {
-    PushLog (4);
+    assert (context);
+    assert (dataBuffer);
 
     WriteToHtml ("<div class=\"container\">\n<div class=\"post-content\">\n<span>\n");
 
@@ -128,11 +132,12 @@ static CompilationError WriteProgramText (CompilationContext *context, Buffer <c
     WriteToHtml ("</span>\n</div>\n</div>");
     WriteToHtml ("<hr class=\"stylistic-element\">\n<div class=\"comments-title\">\n<h3>Комментарии:</h3>\n</div>\n");
 
-    RETURN CompilationError::NO_ERRORS;
+    return CompilationError::NO_ERRORS;
 }
 
 static CompilationError WriteErrors (Buffer <char> *dataBuffer, CompilationContext *context) {
-    PushLog (4);
+    assert (dataBuffer);
+    assert (context);
 
     WriteToHtml ("<ul class=\"comments-block\">");
 
@@ -142,11 +147,12 @@ static CompilationError WriteErrors (Buffer <char> *dataBuffer, CompilationConte
 
     WriteToHtml ("</ul>");
 
-    RETURN CompilationError::NO_ERRORS;
+    return CompilationError::NO_ERRORS;
 }
 
 static CompilationError WriteErrorText (Buffer <char> *dataBuffer, const ErrorData *error) {
-    PushLog (4);
+    assert (dataBuffer);
+    assert (error);
 
     #define WriteErrorDescription(ERROR, MESSAGE) \
     case CompilationError::ERROR:                 \
@@ -200,11 +206,12 @@ static CompilationError WriteErrorText (Buffer <char> *dataBuffer, const ErrorDa
     WriteToHtml (lineNumber);
     WriteToHtml (")");
 
-    RETURN CompilationError::NO_ERRORS;
+    return CompilationError::NO_ERRORS;
 }
 
 static CompilationError WriteError (Buffer <char> *dataBuffer, const ErrorData *error) {
-    PushLog (4);
+    assert (dataBuffer);
+    assert (error);
 
     WriteToHtml ("<li class=\"comment\"><span>");
 
@@ -212,5 +219,5 @@ static CompilationError WriteError (Buffer <char> *dataBuffer, const ErrorData *
 
     WriteToHtml ("</span></li>\n<hr class=\"comment-splitter\">\n");
 
-    RETURN CompilationError::NO_ERRORS;
+    return CompilationError::NO_ERRORS;
 }

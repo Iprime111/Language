@@ -9,7 +9,7 @@ const size_t MAX_NUMBER_LENGTH = 32;
 #define WriteString(dataString)                                                                     \
     do {                                                                                            \
         if (WriteStringToBuffer (outputBuffer, dataString) != BufferErrorCode::NO_BUFFER_ERRORS) {  \
-            RETURN TranslationError::OUTPUT_FILE_ERROR;                                             \
+            return TranslationError::OUTPUT_FILE_ERROR;                                             \
         }                                                                                           \
     } while (0)
 

@@ -1,11 +1,11 @@
 #include <cstdio>
 #include <stddef.h>
+#include <cassert>
 
 #include "Parser.h"
 #include "Buffer.h"
 #include "ExpressionParser.h"
 #include "FrontendCore.h"
-#include "Logger.h"
 #include "NameTable.h"
 #include "SyntaxTree.h"
 #include "ParserBasics.h"
@@ -29,18 +29,18 @@ static Tree::Node <AstNode> *GetOutOperator           (CompilationContext *conte
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 
 CompilationError ParseCode (CompilationContext *context) {
-    PushLog (1);
+    assert (context);
 
     context->tokenIndex = 0;
     context->abstractSyntaxTree.root = GetGrammar (context);
 
-   RETURN context->error;
+   return context->error;
 }
 
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 
 static Tree::Node <AstNode> *GetGrammar (CompilationContext *context) {
-    PushLog (1);
+    assert (context);
 
     NotNull (GetTokenAndDestroy (context, Keyword::INITIAL_OPERATOR, CompilationError::INITIAL_OPERATOR_EXPECTED));
 
@@ -62,11 +62,11 @@ static Tree::Node <AstNode> *GetGrammar (CompilationContext *context) {
 
     Tree::DestroySingleNode (entryPointIdentifier);
 
-    RETURN rootNode;
+    return rootNode;
 }
 
 static Tree::Node <AstNode> *GetTranslationUnit (CompilationContext *context) {
-    PushLog (2);
+    assert (context);
 
     Tree::Node <AstNode> *externalDeclaration = GetExternalDeclaration (context);
 
@@ -91,27 +91,27 @@ static Tree::Node <AstNode> *GetTranslationUnit (CompilationContext *context) {
             root->right->parent = root;
     }
 
-    RETURN root;
+    return root;
 }
 
 static Tree::Node <AstNode> *GetExternalDeclaration (CompilationContext *context) {
-    PushLog (2);
+    assert (context);
 
     Tree::Node <AstNode> *root = GetFunctionDefinition (context, 0);
 
     if (root) {
-        RETURN root;
+        return root;
     }
 
     CheckForError (root, CompilationError::FUNCTION_EXPECTED);
 
     root = GetDeclaration (context, 0);
 
-    RETURN root;
+    return root;
 }
 
 static Tree::Node <AstNode> *GetFunctionDefinition (CompilationContext *context, int localNameTableId) {
-    PushLog (2);
+    assert (context);
 
     NotNull (GetTokenAndDestroy (context, Keyword::FUNCTION_DEFINITION, CompilationError::FUNCTION_EXPECTED));
 
@@ -149,11 +149,11 @@ static Tree::Node <AstNode> *GetFunctionDefinition (CompilationContext *context,
 
     NotNull (GetTokenAndDestroy (context, Keyword::BLOCK_CLOSE, CompilationError::CODE_BLOCK_EXPECTED));
 
-    RETURN FunctionDefinition (type, FunctionArguments (parameters, functionContent), identifierIndex);
+    return FunctionDefinition (type, FunctionArguments (parameters, functionContent), identifierIndex);
 }
 
 static Tree::Node <AstNode> *GetDeclaration (CompilationContext *context, int localNameTableId) {
-    PushLog (2);
+    assert (context);
    
     Tree::Node <AstNode> *type = GetStringToken (context, NameType::TYPE_NAME, CompilationError::TYPE_NAME_EXPECTED);
     NotNull (type);
@@ -176,16 +176,16 @@ static Tree::Node <AstNode> *GetDeclaration (CompilationContext *context, int lo
     NotNull (initializerDeclarator);
 
 
-    RETURN VariableDeclaration (type, initializerDeclarator, identifierIndex);
+    return VariableDeclaration (type, initializerDeclarator, identifierIndex);
 }
 
 static Tree::Node <AstNode> *GetInitializerDeclarator (CompilationContext *context, int localNameTableId) {
-    PushLog (2);
+    assert (context);
 
     Tree::Node <AstNode> *initializer = GetAssignmentExpression (context, localNameTableId);
 
     if (initializer) {
-        RETURN initializer;
+        return initializer;
     }
 
     CheckForError (initializer, CompilationError::ASSIGNMENT_EXPECTED);
@@ -193,11 +193,11 @@ static Tree::Node <AstNode> *GetInitializerDeclarator (CompilationContext *conte
 
     initializer = GetStringToken (context, NameType::IDENTIFIER, CompilationError::IDENTIFIER_EXPECTED);
 
-    RETURN initializer;
+    return initializer;
 }
 
 static Tree::Node <AstNode> *GetAssignmentExpression (CompilationContext *context, int localNameTableId) {
-    PushLog (2);
+    assert (context);
 
     Tree::Node <AstNode> *identifier = GetStringToken (context, NameType::IDENTIFIER, CompilationError::IDENTIFIER_EXPECTED);
     NotNull (identifier);
@@ -216,13 +216,13 @@ static Tree::Node <AstNode> *GetAssignmentExpression (CompilationContext *contex
     assignmentOperation->right = identifier;
     identifier->parent         = assignmentOperation;
 
-    RETURN assignmentOperation;
+    return assignmentOperation;
 }
 
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 
 static Tree::Node <AstNode> *GetOperator (CompilationContext *context, int localNameTableId) {
-    PushLog (2);
+    assert (context);
 
     Tree::Node <AstNode> *expectedOperator = NULL;
 
@@ -230,14 +230,14 @@ static Tree::Node <AstNode> *GetOperator (CompilationContext *context, int local
     CheckForError (expectedOperator, CompilationError::IF_EXPECTED);
 
     if (expectedOperator) {
-        RETURN OperatorSeparator (expectedOperator, NULL);   
+        return OperatorSeparator (expectedOperator, NULL);   
     }
     
     expectedOperator = GetConditionOperator (context, Keyword::WHILE, CompilationError::WHILE_EXPECTED, localNameTableId);
     CheckForError (expectedOperator, CompilationError::WHILE_EXPECTED);
     
     if (expectedOperator) {
-        RETURN OperatorSeparator (expectedOperator, NULL);   
+        return OperatorSeparator (expectedOperator, NULL);   
     }
 
     #define GetExpectedOperator(FUNCTION, ERROR)                    \
@@ -274,11 +274,11 @@ static Tree::Node <AstNode> *GetOperator (CompilationContext *context, int local
     separator->left          = expectedOperator;
     expectedOperator->parent = separator;
 
-    RETURN separator;
+    return separator;
 }
 
 static Tree::Node <AstNode> *GetOperatorList (CompilationContext *context, int localNameTableId) {
-    PushLog (2);
+    assert (context);
     
     Tree::Node <AstNode> *firstOperator  = GetOperator     (context, localNameTableId);
     NotNull (firstOperator);
@@ -293,11 +293,11 @@ static Tree::Node <AstNode> *GetOperatorList (CompilationContext *context, int l
         secondOperator->parent = firstOperator;
 
 
-    RETURN firstOperator;
+    return firstOperator;
 }
 
 static Tree::Node <AstNode> *GetConditionOperator (CompilationContext *context, Keyword operatorKeyword, CompilationError error, int localNameTableId) {
-    PushLog (2);
+    assert (context);
 
     Tree::Node <AstNode> *conditionOperator = GetKeyword (context, operatorKeyword, error);
     NotNull (conditionOperator);
@@ -316,11 +316,11 @@ static Tree::Node <AstNode> *GetConditionOperator (CompilationContext *context, 
     conditionOperator->right = operatorContent;
     operatorContent->parent  = conditionOperator;
 
-    RETURN conditionOperator;
+    return conditionOperator;
 }
 
 static Tree::Node <AstNode> *GetReturnOperator (CompilationContext *context, int localNameTableId) {
-    PushLog (2);
+    assert (context);
 
     Tree::Node <AstNode> *returnStatement = GetKeyword (context, Keyword::RETURN_OPERATOR, CompilationError::RETURN_EXPECTED);
     NotNull (returnStatement);
@@ -331,11 +331,11 @@ static Tree::Node <AstNode> *GetReturnOperator (CompilationContext *context, int
     returnStatement->right = expression;
     expression->parent     = returnStatement;
 
-    RETURN returnStatement;
+    return returnStatement;
 }
 
 static Tree::Node <AstNode> *GetOutOperator (CompilationContext *context, int localNameTableId) {
-    PushLog (2);
+    assert (context);
 
     Tree::Node <AstNode> *outOperator = GetKeyword (context, Keyword::OUT, CompilationError::OUT_EXPECTED);
     NotNull (outOperator);
@@ -346,13 +346,13 @@ static Tree::Node <AstNode> *GetOutOperator (CompilationContext *context, int lo
     outOperator->right = expression;
     expression->parent = outOperator;
 
-    RETURN outOperator;
+    return outOperator;
 }
 
 //---------------------------------------------------------------------------------------------------------------------------------------------------
 
 Tree::Node <AstNode> *GetFunctionCall (CompilationContext *context, int localNameTableId) {
-    PushLog (2);
+    assert (context);
 
     NotNull (GetTokenAndDestroy (context, Keyword::FUNCTION_CALL, CompilationError::FUNCTION_CALL_EXPECTED));
 
@@ -367,11 +367,11 @@ Tree::Node <AstNode> *GetFunctionCall (CompilationContext *context, int localNam
 
     NotNull (GetTokenAndDestroy (context, Keyword::RBRACKET, CompilationError::BRACKET_EXPECTED));
 
-    RETURN FunctionCall (arguments, identifier);
+    return FunctionCall (arguments, identifier);
 }
 
 static Tree::Node <AstNode> *GetArgumentList (CompilationContext *context, int localNameTableId) {
-    PushLog (2);
+    assert (context);
 
     Tree::Node <AstNode> *argument = GetExpression (context, localNameTableId);
     NotNull (argument);
@@ -380,7 +380,7 @@ static Tree::Node <AstNode> *GetArgumentList (CompilationContext *context, int l
     
     if (!separator) {
         context->errorBuffer.currentIndex--;
-        RETURN ArgumentSeparator (argument, NULL);
+        return ArgumentSeparator (argument, NULL);
     }
     
     Tree::Node <AstNode> *nextArgument = GetArgumentList (context, localNameTableId);
@@ -392,11 +392,11 @@ static Tree::Node <AstNode> *GetArgumentList (CompilationContext *context, int l
     separator->right     = nextArgument;
     nextArgument->parent = separator;
     
-    RETURN separator;
+    return separator;
 }
 
 static Tree::Node <AstNode> *GetParameterList (CompilationContext *context, int localNameTableId) {
-     PushLog (2);
+    assert (context);
 
     Tree::Node <AstNode> *parameter = GetDeclaration (context, localNameTableId);
     NotNull (parameter);
@@ -405,7 +405,7 @@ static Tree::Node <AstNode> *GetParameterList (CompilationContext *context, int 
     
     if (!separator) {
         context->errorBuffer.currentIndex--;
-        RETURN ArgumentSeparator (parameter, NULL);
+        return ArgumentSeparator (parameter, NULL);
     }
     
     Tree::Node <AstNode> *nextParameter = GetParameterList (context, localNameTableId);
@@ -417,7 +417,7 @@ static Tree::Node <AstNode> *GetParameterList (CompilationContext *context, int 
     separator->right      = nextParameter;
     nextParameter->parent = separator;
     
-    RETURN separator;
+    return separator;
 }
 
 //---------------------------------------------------------------------------------------------------------------------------------------------------

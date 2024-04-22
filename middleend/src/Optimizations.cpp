@@ -1,5 +1,5 @@
-#include "Optimizations.h"
 #include <math.h>
+#include <cassert>
 
 #include "CustomAssert.h"
 #include "MiddleEndCore.h"
@@ -7,6 +7,7 @@
 #include "SyntaxTree.h"
 #include "TreeDefinitions.h"
 #include "TreeReader.h"
+#include "Optimizations.h"
 
 #define Eval(direction) EvalOptimizationInternal (context, node->direction, treeChanged)
 
@@ -15,10 +16,8 @@ static TranslationError SpecialValuesOptimizationInternal (TranslationContext *c
 static TranslationError ProcessSpecialValue               (TranslationContext *context, Tree::Node <AstNode> *node, SpecialValue specialValue, bool *treeChanged);
 
 TranslationError DoOptimizations (TranslationContext *context) {
-    PushLog (1);
-
-    custom_assert (context,                          pointer_is_null, TranslationError::CONTEXT_ERROR);
-    custom_assert (context->abstractSyntaxTree.root, pointer_is_null, TranslationError::TREE_ERROR);
+    assert (context);
+    assert (context->abstractSyntaxTree.root);
 
     bool treeChanged = true;
 
@@ -29,7 +28,7 @@ TranslationError DoOptimizations (TranslationContext *context) {
         SpecialValuesOptimizationInternal (context, context->abstractSyntaxTree.root, &treeChanged);
     }
 
-    RETURN TranslationError::NO_ERRORS;
+    return TranslationError::NO_ERRORS;
 }
 
 TranslationError EvalOptimization (TranslationContext *context, bool *treeChanged) {
@@ -40,21 +39,22 @@ TranslationError EvalOptimization (TranslationContext *context, bool *treeChange
 
     EvalOptimizationInternal (context, context->abstractSyntaxTree.root, treeChanged);
 
-    RETURN TranslationError::NO_ERRORS;
+    return TranslationError::NO_ERRORS;
 }
 
 static double EvalOptimizationInternal (TranslationContext *context, Tree::Node <AstNode> *node, bool *treeChanged) {
-    PushLog (2);
+    assert (context);
+    assert (node);
+    assert (treeChanged);
 
-    if (!node) {
-        RETURN NAN;
-    }
+    if (!node)
+        return NAN;
 
     switch (node->nodeData.type) {
 
-        case NodeType::CONSTANT: { RETURN node->nodeData.content.number; }
+        case NodeType::CONSTANT: { return node->nodeData.content.number; }
         case NodeType::KEYWORD:  { break; }
-        default:                 { Eval (left); Eval (right); RETURN NAN; }
+        default:                 { Eval (left); Eval (right); return NAN; }
     };
 
     double evalResult = NAN;
@@ -67,7 +67,7 @@ static double EvalOptimizationInternal (TranslationContext *context, Tree::Node 
 
     switch (node->nodeData.content.keyword) {
         #include "Operations.def"
-        default: { Eval (left); Eval (right); RETURN NAN; }
+        default: { Eval (left); Eval (right); return NAN; }
     }
 
     #undef OPERATION
@@ -78,21 +78,22 @@ static double EvalOptimizationInternal (TranslationContext *context, Tree::Node 
         *treeChanged = true;
     }
 
-    RETURN evalResult;
+    return evalResult;
 }
 
 static TranslationError SpecialValuesOptimizationInternal (TranslationContext *context, Tree::Node <AstNode> *node, bool *treeChanged) {
-    PushLog (2);
+    assert (context);
+    assert (node);
+    assert (treeChanged);
 
-    if (!node) {
-        RETURN TranslationError::NO_ERRORS;
-    }
+    if (!node)
+        return TranslationError::NO_ERRORS;
 
     if (node->nodeData.type != NodeType::KEYWORD) {
         SpecialValuesOptimizationInternal (context, node->left,  treeChanged);
         SpecialValuesOptimizationInternal (context, node->right, treeChanged);
 
-        RETURN TranslationError::NO_ERRORS;
+        return TranslationError::NO_ERRORS;
     }
 
     #define OPERATION(KWORD, EVAL_FUNCTION, ...)                            \
@@ -107,11 +108,13 @@ static TranslationError SpecialValuesOptimizationInternal (TranslationContext *c
     SpecialValuesOptimizationInternal (context, node->left,  treeChanged);
     SpecialValuesOptimizationInternal (context, node->right, treeChanged);
 
-    RETURN TranslationError::NO_ERRORS;
+    return TranslationError::NO_ERRORS;
 }
 
 static TranslationError ProcessSpecialValue (TranslationContext *context, Tree::Node <AstNode> *node, SpecialValue specialValue, bool *treeChanged) {
-    PushLog (3);
+    assert (context);
+    assert (node);
+    assert (treeChanged);
 
     #define CheckForChild(dir, child)                                                                                   \
         do {                                                                                                            \
@@ -119,7 +122,7 @@ static TranslationError ProcessSpecialValue (TranslationContext *context, Tree::
                 && abs (node->dir->nodeData.content.number - specialValue.validValue) < EPS) {                          \
                 SubstituteSubtree (context, node, Const (specialValue.result));                                         \
                 *treeChanged = true;                                                                                    \
-                RETURN TranslationError::NO_ERRORS;                                                                     \
+                return TranslationError::NO_ERRORS;                                                                     \
             }                                                                                                           \
         } while (0)
 
@@ -128,6 +131,6 @@ static TranslationError ProcessSpecialValue (TranslationContext *context, Tree::
 
     #undef CheckForChild
 
-    RETURN TranslationError::NO_ERRORS;
+    return TranslationError::NO_ERRORS;
 }
 

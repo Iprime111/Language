@@ -1,7 +1,6 @@
+#include <cassert>
 #include <math.h>
 
-#include "CustomAssert.h"
-#include "Logger.h"
 #include "MiddleEndCore.h"
 #include "NameTable.h"
 #include "NodeUtils.h"
@@ -14,44 +13,41 @@
 static Tree::Node <AstNode> *DifferentiateInternal (TranslationContext *context, Tree::Node <AstNode> *node, size_t identifierIndex);
 
 double EvalSubtree (TranslationContext *context, Tree::Node <AstNode> *node) {
-    PushLog (1);
+    assert (context);
+    assert (node);
 
-    if (!node) {
-        RETURN NAN;
-    }
+    if (!node)
+        return NAN;
 
     switch (node->nodeData.type) {
 
-        case NodeType::CONSTANT: RETURN node->nodeData.content.number;
+        case NodeType::CONSTANT: return node->nodeData.content.number;
         case NodeType::KEYWORD:  break;
-        default:                 RETURN NAN;
+        default:                 return NAN;
     };
 
     #define OPERATION(KWORD, EVAL_FUNCTION, ...)                \
         if (node->nodeData.content.keyword == Keyword::KWORD) { \
-            RETURN (EVAL_FUNCTION);                             \
+            return (EVAL_FUNCTION);                             \
         }
 
     #include "Operations.def"
 
     #undef OPERATION
 
-    RETURN NAN;
+    return NAN;
 }
 
 TranslationError DifferentiationTraversal (TranslationContext *context, Tree::Node <AstNode> *node) {
-    PushLog (1);
+    assert (context);
+    assert (node);
 
-    custom_assert (context, pointer_is_null, TranslationError::CONTEXT_ERROR);
-
-    if (!node) {
-        RETURN TranslationError::NO_ERRORS;
-    }
+    if (!node)
+        return TranslationError::NO_ERRORS;
 
     if (node->nodeData.type == NodeType::KEYWORD && node->nodeData.content.keyword == Keyword::DIFF) {
-        if (!node->left) {
-            RETURN TranslationError::TREE_ERROR;
-        }
+        if (!node->left)
+            return TranslationError::TREE_ERROR;
 
         Tree::Node <AstNode> *newNode = DifferentiateInternal (context, node->right, node->left->nodeData.content.nameTableIndex);
 
@@ -64,15 +60,15 @@ TranslationError DifferentiationTraversal (TranslationContext *context, Tree::No
     DifferentiationTraversal (context, node->left);
     DifferentiationTraversal (context, node->right);
 
-    RETURN TranslationError::NO_ERRORS;
+    return TranslationError::NO_ERRORS;
 }
 
 static Tree::Node <AstNode> *DifferentiateInternal (TranslationContext *context, Tree::Node <AstNode> *node, size_t identifierIndex) {
-    PushLog (2);
+    assert (context);
+    assert (node);
 
-    if (!node) {
-        RETURN NULL;
-    }
+    if (!node)
+        return NULL;
 
     Tree::Node <AstNode> *newNode = NULL;
 
@@ -82,7 +78,7 @@ static Tree::Node <AstNode> *DifferentiateInternal (TranslationContext *context,
         newNode = Const (0);
         SubstituteNode (context, node, NULL);
         
-        RETURN newNode;
+        return newNode;
     }
 
     if (node->nodeData.type == NodeType::STRING && node->nodeData.content.nameTableIndex == identifierIndex) {
@@ -90,12 +86,11 @@ static Tree::Node <AstNode> *DifferentiateInternal (TranslationContext *context,
         newNode = Const (1);
         SubstituteNode (context, node, NULL);
         
-        RETURN newNode;
+        return newNode;
     }
 
-    if (node->nodeData.type != NodeType::KEYWORD) {
-        RETURN node;
-    }
+    if (node->nodeData.type != NodeType::KEYWORD)
+        return node;
 
 
     switch (node->nodeData.content.keyword) {
@@ -147,12 +142,11 @@ static Tree::Node <AstNode> *DifferentiateInternal (TranslationContext *context,
             break;
         }
 
-        default: {
-            RETURN node;
-        } 
+        default:
+            return node;
     }
     
     SubstituteNode (context, node, NULL);
-    RETURN newNode;
+    return newNode;
 }
 

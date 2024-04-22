@@ -1,11 +1,11 @@
 #include <cctype>
 #include <climits>
+#include <cassert>
 #include <clocale>
 
 #include "Lexer.h"
 #include "Buffer.h"
 #include "FrontendCore.h"
-#include "Logger.h"
 #include "NameTable.h"
 #include "SyntaxTree.h"
 
@@ -14,7 +14,7 @@
     do {                                                                                                \
         Tree::Node <AstNode> *newToken = node;                                                          \
         if (WriteDataToBuffer (&context->tokens, &newToken, 1) != BufferErrorCode::NO_BUFFER_ERRORS) {  \
-            RETURN CompilationError::TOKEN_BUFFER_ERROR;                                                \
+            return CompilationError::TOKEN_BUFFER_ERROR;                                                \
         }                                                                                               \
     } while (0)
 
@@ -36,7 +36,7 @@ static bool IsCyrillic           (const char *multiByteSymbol);
 static bool IsCyrillicSecondByte (char byte);
 
 CompilationError LexicalAnalysis (CompilationContext *context) {
-    PushLog (1);
+    assert (context);
 
     size_t currentIndex = 0;
 
@@ -60,11 +60,12 @@ CompilationError LexicalAnalysis (CompilationContext *context) {
 
     AddToken (Terminator ());
 
-    RETURN CompilationError::NO_ERRORS;
+    return CompilationError::NO_ERRORS;
 }
 
 static CompilationError TokenizeNumber (CompilationContext *context, size_t *currentIndex) {
-    PushLog (3);
+    assert (context);
+    assert (currentIndex);
     
     double number = NAN;
     int numberLength = 0;
@@ -82,15 +83,16 @@ static CompilationError TokenizeNumber (CompilationContext *context, size_t *cur
         (*currentIndex) += (size_t) numberLength;
 
 
-        RETURN CompilationError::NO_ERRORS;
+        return CompilationError::NO_ERRORS;
     }
 
-    RETURN CompilationError::TOKEN_BUFFER_ERROR;
+    return CompilationError::TOKEN_BUFFER_ERROR;
 }
 
 
 static CompilationError TokenizeWord (CompilationContext *context, size_t *currentIndex) {
-    PushLog (3);
+    assert (context);
+    assert (currentIndex);
 
     size_t initialWordLength = 0;
     size_t wordLength = 0;
@@ -103,10 +105,10 @@ static CompilationError TokenizeWord (CompilationContext *context, size_t *curre
 
         if (nextWordLength == 0) {
             if (initialWordLength == 0) {
-                RETURN CompilationError::IDENTIFIER_EXPECTED;
+                return CompilationError::IDENTIFIER_EXPECTED;
             }
 
-            RETURN TokenizeNewIdentifier (context, currentIndex, initialWordLength); 
+            return TokenizeNewIdentifier (context, currentIndex, initialWordLength); 
         }
 
         wordLength += nextWordLength;
@@ -115,11 +117,11 @@ static CompilationError TokenizeWord (CompilationContext *context, size_t *curre
         switch (FindMaxIntersection (context, &currentSymbol, wordLength, &foundNameIndex)) {
 
             case StringIntersection::NO_MATCH: {
-                RETURN TokenizeNewIdentifier (context, currentIndex, initialWordLength);
+                return TokenizeNewIdentifier (context, currentIndex, initialWordLength);
             }
 
             case StringIntersection::FULL_MATCH: {
-                RETURN TokenizeExistingIdentifier (context, currentIndex, wordLength, foundNameIndex);
+                return TokenizeExistingIdentifier (context, currentIndex, wordLength, foundNameIndex);
             }
 
             case StringIntersection::IS_BEGIN:
@@ -129,13 +131,14 @@ static CompilationError TokenizeWord (CompilationContext *context, size_t *curre
 }
 
 static CompilationError TokenizeNewIdentifier (CompilationContext *context, size_t *currentIndex, size_t length) {
-    PushLog (3);
+    assert (context);
+    assert (currentIndex);
 
     char *newIdentifier = (char *) calloc (length + 1, sizeof (char));
     memcpy (newIdentifier, &currentSymbol, length);
 
     if (AddIdentifier (&context->nameTable, newIdentifier) != BufferErrorCode::NO_BUFFER_ERRORS) {
-        RETURN CompilationError::CONTEXT_ERROR;
+        return CompilationError::CONTEXT_ERROR;
     }
 
     Tree::Node <AstNode> *identifierToken = Name (context->nameTable.currentIndex - 1);
@@ -145,11 +148,12 @@ static CompilationError TokenizeNewIdentifier (CompilationContext *context, size
 
     (*currentIndex) += length;
 
-    RETURN CompilationError::NO_ERRORS;
+    return CompilationError::NO_ERRORS;
 }
 
 static CompilationError TokenizeExistingIdentifier (CompilationContext *context, size_t *currentIndex, size_t length, size_t nameIndex) {
-    PushLog (3);
+    assert (context);
+    assert (currentIndex);
 
     Tree::Node <AstNode> *identifierToken = Name (nameIndex);
     identifierToken->nodeData.line = context->currentLine;
@@ -158,15 +162,15 @@ static CompilationError TokenizeExistingIdentifier (CompilationContext *context,
 
     (*currentIndex) += length;
 
-    RETURN CompilationError::NO_ERRORS;
+    return CompilationError::NO_ERRORS;
 }
 
 
 static size_t GetNextWordLength (CompilationContext *context, size_t currentIndex) {
-    PushLog (3);
+    assert (context);
 
     if (currentIndex > context->fileLength || context->fileContent [currentIndex] == '\n') {
-        RETURN 0;
+        return 0;
     }
 
     SymbolGroup currentGroup   = GetSymbolGroup (context, currentIndex);
@@ -190,11 +194,13 @@ static size_t GetNextWordLength (CompilationContext *context, size_t currentInde
         }
     }
 
-    RETURN length;
+    return length;
 }
 
 static StringIntersection FindMaxIntersection (CompilationContext *context, const char *word, size_t wordLength, size_t *foundNameIndex) {
-    PushLog (4);
+    assert (context);
+    assert (word);
+    assert (foundNameIndex);
 
     StringIntersection maxIntersection = StringIntersection::NO_MATCH;
 
@@ -204,7 +210,7 @@ static StringIntersection FindMaxIntersection (CompilationContext *context, cons
         if (currentIntersction == StringIntersection::FULL_MATCH) {
             *foundNameIndex = nameIndex;
 
-            RETURN StringIntersection::FULL_MATCH;
+            return StringIntersection::FULL_MATCH;
         }
 
         if (maxIntersection == StringIntersection::NO_MATCH && currentIntersction == StringIntersection::IS_BEGIN) {
@@ -212,27 +218,30 @@ static StringIntersection FindMaxIntersection (CompilationContext *context, cons
         }
     }
 
-    RETURN maxIntersection;
+    return maxIntersection;
 }
 
 static StringIntersection CheckWordIntersection (const char *word, const char *pattern, size_t wordLength) {
-    PushLog (4); // FIXME: keywords with same beginning (pohui)
+    assert (word);
+    assert (pattern);
+
+    // FIXME: keywords with same beginning (don't care)
 
     for (size_t symbol = 0; symbol < wordLength; symbol++) {
         if (pattern [symbol] == '\0') {
-            RETURN StringIntersection::NO_MATCH;
+            return StringIntersection::NO_MATCH;
         }
 
         if (pattern [symbol] != word [symbol]) {
-            RETURN StringIntersection::NO_MATCH;
+            return StringIntersection::NO_MATCH;
         }
     }
 
     if (pattern [wordLength] == '\0') {
-        RETURN StringIntersection::FULL_MATCH;
+        return StringIntersection::FULL_MATCH;
     }
 
-    RETURN StringIntersection::IS_BEGIN;
+    return StringIntersection::IS_BEGIN;
 }
 
 static size_t GetMaxWordLength (SymbolGroup group) {
@@ -273,36 +282,37 @@ static SymbolGroup GetPermittedSymbols (SymbolGroup group) {
 }
 
 static SymbolGroup GetSymbolGroup (CompilationContext *context, size_t symbolIndex) {
-    PushLog (4);
+    assert (context);
 
     char symbol = context->fileContent [symbolIndex];
 
     if (isalpha (symbol)) {
-        RETURN SymbolGroup::ENGLISH;
+        return SymbolGroup::ENGLISH;
     } else if (isdigit (symbol)) {
-        RETURN SymbolGroup::DIGIT;
+        return SymbolGroup::DIGIT;
     } else if (symbol == '{' || symbol == '}' || symbol == '(' || symbol == ')' ||
                symbol == '[' || symbol == ']') {
 
-        RETURN SymbolGroup::BRACKET;
+        return SymbolGroup::BRACKET;
     } else if (symbol == '+' || symbol == '-' || symbol == '*' || symbol == '/' || 
                symbol == '=' || symbol == '!' || symbol == '<' || symbol == '>') {
 
-        RETURN SymbolGroup::OPERATION;
+        return SymbolGroup::OPERATION;
     } else if (isspace (symbol)) {
-        RETURN SymbolGroup::SPACE;
+        return SymbolGroup::SPACE;
     } else if (symbol == '_') {
-        RETURN SymbolGroup::UNDERSCORE;
+        return SymbolGroup::UNDERSCORE;
     } else if (symbol == '.' || symbol == ',') {
-        RETURN SymbolGroup::SEPARATOR;
+        return SymbolGroup::SEPARATOR;
     } else if (IsCyrillic (&context->fileContent [symbolIndex])) {
-        RETURN SymbolGroup::CYRILLIC;   
+        return SymbolGroup::CYRILLIC;   
     } else {
-        RETURN SymbolGroup::INVALID_SYMBOL;
+        return SymbolGroup::INVALID_SYMBOL;
     }
 }
 
 static bool IsCyrillic (const char *multiByteSymbol) {
+    assert (multiByteSymbol);
 
     //WARNING: implementation defined
 
@@ -318,5 +328,5 @@ static bool IsCyrillic (const char *multiByteSymbol) {
 }
 
 static bool IsCyrillicSecondByte (char byte) {
-    return (byte >= 0x10 && byte <= 0x4f) || byte == 0x51 || byte == 0x01;
+    return (byte >= 0x10 && byte <= 0x4f) || byte == 0x51 || byte == 0x01; // Magic constants from unicode characters table
 }

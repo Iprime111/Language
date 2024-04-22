@@ -1,9 +1,8 @@
 #include <cstdio>
+#include <cassert>
 
 #include "TreeTranslator.h"
 #include "Buffer.h"
-#include "CustomAssert.h"
-#include "Logger.h"
 #include "NameTable.h"
 #include "ReverseFrontendCore.h"
 #include "SyntaxTree.h"
@@ -39,36 +38,28 @@ static const char *operatorSeparator  = GetKeyword (Keyword::OPERATOR_SEPARATOR)
 #define KeywordCase(WORD) case Keyword::WORD:
 
 TranslationError TranslateTree (TranslationContext *context, FILE *stream) {
-    PushLog (1);
-
-    custom_assert (context, pointer_is_null, TranslationError::CONTEXT_ERROR);
-    custom_assert (stream,  pointer_is_null, TranslationError::OUTPUT_FILE_ERROR);
+    assert (context);
+    assert (stream);
 
     Buffer <char> outputBuffer = {};
 
-    if (InitBuffer (&outputBuffer) != BufferErrorCode::NO_BUFFER_ERRORS) {
-        RETURN TranslationError::OUTPUT_FILE_ERROR;
-    }
+    if (InitBuffer (&outputBuffer) != BufferErrorCode::NO_BUFFER_ERRORS)
+        return TranslationError::OUTPUT_FILE_ERROR;
 
-    if (WriteStringToBuffer (&outputBuffer, initialOperator) != BufferErrorCode::NO_BUFFER_ERRORS) {
-        RETURN TranslationError::OUTPUT_FILE_ERROR;
-    }
+    if (WriteStringToBuffer (&outputBuffer, initialOperator) != BufferErrorCode::NO_BUFFER_ERRORS)
+        return TranslationError::OUTPUT_FILE_ERROR;
 
-    if (WriteStringToBuffer (&outputBuffer, " ") != BufferErrorCode::NO_BUFFER_ERRORS) {
-        RETURN TranslationError::OUTPUT_FILE_ERROR;
-    }
+    if (WriteStringToBuffer (&outputBuffer, " ") != BufferErrorCode::NO_BUFFER_ERRORS)
+        return TranslationError::OUTPUT_FILE_ERROR;
 
-    if (WriteStringToBuffer (&outputBuffer, context->nameTable.data [context->entryPoint].name) != BufferErrorCode::NO_BUFFER_ERRORS) {
-        RETURN TranslationError::OUTPUT_FILE_ERROR;
-    }
+    if (WriteStringToBuffer (&outputBuffer, context->nameTable.data [context->entryPoint].name) != BufferErrorCode::NO_BUFFER_ERRORS)
+        return TranslationError::OUTPUT_FILE_ERROR;
 
-    if (WriteStringToBuffer (&outputBuffer, operatorSeparator) != BufferErrorCode::NO_BUFFER_ERRORS) {
-        RETURN TranslationError::OUTPUT_FILE_ERROR;
-    }
+    if (WriteStringToBuffer (&outputBuffer, operatorSeparator) != BufferErrorCode::NO_BUFFER_ERRORS)
+        return TranslationError::OUTPUT_FILE_ERROR;
 
-    if (WriteStringToBuffer (&outputBuffer, "\n\n") != BufferErrorCode::NO_BUFFER_ERRORS) {
-        RETURN TranslationError::OUTPUT_FILE_ERROR;
-    }
+    if (WriteStringToBuffer (&outputBuffer, "\n\n") != BufferErrorCode::NO_BUFFER_ERRORS)
+        return TranslationError::OUTPUT_FILE_ERROR;
 
     TreeTraversal (context, context->abstractSyntaxTree.root, &outputBuffer);
 
@@ -76,19 +67,20 @@ TranslationError TranslateTree (TranslationContext *context, FILE *stream) {
 
     DestroyBuffer (&outputBuffer);
 
-    RETURN TranslationError::NO_ERRORS;
+    return TranslationError::NO_ERRORS;
 }
 
 static TranslationError TreeTraversal (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer) {
-    PushLog (2);
+    assert (context);
+    assert (node);
+    assert (outputBuffer);
 
-    if (!node) {
-        RETURN TranslationError::NO_ERRORS;
-    }
+    if (!node)
+        return TranslationError::NO_ERRORS;
 
     switch (node->nodeData.type) {
 
-        case NodeType::TERMINATOR: { RETURN TranslationError::TREE_ERROR; }
+        case NodeType::TERMINATOR: { return TranslationError::TREE_ERROR; }
         case NodeType::CONSTANT:   { CallbackFunction (WriteConstant);   break;}
         case NodeType::STRING:     { CallbackFunction (WriteIdentifier); break;}
         case NodeType::KEYWORD:    { CallbackFunction (WriteKeyword);    break;}
@@ -127,30 +119,36 @@ static TranslationError TreeTraversal (TranslationContext *context, Tree::Node <
         }
     }
 
-    RETURN TranslationError::NO_ERRORS;
+    return TranslationError::NO_ERRORS;
 }
 
 static TranslationError WriteIdentifier (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer) {
-    PushLog (4);
+    assert (context);
+    assert (node);
+    assert (outputBuffer);
 
     WriteString (context->nameTable.data [node->nodeData.content.nameTableIndex].name);
 
-    RETURN TranslationError::NO_ERRORS;
+    return TranslationError::NO_ERRORS;
 }
 
 static TranslationError WriteConstant (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer) {
-    PushLog (4);
+    assert (context);
+    assert (node);
+    assert (outputBuffer);
 
     char numberBuffer [MAX_NUMBER_LENGTH] = "";
 
     snprintf    (numberBuffer, MAX_NUMBER_LENGTH, "%lg", node->nodeData.content.number);
     WriteString (numberBuffer);
 
-    RETURN TranslationError::NO_ERRORS;
+    return TranslationError::NO_ERRORS;
 }
 
 static TranslationError WriteKeyword (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer) {
-    PushLog (4);
+    assert (context);
+    assert (node);
+    assert (outputBuffer);
 
     const char *keyword = GetKeyword (node->nodeData.content.keyword);
 
@@ -183,11 +181,14 @@ static TranslationError WriteKeyword (TranslationContext *context, Tree::Node <A
         default: break;
     }
 
-    RETURN TranslationError::NO_ERRORS;
+    return TranslationError::NO_ERRORS;
 }
 
 static TranslationError WriteConditionalOperator (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, const char *keyword) {
-    PushLog (2);
+    assert (context);
+    assert (node);
+    assert (outputBuffer);
+    assert (keyword);
 
     Indentation ();
     WriteString (keyword);
@@ -205,11 +206,14 @@ static TranslationError WriteConditionalOperator (TranslationContext *context, T
     Indentation ();
     WriteString (blockClose);
 
-    RETURN TranslationError::NO_ERRORS;
+    return TranslationError::NO_ERRORS;
 }
 
 static TranslationError WriteOperatorSeparator (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, const char *keyword) {
-    PushLog (2);
+    assert (context);
+    assert (node);
+    assert (outputBuffer);
+    assert (keyword);
 
     bool isOperatorSeparator = false;
     if (node->left) {
@@ -232,11 +236,14 @@ static TranslationError WriteOperatorSeparator (TranslationContext *context, Tre
 
     Traversal (right);
 
-    RETURN TranslationError::NO_ERRORS;
+    return TranslationError::NO_ERRORS;
 }
 
 static TranslationError WriteOperator (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, const char *keyword) {
-    PushLog (2);
+    assert (context);
+    assert (node);
+    assert (outputBuffer);
+    assert (keyword);
 
     BracketsPlacement brackets = GetBracketsPlacement (node);
     bool leftBrackets  = (int) brackets & (int) BracketsPlacement::LEFT;
@@ -268,17 +275,17 @@ static TranslationError WriteOperator (TranslationContext *context, Tree::Node <
 
     }
 
-    RETURN TranslationError::NO_ERRORS;
+    return TranslationError::NO_ERRORS;
 }
 
 static TranslationError WriteIndentation (TranslationContext *context, Buffer <char> *outputBuffer) {
-    PushLog (4);
+    assert (context);
+    assert (outputBuffer);
 
-    for (size_t tab = 0; tab < context->indentationLevel; tab++) {
+    for (size_t tab = 0; tab < context->indentationLevel; tab++)
         WriteString ("\t");
-    }
 
-    RETURN TranslationError::NO_ERRORS;
+    return TranslationError::NO_ERRORS;
 }
 
 static const char *GetKeyword (Keyword keyword) {
@@ -296,20 +303,18 @@ static const char *GetKeyword (Keyword keyword) {
 }
 
 static BracketsPlacement GetBracketsPlacement (Tree::Node <AstNode> *node) {
-    PushLog (4);
+    assert (node);
 
     size_t operationPriority = DeterminePriority (node);
     size_t rightPriority     = DeterminePriority (node->right);
 
     BracketsPlacement result = BracketsPlacement::NO_BRACKETS;
 
-    if (node->left && operationPriority < DeterminePriority (node->left)) {
+    if (node->left && operationPriority < DeterminePriority (node->left))
         result = (BracketsPlacement) ((int) result | (int) BracketsPlacement::LEFT);
-    }
 
-    if (operationPriority < rightPriority) {
+    if (operationPriority < rightPriority)
         result = (BracketsPlacement) ((int) result | (int) BracketsPlacement::RIGHT);
-    }
 
     Keyword keyword = node->nodeData.content.keyword;
 
@@ -320,34 +325,33 @@ static BracketsPlacement GetBracketsPlacement (Tree::Node <AstNode> *node) {
         result = (BracketsPlacement) ((int) result | (int) BracketsPlacement::RIGHT);
     }
 
-    RETURN result;
+    return result;
 }
 
 static size_t DeterminePriority (Tree::Node <AstNode> *node) {
-    PushLog (4);
+    assert (node);
 
-    if (!node) {
-        RETURN 0;
-    }
+    if (!node)
+        return 0;
 
     switch (node->nodeData.content.keyword) {
-        KeywordCase (IN)                                    { RETURN 0; }
+        KeywordCase (IN)                                    { return 0; }
 
         KeywordCase (SIN)     KeywordCase (COS)
-        KeywordCase (FLOOR)   KeywordCase (NOT)             { RETURN 1; }
+        KeywordCase (FLOOR)   KeywordCase (NOT)             { return 1; }
 
-        KeywordCase (MUL)     KeywordCase (DIV)             { RETURN 2; }
+        KeywordCase (MUL)     KeywordCase (DIV)             { return 2; }
 
-        KeywordCase (SUB)     KeywordCase (ADD)             { RETURN 3; }
+        KeywordCase (SUB)     KeywordCase (ADD)             { return 3; }
 
         KeywordCase (EQUAL)   KeywordCase (NOT_EQUAL)
         KeywordCase (LESS)    KeywordCase (LESS_EQUAL)
-        KeywordCase (GREATER) KeywordCase (GREATER_EQUAL)   { RETURN 4; }
+        KeywordCase (GREATER) KeywordCase (GREATER_EQUAL)   { return 4; }
 
-        KeywordCase (AND)     KeywordCase (OR)              { RETURN 5; }
+        KeywordCase (AND)     KeywordCase (OR)              { return 5; }
 
-        KeywordCase (OUT)     KeywordCase (RETURN_OPERATOR) { RETURN 6; }
+        KeywordCase (OUT)     KeywordCase (RETURN_OPERATOR) { return 6; }
 
-        default: { RETURN 0; }
+        default: { return 0; }
     }
 }

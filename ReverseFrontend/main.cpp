@@ -2,6 +2,7 @@
 #include "ReverseFrontendCore.h"
 #include "TreeReader.h"
 #include "TreeTranslator.h"
+#include <cassert>
 
 static char *GetFileContent (const char *filename);
 
@@ -36,7 +37,7 @@ int main (int argc, char **argv) {
 }
 
 static char *GetFileContent (const char *filename) {
-    PushLog (4);
+    assert (filename);
 
     FILE *sourceFile = fopen (filename, "r");
 
@@ -56,5 +57,5 @@ static char *GetFileContent (const char *filename) {
     
     fclose (sourceFile);
 
-    RETURN sourceData;
+    return sourceData;
 }

@@ -27,7 +27,7 @@
                     .line = context->tokens.data [context->tokenIndex]->nodeData.line,                          \
                     .file = context->tokens.data [context->tokenIndex]->nodeData.file};                         \
                 WriteDataToBuffer (&context->errorBuffer, &newError, 1);                                        \
-                RETURN NULL;                                                                                    \
+                return NULL;                                                                                    \
             }                                                                                                   \
         } while (0)
     
@@ -43,7 +43,7 @@
     #define NotNull(EXPRESSION)                                                                                 \
         do {                                                                                                    \
             if (!(EXPRESSION)) {                                                                                \
-                RETURN NULL;                                                                                    \
+                return NULL;                                                                                    \
             }                                                                                                   \
         } while (0)
     
@@ -51,7 +51,7 @@
         do {                                                                                                    \
             if (!(NODE)) {                                                                                      \
                 if (context->errorBuffer.data [context->errorBuffer.currentIndex - 1].error != ERROR) {         \
-                    RETURN NULL;                                                                                \
+                    return NULL;                                                                                \
                 }                                                                                               \
                 context->errorBuffer.currentIndex--;                                                            \
             }                                                                                                   \

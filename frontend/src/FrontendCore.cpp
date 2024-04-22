@@ -1,5 +1,6 @@
 #include <cstring>
 #include <stdio.h>
+#include <cassert>
 
 #include "FrontendCore.h"
 #include "Buffer.h"
@@ -11,29 +12,25 @@
 static const char *NameTypeToString (NameType type);
 
 CompilationError InitCompilationContext (CompilationContext *context, char *fileContent) {
-    PushLog (3);
+    assert (context);
+    assert (fileContent);
 
-    if (InitBuffer (&context->localTables) != BufferErrorCode::NO_BUFFER_ERRORS) {
-        RETURN CompilationError::CONTEXT_ERROR;
-    }
+    if (InitBuffer (&context->localTables) != BufferErrorCode::NO_BUFFER_ERRORS)
+        return CompilationError::CONTEXT_ERROR;
 
     AddLocalNameTable (-1, &context->localTables);
 
-    if (InitNameTable (&context->nameTable, true) != BufferErrorCode::NO_BUFFER_ERRORS) {
-        RETURN CompilationError::CONTEXT_ERROR;
-    }
+    if (InitNameTable (&context->nameTable, true) != BufferErrorCode::NO_BUFFER_ERRORS)
+        return CompilationError::CONTEXT_ERROR;
 
-    if (InitBuffer (&context->tokens) != BufferErrorCode::NO_BUFFER_ERRORS) {
-        RETURN CompilationError::TOKEN_BUFFER_ERROR;
-    }
+    if (InitBuffer (&context->tokens) != BufferErrorCode::NO_BUFFER_ERRORS)
+        return CompilationError::TOKEN_BUFFER_ERROR;
 
-    if (InitBuffer (&context->errorBuffer) != BufferErrorCode::NO_BUFFER_ERRORS) {
-        RETURN CompilationError::CONTEXT_ERROR; 
-    }
+    if (InitBuffer (&context->errorBuffer) != BufferErrorCode::NO_BUFFER_ERRORS)
+        return CompilationError::CONTEXT_ERROR; 
 
-     if (InitBuffer (&context->functionCalls) != BufferErrorCode::NO_BUFFER_ERRORS) {
-        RETURN CompilationError::CONTEXT_ERROR; 
-    }
+     if (InitBuffer (&context->functionCalls) != BufferErrorCode::NO_BUFFER_ERRORS)
+        return CompilationError::CONTEXT_ERROR; 
 
     context->error = CompilationError::NO_ERRORS;
     
@@ -41,11 +38,11 @@ CompilationError InitCompilationContext (CompilationContext *context, char *file
     context->fileLength = strlen (fileContent);
     context->currentLine = 1;
 
-    RETURN CompilationError::NO_ERRORS;
+    return CompilationError::NO_ERRORS;
 }
 
 CompilationError DestroyCompilationContext (CompilationContext *context) {
-    PushLog (3);
+    assert (context);
     
     if (context->abstractSyntaxTree.root) {
         Tree::DestroySubtreeNode (&context->abstractSyntaxTree, context->abstractSyntaxTree.root);
@@ -61,9 +58,8 @@ CompilationError DestroyCompilationContext (CompilationContext *context) {
         }
     }
 
-    for (size_t localTableIndex = 0; localTableIndex < context->localTables.currentIndex; localTableIndex++) {
+    for (size_t localTableIndex = 0; localTableIndex < context->localTables.currentIndex; localTableIndex++)
         DestroyBuffer (&context->localTables.data [localTableIndex].items);
-    }
 
     DestroyBuffer (&context->localTables);
     DestroyBuffer (&context->nameTable);
@@ -73,40 +69,42 @@ CompilationError DestroyCompilationContext (CompilationContext *context) {
 
     free (context->fileContent);
 
-    RETURN CompilationError::NO_ERRORS;
+    return CompilationError::NO_ERRORS;
 }
-
 
 // TODO: move lexer dumps to a separate file
 
 CompilationError DumpTokenTable (CompilationContext *context) {
-    PushLog (3);
+    assert (context);
 
-    for (size_t tokenIndex = 0; tokenIndex < context->tokens.currentIndex; tokenIndex++) {
+    for (size_t tokenIndex = 0; tokenIndex < context->tokens.currentIndex; tokenIndex++)
         DumpToken (context, context->tokens.data [tokenIndex]);
-    }
 
-    RETURN CompilationError::NO_ERRORS;
+    return CompilationError::NO_ERRORS;
 }
 
 CompilationError DumpToken (CompilationContext *context, Tree::Node <AstNode> *token) {
-    PushLog (3);
+    assert (context);
+    assert (token);
 
     if (token == NULL) {
         printf ("NULL\n");
 
-        RETURN CompilationError::NO_ERRORS;
+        return CompilationError::NO_ERRORS;
     }
 
     if (token->nodeData.type == NodeType::CONSTANT) {
         printf ("Constant: %lg\n", token->nodeData.content.number);
+
     } else if (token->nodeData.type == NodeType::STRING) {
-        printf ("Name: (type: \"%-10s\") <%s>\n", NameTypeToString (context->nameTable.data [token->nodeData.content.nameTableIndex].type), context->nameTable.data [token->nodeData.content.nameTableIndex].name);
+        printf ("Name: (type: \"%-10s\") <%s>\n",
+                NameTypeToString (context->nameTable.data [token->nodeData.content.nameTableIndex].type), 
+                context->nameTable.data [token->nodeData.content.nameTableIndex].name);
     } else {
         printf ("Service node\n");
     }
 
-    RETURN CompilationError::NO_ERRORS;
+    return CompilationError::NO_ERRORS;
 }
 
 static const char *NameTypeToString (NameType type) {

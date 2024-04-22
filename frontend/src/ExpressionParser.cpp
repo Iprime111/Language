@@ -1,6 +1,7 @@
+#include <cassert>
+
 #include "ExpressionParser.h"
 #include "FrontendCore.h"
-#include "Logger.h"
 #include "NameTable.h"
 #include "SyntaxTree.h"
 #include "ParserBasics.h"
@@ -30,13 +31,13 @@ static const Keyword DiffOperations [7]  = {Keyword::ADD, Keyword::SUB, Keyword:
 static const size_t  DiffOperationsCount = 7;
 
 Tree::Node <AstNode> *GetExpression (CompilationContext *context, int localNameTableId) {
-    PushLog (2);
+    assert (context);
 
-    RETURN NextFunction [MAX_PRIORITY] (context, MAX_PRIORITY, localNameTableId, false);
+    return NextFunction [MAX_PRIORITY] (context, MAX_PRIORITY, localNameTableId, false);
 }
 
 static Tree::Node <AstNode> *GetBinaryOperation (CompilationContext *context, size_t priority, int localNameTableId, bool onlyArythm) {
-    PushLog (3);
+    assert (context);
 
     Tree::Node <AstNode> *firstValue = NextFunction [priority - 1] (context, priority - 1, localNameTableId, onlyArythm);
     NotNull (firstValue);
@@ -45,7 +46,7 @@ static Tree::Node <AstNode> *GetBinaryOperation (CompilationContext *context, si
         Tree::Node <AstNode> *operation = GetOperationWithPriority (context, priority, localNameTableId);
 
         if (!operation) {
-            RETURN firstValue;
+            return firstValue;
         }
 
         if (onlyArythm) {
@@ -68,7 +69,7 @@ static Tree::Node <AstNode> *GetBinaryOperation (CompilationContext *context, si
 
 
 static Tree::Node <AstNode> *GetUnaryOperation (CompilationContext *context, size_t priority, int localNameTableId, bool onlyArythm) {
-    PushLog (3);
+    assert (context);
 
     Tree::Node <AstNode> *operation = GetOperationWithPriority (context, priority, localNameTableId);
 
@@ -91,24 +92,22 @@ static Tree::Node <AstNode> *GetUnaryOperation (CompilationContext *context, siz
         value = operation;
     }
 
-    RETURN value;
+    return value;
 }
 
 static Tree::Node <AstNode> *GetComparison (CompilationContext *context, size_t priority, int localNameTableId, bool onlyArythm) {
-    PushLog (3);
+    assert (context);
     
     Tree::Node <AstNode> *firstValue = NextFunction [priority - 1] (context, priority - 1, localNameTableId, onlyArythm);
     NotNull (firstValue);
     
     Tree::Node <AstNode> *operation = GetOperationWithPriority (context, priority, localNameTableId);
 
-    if (!operation) {
-        RETURN firstValue;
-    }
+    if (!operation)
+        return firstValue;
 
-    if (onlyArythm) {
+    if (onlyArythm)
         SyntaxAssert (IsDiffOperation (context, operation), CompilationError::OPERATION_EXPECTED);
-    }
 
     Tree::Node <AstNode> *secondValue = NextFunction [priority - 1] (context, priority - 1, localNameTableId, onlyArythm);
     NotNull (secondValue);
@@ -119,11 +118,11 @@ static Tree::Node <AstNode> *GetComparison (CompilationContext *context, size_t 
     operation->right    = secondValue;
     secondValue->parent = operation;
 
-    RETURN operation;
+    return operation;
 }
 
 static Tree::Node <AstNode> *GetDerivative (CompilationContext *context, int localNameTableId) {
-    PushLog (2);
+    assert (context);
 
     Tree::Node <AstNode> *derivativeNode = GetKeyword (context, Keyword::DIFF, CompilationError::DERIVATIVE_EXPECTED);
     NotNull (derivativeNode);
@@ -147,11 +146,11 @@ static Tree::Node <AstNode> *GetDerivative (CompilationContext *context, int loc
     derivativeNode->right = expression;
     expression->parent    = derivativeNode;
 
-    RETURN derivativeNode;
+    return derivativeNode;
 }
 
 static Tree::Node <AstNode> *GetPrimaryExpression (CompilationContext *context, size_t priority, int localNameTableId, bool onlyArythm) {
-    PushLog (3);
+    assert (context);
 
     if (GetTokenAndDestroy (context, Keyword::LBRACKET, CompilationError::BRACKET_EXPECTED)) {
 
@@ -159,7 +158,7 @@ static Tree::Node <AstNode> *GetPrimaryExpression (CompilationContext *context, 
 
         NotNull (GetTokenAndDestroy (context, Keyword::RBRACKET, CompilationError::BRACKET_EXPECTED));
 
-        RETURN expression;
+        return expression;
     } else {
         context->errorBuffer.currentIndex--;
     }
@@ -167,16 +166,15 @@ static Tree::Node <AstNode> *GetPrimaryExpression (CompilationContext *context, 
     Tree::Node <AstNode> *functionCall = GetFunctionCall (context, localNameTableId);
     CheckForError (functionCall, CompilationError::FUNCTION_CALL_EXPECTED);
 
-    if (functionCall) {
-        RETURN functionCall;
-    }
+    if (functionCall)
+        return functionCall;
 
     Tree::Node <AstNode> *terminalSymbol = GetStringToken (context, NameType::IDENTIFIER, CompilationError::IDENTIFIER_EXPECTED);
 
     if (terminalSymbol) {
         DeclarationAssert (terminalSymbol, LocalNameType::VARIABLE_IDENTIFIER, CompilationError::VARIABLE_NOT_DECLARED);
 
-        RETURN terminalSymbol;
+        return terminalSymbol;
     }
 
     context->errorBuffer.currentIndex--;
@@ -184,25 +182,23 @@ static Tree::Node <AstNode> *GetPrimaryExpression (CompilationContext *context, 
     terminalSymbol = GetDerivative (context, localNameTableId);
     CheckForError (terminalSymbol, CompilationError::DERIVATIVE_EXPECTED);
 
-    if (terminalSymbol) {
-        RETURN terminalSymbol;
-    }
+    if (terminalSymbol)
+        return terminalSymbol;
 
     terminalSymbol = GetKeyword (context, Keyword::IN, CompilationError::IN_EXPECTED);
 
-    if (terminalSymbol) {
-        RETURN terminalSymbol;
-    }
+    if (terminalSymbol)
+        return terminalSymbol;
 
     context->errorBuffer.currentIndex--;
 
     terminalSymbol = GetConstant (context);
 
-    RETURN terminalSymbol;
+    return terminalSymbol;
 }
 
 static Tree::Node <AstNode> *GetOperationWithPriority (CompilationContext *context, size_t priority, int localNameTableId) {
-    PushLog (3);
+    assert (context);
 
     Tree::Node <AstNode> *operation = NULL;
 
@@ -215,21 +211,20 @@ static Tree::Node <AstNode> *GetOperationWithPriority (CompilationContext *conte
             break;
     }
 
-    RETURN operation;
+    return operation;
 }
 
 static bool IsDiffOperation (CompilationContext *context, Tree::Node <AstNode> *operation) {
-    PushLog (4);
+    assert (context);
 
-    if (!operation || operation->nodeData.type != NodeType::STRING) {
-        RETURN false;
-    }
+    if (!operation || operation->nodeData.type != NodeType::STRING)
+        return false;
 
     for (size_t operationIndex = 0; operationIndex < DiffOperationsCount; operationIndex++) {
         if (context->nameTable.data [operation->nodeData.content.nameTableIndex].keyword == DiffOperations [operationIndex]) {
-            RETURN true;
+            return true;
         }
     }
 
-    RETURN false;
+    return false;
 }

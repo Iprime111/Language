@@ -1,5 +1,6 @@
+#include <cassert>
+
 #include "Dump.h"
-#include "Logger.h"
 #include "NameTable.h"
 #include "SyntaxTree.h"
 
@@ -13,21 +14,20 @@ static CompilationError EmitNodeConnections (Tree::Node <AstNode> *node, Buffer 
 #define WriteToDumpWithErrorCheck(dumpBuffer, data)                                                     \
     do {                                                                                                \
         if (WriteDataToBuffer (dumpBuffer, data, strlen (data)) != BufferErrorCode::NO_BUFFER_ERRORS) { \
-            RETURN CompilationError::DUMP_ERROR;                                                        \
+            return CompilationError::DUMP_ERROR;                                                        \
         }                                                                                               \
     } while (0)
 
 CompilationError DumpSyntaxTree (CompilationContext *context, char *dumpFilename) {
-    PushLog (3);
-
-    custom_assert (context, pointer_is_null, CompilationError::CONTEXT_ERROR);
+    assert (context);
+    assert (dumpFilename);
 
     Buffer <char> dumpBuffer = {};
 
     #define CatchError(returnValue, ...)    \
         do {                                \
             if (!(__VA_ARGS__)) {           \
-                RETURN returnValue;         \
+                return returnValue;         \
             }                               \
         } while (0)
 
@@ -50,11 +50,13 @@ CompilationError DumpSyntaxTree (CompilationContext *context, char *dumpFilename
 
     #undef CatchError
 
-    RETURN CompilationError::NO_ERRORS;
+    return CompilationError::NO_ERRORS;
 }
 
 static CompilationError EmitNode (CompilationContext *context, Tree::Node <AstNode> *node, Buffer <char> *dumpBuffer) {
-    PushLog (3);
+    assert (context);
+    assert (node);
+    assert (dumpBuffer);
 
     char indexBuffer [MAX_NODE_INDEX_LENGTH] = "";
     sprintf (indexBuffer, "%lu", (unsigned long) node);
@@ -66,9 +68,8 @@ static CompilationError EmitNode (CompilationContext *context, Tree::Node <AstNo
     const char *outlineColor    = GetOutlineColor    (context, node);
     const char *backgroundColor = GetBackgroundColor (context, node); 
 
-    if (!outlineColor || !backgroundColor) {
-        RETURN CompilationError::DUMP_ERROR;
-    }
+    if (!outlineColor || !backgroundColor)
+        return CompilationError::DUMP_ERROR;
 
     WriteToDumpWithErrorCheck (dumpBuffer, backgroundColor);
     WriteToDumpWithErrorCheck (dumpBuffer, "\" color=\"");
@@ -87,11 +88,13 @@ static CompilationError EmitNode (CompilationContext *context, Tree::Node <AstNo
     if (node->right)
         EmitNode (context, node->right, dumpBuffer);
 
-    RETURN CompilationError::NO_ERRORS;
+    return CompilationError::NO_ERRORS;
 }
 
 static CompilationError EmitNodeData (CompilationContext *context, Tree::Node <AstNode> *node, Buffer <char> *dumpBuffer) {
-    PushLog (3);
+    assert (context);
+    assert (node);
+    assert (dumpBuffer);
 
     char indexBuffer [MAX_NODE_INDEX_LENGTH] = "";
 
@@ -102,14 +105,13 @@ static CompilationError EmitNodeData (CompilationContext *context, Tree::Node <A
     WriteToDumpWithErrorCheck (dumpBuffer, " | Type: ");
 
     switch (node->nodeData.type) {
-        case NodeType::CONSTANT: {
+        case NodeType::CONSTANT:
             WriteToDumpWithErrorCheck (dumpBuffer, "Constant |");
 
             snprintf (indexBuffer, MAX_NODE_INDEX_LENGTH, "%lf", node->nodeData.content.number);
             WriteToDumpWithErrorCheck (dumpBuffer, indexBuffer);
 
             break;
-        }
 
         case NodeType::STRING: {
             switch (context->nameTable.data [node->nodeData.content.nameTableIndex].type) {
@@ -137,37 +139,31 @@ static CompilationError EmitNodeData (CompilationContext *context, Tree::Node <A
             break;
         }
 
-        case NodeType::FUNCTION_DEFINITION: {
+        case NodeType::FUNCTION_DEFINITION:
             WriteToDumpWithErrorCheck (dumpBuffer, "Function definition | Value: [");
             WriteToDumpWithErrorCheck (dumpBuffer, context->nameTable.data [node->nodeData.content.nameTableIndex].name);
             WriteToDumpWithErrorCheck (dumpBuffer, "]");
 
             break;
-        }
 
-        case NodeType::FUNCTION_ARGUMENTS: {
+        case NodeType::FUNCTION_ARGUMENTS:
             WriteToDumpWithErrorCheck (dumpBuffer, "Arguments");
             break;
-        }
 
-        case NodeType::VARIABLE_DECLARATION: {
+        case NodeType::VARIABLE_DECLARATION:
             WriteToDumpWithErrorCheck (dumpBuffer, "Variable declaration");
             break;
-        }
 
-        case NodeType::FUNCTION_CALL: {
+        case NodeType::FUNCTION_CALL:
             WriteToDumpWithErrorCheck (dumpBuffer, "Function call");
             break;
-        }
 
-        case NodeType::TERMINATOR: {
+        case NodeType::TERMINATOR:
             WriteToDumpWithErrorCheck (dumpBuffer, "Terminator");
             break;
-        }
 
-        default: {
-            RETURN CompilationError::NO_ERRORS;
-        }
+        default:
+            return CompilationError::NO_ERRORS;
     }
 
     WriteToDumpWithErrorCheck (dumpBuffer, " | {<left> left: ");
@@ -183,13 +179,14 @@ static CompilationError EmitNodeData (CompilationContext *context, Tree::Node <A
     WriteToDumpWithErrorCheck (dumpBuffer, "}}");
 
 
-    RETURN CompilationError::NO_ERRORS;
+    return CompilationError::NO_ERRORS;
 }
 
 
 
 static CompilationError EmitNodeConnections (Tree::Node <AstNode> *node, Buffer <char> *dumpBuffer) {
-    PushLog (3);
+    assert (node);
+    assert (dumpBuffer);
 
     char currentNodeIndex [MAX_NODE_INDEX_LENGTH] = "";
     char indexBuffer      [MAX_NODE_INDEX_LENGTH] = "";
@@ -212,53 +209,50 @@ static CompilationError EmitNodeConnections (Tree::Node <AstNode> *node, Buffer 
 
     #undef ChildConnection
     
-    RETURN CompilationError::NO_ERRORS;
+    return CompilationError::NO_ERRORS;
 }
 
 static const char *GetOutlineColor (CompilationContext *context, Tree::Node <AstNode> *node) {
-    PushLog (4);
+    assert (context);
+    assert (node);
 
     if (node->nodeData.type == NodeType::CONSTANT) {
-            RETURN DUMP_CONSTANT_NODE_OUTLINE_COLOR;
+            return DUMP_CONSTANT_NODE_OUTLINE_COLOR;
 
     } else if (node->nodeData.type == NodeType::STRING) {
-        if (context->nameTable.data [node->nodeData.content.nameTableIndex].type == NameType::IDENTIFIER) {
-            
-            RETURN DUMP_IDENTIFIER_NODE_OUTLINE_COLOR;    
-        } else {
-            
-            RETURN DUMP_KEYWORD_NODE_OUTLINE_COLOR;
-        }
+        if (context->nameTable.data [node->nodeData.content.nameTableIndex].type == NameType::IDENTIFIER)
+            return DUMP_IDENTIFIER_NODE_OUTLINE_COLOR;    
+        else
+            return DUMP_KEYWORD_NODE_OUTLINE_COLOR;
     } else {
-            RETURN DUMP_SERVICE_NODE_OUTLINE_COLOR;
+            return DUMP_SERVICE_NODE_OUTLINE_COLOR;
     }
 
 }
 
 static const char *GetBackgroundColor (CompilationContext *context, Tree::Node <AstNode> *node) {
-    PushLog (4);
+    assert (context);
+    assert (node);
 
     if (node->nodeData.type == NodeType::CONSTANT) {
-            RETURN DUMP_CONSTANT_NODE_BACKGROUND_COLOR;
+            return DUMP_CONSTANT_NODE_BACKGROUND_COLOR;
 
     } else if (node->nodeData.type == NodeType::STRING) {
-        if (context->nameTable.data [node->nodeData.content.nameTableIndex].type == NameType::IDENTIFIER) {
-
-            RETURN DUMP_IDENTIFIER_NODE_BACKGROUND_COLOR;    
-        } else {
-
-            RETURN DUMP_KEYWORD_NODE_BACKGROUND_COLOR;
-        }
+        if (context->nameTable.data [node->nodeData.content.nameTableIndex].type == NameType::IDENTIFIER)
+            return DUMP_IDENTIFIER_NODE_BACKGROUND_COLOR;    
+        else
+            return DUMP_KEYWORD_NODE_BACKGROUND_COLOR;
     } else {
-            RETURN DUMP_SERVICE_NODE_BACKGROUND_COLOR;
+            return DUMP_SERVICE_NODE_BACKGROUND_COLOR;
     }
 
 }
 
 static CompilationError EmitDumpHeader (CompilationContext *context, Buffer <char> *dumpBuffer) {
-    PushLog (4);
+    assert (context);
+    assert (dumpBuffer);
 
     WriteToDumpWithErrorCheck (dumpBuffer, "digraph {\n\tfontsize=\"20pt\"\n");
 
-    RETURN CompilationError::NO_ERRORS;
+    return CompilationError::NO_ERRORS;
 }

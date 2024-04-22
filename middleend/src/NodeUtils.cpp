@@ -1,3 +1,5 @@
+#include <cassert>
+
 #include "MiddleEndCore.h"
 #include "SyntaxTree.h"
 #include "TreeDefinitions.h"
@@ -7,59 +9,62 @@
 static TranslationError SubstituteTreeSegment (TranslationContext *context, Tree::Node<AstNode> *oldNode, Tree::Node<AstNode> *newNode);
 
 TranslationError SubstituteNode (TranslationContext *context, Tree::Node <AstNode> *oldNode, Tree::Node <AstNode> *newNode) {
-    PushLog (4);
+    assert (context);
+    assert (oldNode);
+    assert (newNode);
 
     TranslationError error = SubstituteTreeSegment (context, oldNode, newNode);
     
     Tree::DestroySingleNode (oldNode);
 
-    RETURN error;
+    return error;
 }
 
 TranslationError SubstituteSubtree (TranslationContext *context, Tree::Node <AstNode> *oldNode, Tree::Node <AstNode> *newNode) {
-    PushLog (4);
+    assert (context);
+    assert (oldNode);
+    assert (newNode);
 
     TranslationError error = SubstituteTreeSegment (context, oldNode, newNode);
     
     Tree::DestroySubtreeNode (&context->abstractSyntaxTree, oldNode);
 
-    RETURN error;
+    return error;
 }
 
 static TranslationError SubstituteTreeSegment (TranslationContext *context, Tree::Node<AstNode> *oldNode, Tree::Node<AstNode> *newNode) {
-    PushLog (4);
+    assert (context);
+    assert (oldNode);
+    assert (newNode);
 
     Tree::TreeEdge edge = GetNodeDirection (oldNode);
 
-    if (edge == Tree::LEFT_CHILD) {
+    if (edge == Tree::LEFT_CHILD)
         oldNode->parent->left  = newNode;
-
-    } else if (edge == Tree::RIGHT_CHILD) {
+    else if (edge == Tree::RIGHT_CHILD)
         oldNode->parent->right = newNode; 
-    }
 
     if (newNode)
         newNode->parent = oldNode->parent;
 
-    RETURN TranslationError::NO_ERRORS;
+    return TranslationError::NO_ERRORS;
 }
 
 Tree::TreeEdge GetNodeDirection (Tree::Node <AstNode> *node) {
-    PushLog (4);
+    assert (node);
 
-    if (!node || !node->parent || !(node->parent->left || node->parent->right)) {
-        RETURN Tree::NO_EDGE;
-    }
+    if (!node || !node->parent || !(node->parent->left || node->parent->right))
+        return Tree::NO_EDGE;
 
-    if (node == node->parent->left) {
-        RETURN Tree::LEFT_CHILD;
-    }
+    if (node == node->parent->left)
+        return Tree::LEFT_CHILD;
 
-    RETURN Tree::RIGHT_CHILD;
+    return Tree::RIGHT_CHILD;
 
 }
 
 Tree::Node <AstNode> *CopySubtree (Tree::Node <AstNode> *subtreeRoot) {
+    assert (subtreeRoot);
 
     Tree::Node <AstNode> *rootCopy = {};
     Tree::InitNode (&rootCopy);

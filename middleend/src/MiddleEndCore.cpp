@@ -1,8 +1,10 @@
+#include <cassert>
+
 #include "MiddleEndCore.h"
 #include "TreeReader.h"
 
 TranslationError DestroyTranslationContext (TranslationContext *context) {
-    PushLog (2);
+    assert (context);
 
     Tree::DestroySubtreeNode (&context->abstractSyntaxTree, context->abstractSyntaxTree.root);
 
@@ -20,5 +22,5 @@ TranslationError DestroyTranslationContext (TranslationContext *context) {
 
     DestroyBuffer (&context->localTables);
 
-    RETURN TranslationError::NO_ERRORS;
+    return TranslationError::NO_ERRORS;
 }

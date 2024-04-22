@@ -1,16 +1,16 @@
+#include <cassert>
+#include <cstddef>
+
 #include "Buffer.h"
-#include "CustomAssert.h"
 #include "FrontendCore.h"
-#include "Logger.h"
 #include "NameTable.h"
 #include "SyntaxTree.h"
-#include <cstddef>
 #include "TreeSaver.h"
 
 #define WriteString(data)                                                                       \
     do {                                                                                        \
         if (WriteStringToBuffer (outputBuffer, data) != BufferErrorCode::NO_BUFFER_ERRORS) {    \
-            RETURN CompilationError::OUTPUT_FILE_ERROR;                                         \
+            return CompilationError::OUTPUT_FILE_ERROR;                                         \
         }                                                                                       \
     } while (0)
 
@@ -24,12 +24,13 @@ static CompilationError SaveGlobalTable  (CompilationContext *context, Buffer <c
 static size_t           GetKeywordsCount (CompilationContext *context);
 
 CompilationError SaveNameTables (CompilationContext *context, FILE *stream) {
-    PushLog (3);
+    assert (context);
+    assert (stream);
 
     Buffer <char> outputBuffer = {};
 
     if (InitBuffer (&outputBuffer) != BufferErrorCode::NO_BUFFER_ERRORS) {
-        RETURN CompilationError::OUTPUT_FILE_ERROR;
+        return CompilationError::OUTPUT_FILE_ERROR;
     }
 
     size_t keywordsCount = GetKeywordsCount (context);
@@ -40,7 +41,7 @@ CompilationError SaveNameTables (CompilationContext *context, FILE *stream) {
     snprintf (numberBuffer, MAX_NUMBER_LENGTH + 1, "%lu\n", context->localTables.currentIndex);
 
     if (WriteStringToBuffer (&outputBuffer, numberBuffer) != BufferErrorCode::NO_BUFFER_ERRORS) {
-        RETURN CompilationError::CONTEXT_ERROR;
+        return CompilationError::CONTEXT_ERROR;
     }
 
     for (size_t localTableIndex = 0; localTableIndex < context->localTables.currentIndex; localTableIndex++) {
@@ -51,11 +52,10 @@ CompilationError SaveNameTables (CompilationContext *context, FILE *stream) {
 
     DestroyBuffer (&outputBuffer);
 
-    RETURN CompilationError::NO_ERRORS;
+    return CompilationError::NO_ERRORS;
 }
 
 static CompilationError SaveLocalTable (CompilationContext *context, size_t localTableIndex, Buffer <char> *outputBuffer, FILE *stream, size_t keywordsCount) {
-    PushLog (3);
 
     char numberBuffer [MAX_NUMBER_LENGTH] = "";
 
@@ -84,11 +84,10 @@ static CompilationError SaveLocalTable (CompilationContext *context, size_t loca
         WriteString ("\n");
     }
 
-    RETURN CompilationError::NO_ERRORS;
+    return CompilationError::NO_ERRORS;
 }
 
 static CompilationError SaveGlobalTable (CompilationContext *context, Buffer <char> *outputBuffer, size_t keywordsCount) {
-    PushLog (3);
 
     char numberBuffer [MAX_NUMBER_LENGTH] = "";
 
@@ -102,19 +101,18 @@ static CompilationError SaveGlobalTable (CompilationContext *context, Buffer <ch
         WriteString ("\n");
     }
 
-    RETURN CompilationError::NO_ERRORS;
+    return CompilationError::NO_ERRORS;
 }
 
 CompilationError SaveTree (CompilationContext *context, FILE *stream) {
-    PushLog (3);
 
-    custom_assert (context, pointer_is_null, CompilationError::CONTEXT_ERROR);
-    custom_assert (stream,  pointer_is_null, CompilationError::OUTPUT_FILE_ERROR);  
+    assert (context);
+    assert (stream);  
 
     Buffer <char> outputBuffer = {};
 
     if (InitBuffer (&outputBuffer) != BufferErrorCode::NO_BUFFER_ERRORS) {
-        RETURN CompilationError::OUTPUT_FILE_ERROR;
+        return CompilationError::OUTPUT_FILE_ERROR;
     }
 
     size_t keywordsCount = GetKeywordsCount (context);
@@ -131,15 +129,14 @@ CompilationError SaveTree (CompilationContext *context, FILE *stream) {
 
     DestroyBuffer (&outputBuffer);
 
-    RETURN CompilationError::NO_ERRORS;
+    return CompilationError::NO_ERRORS;
 }
 
 static CompilationError SaveTreeInternal (CompilationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, size_t keywordsCount) {
-    PushLog (4);
 
     if (!node) {
         WriteString ("_ ");
-        RETURN CompilationError::NO_ERRORS;
+        return CompilationError::NO_ERRORS;
     }
 
     WriteString ("( ");
@@ -151,12 +148,10 @@ static CompilationError SaveTreeInternal (CompilationContext *context, Tree::Nod
 
     WriteString (") ");
 
-    RETURN CompilationError::NO_ERRORS;
+    return CompilationError::NO_ERRORS;
 }
 
 static CompilationError WriteNodeContent (CompilationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, size_t keywordsCount) {
-    PushLog (4);
-
     char numberBuffer [MAX_NUMBER_LENGTH] = "";
 
     if (node->nodeData.type == NodeType::STRING) {
@@ -175,7 +170,7 @@ static CompilationError WriteNodeContent (CompilationContext *context, Tree::Nod
             WriteString (" ");
         }
 
-        RETURN CompilationError::NO_ERRORS;
+        return CompilationError::NO_ERRORS;
     } else {
         snprintf    (numberBuffer, MAX_NUMBER_LENGTH, "%d", (int) node->nodeData.type);
         WriteString (numberBuffer);
@@ -197,16 +192,14 @@ static CompilationError WriteNodeContent (CompilationContext *context, Tree::Nod
 
     WriteString (" ");
 
-    RETURN CompilationError::NO_ERRORS;
+    return CompilationError::NO_ERRORS;
 }
 
 static size_t GetKeywordsCount (CompilationContext *context) {
-    PushLog (4);
-
     size_t keywordsCount = 0;
 
     while (keywordsCount < context->nameTable.currentIndex && context->nameTable.data [keywordsCount].type != NameType::IDENTIFIER)
         keywordsCount++;
 
-    RETURN keywordsCount;
+    return keywordsCount;
 }

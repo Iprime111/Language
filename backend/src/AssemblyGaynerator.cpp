@@ -3,8 +3,6 @@
 #include "AssemblyGaynerator.h"
 #include "BackendCore.h"
 #include "Buffer.h"
-#include "CustomAssert.h"
-#include "Logger.h"
 #include "NameTable.h"
 #include "SyntaxTree.h"
 #include "TreeReader.h"
@@ -12,7 +10,7 @@
 #define WriteString(data)                                                                       \
     do {                                                                                        \
         if (WriteStringToBuffer (outputBuffer, data) != BufferErrorCode::NO_BUFFER_ERRORS) {    \
-            RETURN TranslationError::OUTPUT_FILE_ERROR;                                         \
+            return TranslationError::OUTPUT_FILE_ERROR;                                         \
         }                                                                                       \
     } while (0)
 
@@ -42,7 +40,7 @@ TranslationError GenerateAssembly (TranslationContext *context, FILE *outputStre
     Buffer <char> outputBuffer = {};
 
     if (InitBuffer (&outputBuffer) != BufferErrorCode::NO_BUFFER_ERRORS) {
-        RETURN TranslationError::OUTPUT_FILE_ERROR;
+        return TranslationError::OUTPUT_FILE_ERROR;
     }
 
     LoadProgram (context, &outputBuffer);
@@ -52,7 +50,7 @@ TranslationError GenerateAssembly (TranslationContext *context, FILE *outputStre
 
     DestroyBuffer (&outputBuffer);
 
-    RETURN TranslationError::NO_ERRORS;
+    return TranslationError::NO_ERRORS;
 }
 
 static TranslationError LoadProgram (TranslationContext *context, Buffer <char> *outputBuffer) {
@@ -71,14 +69,14 @@ static TranslationError LoadProgram (TranslationContext *context, Buffer <char> 
     WriteString (context->nameTable.data [context->entryPoint].name);
     WriteString ("\n\thlt");
 
-    RETURN TranslationError::NO_ERRORS;
+    return TranslationError::NO_ERRORS;
 }
 
 static TranslationError TreeTraversal (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex) {
     PushLog (2);
 
     if (!node) {
-        RETURN TranslationError::NO_ERRORS;
+        return TranslationError::NO_ERRORS;
     }
 
     #define NextCall(enumMember, function)                                  \
@@ -90,7 +88,7 @@ static TranslationError TreeTraversal (TranslationContext *context, Tree::Node <
     switch (node->nodeData.type) {
 
         case NodeType::TERMINATOR: {
-            RETURN TranslationError::TREE_ERROR;
+            return TranslationError::TREE_ERROR;
         }
 
         case NodeType::CONSTANT: {
@@ -115,7 +113,7 @@ static TranslationError TreeTraversal (TranslationContext *context, Tree::Node <
 
     #undef NextCall
 
-    RETURN TranslationError::NO_ERRORS;
+    return TranslationError::NO_ERRORS;
 }
 
 static TranslationError WriteConstant (double constant, Buffer <char> *outputBuffer) {
@@ -128,7 +126,7 @@ static TranslationError WriteConstant (double constant, Buffer <char> *outputBuf
     WriteString (numberBuffer);
     WriteString ("\n");
 
-    RETURN TranslationError::NO_ERRORS;
+    return TranslationError::NO_ERRORS;
 }
 
 static TranslationError WriteIdentifier (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex) {
@@ -138,7 +136,7 @@ static TranslationError WriteIdentifier (TranslationContext *context, Tree::Node
 
     WriteIdentifierMemoryCell (context, node, outputBuffer, currentNameTableIndex);
 
-    RETURN TranslationError::NO_ERRORS;
+    return TranslationError::NO_ERRORS;
 }
 
 static TranslationError WriteIdentifierMemoryCell (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex) {
@@ -157,14 +155,14 @@ static TranslationError WriteIdentifierMemoryCell (TranslationContext *context, 
             WriteString (indexBuffer);
             WriteString ("]\n");
         
-            RETURN TranslationError::NO_ERRORS;
+            return TranslationError::NO_ERRORS;
         }
     }
 
     identifierIndex = GetIndexInLocalTable (0, &context->localTables, node->nodeData.content.nameTableIndex, LocalNameType::VARIABLE_IDENTIFIER);
 
     if (identifierIndex < 0) {
-        RETURN TranslationError::TREE_ERROR;
+        return TranslationError::TREE_ERROR;
     }
 
     identifierIndex += INITIAL_ADDRESS;
@@ -174,7 +172,7 @@ static TranslationError WriteIdentifierMemoryCell (TranslationContext *context, 
     WriteString (indexBuffer);
     WriteString ("]\n");
 
-    RETURN TranslationError::NO_ERRORS;
+    return TranslationError::NO_ERRORS;
 
 }
 
@@ -188,16 +186,16 @@ static TranslationError NewFunction (TranslationContext *context, Tree::Node <As
     WriteString (":\n");
 
     if (tableIndex < 0) {
-        RETURN TranslationError::NAME_TABLE_ERROR;
+        return TranslationError::NAME_TABLE_ERROR;
     }
 
     if (node->right) {
         TreeTraversal (context, node->right, outputBuffer, tableIndex);
     } else {
-        RETURN TranslationError::TREE_ERROR;
+        return TranslationError::TREE_ERROR;
     }
 
-    RETURN TranslationError::NO_ERRORS;
+    return TranslationError::NO_ERRORS;
 }
 
 static TranslationError NewVariable (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex) {
@@ -210,7 +208,7 @@ static TranslationError NewVariable (TranslationContext *context, Tree::Node <As
         TreeTraversal (context, node->right, outputBuffer, currentNameTableIndex);
     }
 
-    RETURN TranslationError::NO_ERRORS; 
+    return TranslationError::NO_ERRORS; 
 }
 
 static TranslationError WriteFunctionCall (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex) {
@@ -220,7 +218,7 @@ static TranslationError WriteFunctionCall (TranslationContext *context, Tree::No
     char  *blockName  = "CALL OPERATOR";
 
     if (!node->right) {
-        RETURN TranslationError::TREE_ERROR;
+        return TranslationError::TREE_ERROR;
     }
 
     context->areCallArguments = true;
@@ -251,7 +249,7 @@ static TranslationError WriteFunctionCall (TranslationContext *context, Tree::No
         WriteString ("\tpush rax\n");
     }
 
-    RETURN TranslationError::NO_ERRORS;
+    return TranslationError::NO_ERRORS;
 }
 
 static TranslationError WriteLabel (TranslationContext *context, Buffer <char> *outputBuffer, char *labelName, size_t labelIndex) {
@@ -264,7 +262,7 @@ static TranslationError WriteLabel (TranslationContext *context, Buffer <char> *
     WriteString ("_");
     WriteString (labelIndexBuffer);
 
-    RETURN TranslationError::NO_ERRORS;
+    return TranslationError::NO_ERRORS;
 }
 
 static TranslationError WriteCreationSource (TranslationContext *context, Buffer <char> *outputBuffer, CreationData crationData) {
@@ -282,7 +280,7 @@ static TranslationError WriteCreationSource (TranslationContext *context, Buffer
     WriteString (")\n");
 
 
-    RETURN TranslationError::NO_ERRORS;
+    return TranslationError::NO_ERRORS;
 }
 
 static TranslationError WriteKeyword (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex) {
@@ -380,12 +378,12 @@ static TranslationError WriteKeyword (TranslationContext *context, Tree::Node <A
         })
 
         default: {
-            RETURN TranslationError::TREE_ERROR;
+            return TranslationError::TREE_ERROR;
         }
 
     }
 
     #undef AssemblyOperator
 
-    RETURN TranslationError::NO_ERRORS;
+    return TranslationError::NO_ERRORS;
 }

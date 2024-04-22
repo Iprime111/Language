@@ -3,11 +3,11 @@
 #include "Differentiator.h"
 #include "TreeReader.h"
 #include "TreeSaver.h"
+#include <cassert>
 
 static char *GetFileContent (const char *filename);
 
 int main (int argc, char **argv) {
-    PushLog (1);
 
      if (argc < 3) {
         printf ("Console arguments (syntax tree file and name table file paths) expected\n");
@@ -37,7 +37,7 @@ int main (int argc, char **argv) {
 
     if (!treeFile) {
         printf ("Can not open tree file for writing\n");
-        RETURN 0;
+        return 0;
     }
 
     SaveTree (&context, treeFile);
@@ -47,7 +47,7 @@ int main (int argc, char **argv) {
 }
 
 static char *GetFileContent (const char *filename) {
-    PushLog (4);
+    assert (filename);
 
     FILE *sourceFile = fopen (filename, "r");
 
@@ -67,5 +67,5 @@ static char *GetFileContent (const char *filename) {
     
     fclose (sourceFile);
 
-    RETURN sourceData;
+    return sourceData;
 }
