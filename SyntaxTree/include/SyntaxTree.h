@@ -27,22 +27,36 @@ struct AstNode {
     NodeType    type    = NodeType::CONSTANT;
     NodeContent content = {.number = NAN};
     int         line    = 0;
-    char       *file    = NULL;
+    char       *file    = nullptr;
 };
 
 Tree::Node <AstNode> *EmplaceNode (Tree::Node <AstNode> node);
 
-#define Const(NUMBER) EmplaceNode (Tree::Node <AstNode> {.left = NULL, .right = NULL, .parent = NULL, .nodeData = {.type = NodeType::CONSTANT,  .content = {.number         = NUMBER}, .line = context->currentLine}})
-#define Name(INDEX)   EmplaceNode (Tree::Node <AstNode> {.left = NULL, .right = NULL, .parent = NULL, .nodeData = {.type = NodeType::STRING,    .content = {.nameTableIndex = INDEX},  .line = context->currentLine}})
+#define Const(NUMBER) EmplaceNode (Tree::Node <AstNode> {.left = nullptr, .right = nullptr, .parent = nullptr,\
+        .nodeData = {.type = NodeType::CONSTANT,  .content = {.number         = NUMBER}, .line = context->currentLine}})
 
-#define FunctionDefinition(leftChild, rightChild, identifierIndex)  EmplaceNode (Tree::Node <AstNode> {.left = leftChild, .right = rightChild, .parent = NULL, .nodeData = {.type = NodeType::FUNCTION_DEFINITION,  .content = {.nameTableIndex = identifierIndex}}})
-#define VariableDeclaration(leftChild, rightChild, identifierIndex) EmplaceNode (Tree::Node <AstNode> {.left = leftChild, .right = rightChild, .parent = NULL, .nodeData = {.type = NodeType::VARIABLE_DECLARATION, .content = {.nameTableIndex = identifierIndex}}})
-#define FunctionArguments(leftChild, rightChild)                    EmplaceNode (Tree::Node <AstNode> {.left = leftChild, .right = rightChild, .parent = NULL, .nodeData = {.type = NodeType::FUNCTION_ARGUMENTS}})
-#define FunctionCall(leftChild, rightChild)                         EmplaceNode (Tree::Node <AstNode> {.left = leftChild, .right = rightChild, .parent = NULL, .nodeData = {.type = NodeType::FUNCTION_CALL}})
+#define Name(INDEX)   EmplaceNode (Tree::Node <AstNode> {.left = nullptr, .right = nullptr, .parent = nullptr,\
+        .nodeData = {.type = NodeType::STRING,    .content = {.nameTableIndex = INDEX},  .line = context->currentLine}})
 
-#define Terminator() EmplaceNode (Tree::Node <AstNode> {.left = NULL, .right = NULL, .parent = NULL, .nodeData = {.type = NodeType::TERMINATOR}})
+#define FunctionDefinition(leftChild, rightChild, identifierIndex)  EmplaceNode (Tree::Node <AstNode> {.left = leftChild, .right = rightChild, \
+        .parent = nullptr, .nodeData = {.type = NodeType::FUNCTION_DEFINITION,  .content = {.nameTableIndex = identifierIndex}}})
 
-#define OperatorSeparator(leftChild, rightChild) EmplaceNode (Tree::Node <AstNode> {.left = leftChild, .right = rightChild, .parent = NULL, .nodeData = {.type = NodeType::STRING, .content = {.nameTableIndex = 0}}});
-#define ArgumentSeparator(leftChild, rightChild) EmplaceNode (Tree::Node <AstNode> {.left = leftChild, .right = rightChild, .parent = NULL, .nodeData = {.type = NodeType::STRING, .content = {.nameTableIndex = 1}}});
+#define VariableDeclaration(leftChild, rightChild, identifierIndex) EmplaceNode (Tree::Node <AstNode> {.left = leftChild, .right = rightChild, \
+        .parent = nullptr, .nodeData = {.type = NodeType::VARIABLE_DECLARATION, .content = {.nameTableIndex = identifierIndex}}})
+
+#define FunctionArguments(leftChild, rightChild)                    EmplaceNode (Tree::Node <AstNode> {.left = leftChild, .right = rightChild, \
+        .parent = nullptr, .nodeData = {.type = NodeType::FUNCTION_ARGUMENTS}})
+
+#define FunctionCall(leftChild, rightChild)                         EmplaceNode (Tree::Node <AstNode> {.left = leftChild, .right = rightChild, \
+        .parent = nullptr, .nodeData = {.type = NodeType::FUNCTION_CALL}})
+
+#define Terminator() EmplaceNode (Tree::Node <AstNode> {.left = nullptr, .right = nullptr, \
+        .parent = nullptr, .nodeData = {.type = NodeType::TERMINATOR}})
+
+#define OperatorSeparator(leftChild, rightChild) EmplaceNode (Tree::Node <AstNode> {.left = leftChild, .right = rightChild, \
+        .parent = nullptr, .nodeData = {.type = NodeType::STRING, .content = {.nameTableIndex = 0}}});
+
+#define ArgumentSeparator(leftChild, rightChild) EmplaceNode (Tree::Node <AstNode> {.left = leftChild, .right = rightChild, \
+        .parent = nullptr, .nodeData = {.type = NodeType::STRING, .content = {.nameTableIndex = 1}}});
 
 #endif

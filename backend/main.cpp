@@ -1,3 +1,5 @@
+#include <cassert>
+
 #include "AssemblyGaynerator.h"
 #include "BackendCore.h"
 #include "TreeReader.h"
@@ -36,13 +38,13 @@ int main (int argc, char **argv) {
 }
 
 static char *GetFileContent (const char *filename) {
-    PushLog (4);
+    assert (filename);
 
     FILE *sourceFile = fopen (filename, "r");
 
     if (!sourceFile) {
         printf ("Can not open source file\n");
-        return NULL;
+        return nullptr;
     }
     
     fseek (sourceFile, 0, SEEK_END);
@@ -56,5 +58,5 @@ static char *GetFileContent (const char *filename) {
     
     fclose (sourceFile);
 
-    RETURN sourceData;
+    return sourceData;
 }

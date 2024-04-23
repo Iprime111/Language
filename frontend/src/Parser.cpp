@@ -224,20 +224,20 @@ static Tree::Node <AstNode> *GetAssignmentExpression (CompilationContext *contex
 static Tree::Node <AstNode> *GetOperator (CompilationContext *context, int localNameTableId) {
     assert (context);
 
-    Tree::Node <AstNode> *expectedOperator = NULL;
+    Tree::Node <AstNode> *expectedOperator = nullptr;
 
     expectedOperator = GetConditionOperator (context, Keyword::IF, CompilationError::IF_EXPECTED, localNameTableId);
     CheckForError (expectedOperator, CompilationError::IF_EXPECTED);
 
     if (expectedOperator) {
-        return OperatorSeparator (expectedOperator, NULL);   
+        return OperatorSeparator (expectedOperator, nullptr);   
     }
     
     expectedOperator = GetConditionOperator (context, Keyword::WHILE, CompilationError::WHILE_EXPECTED, localNameTableId);
     CheckForError (expectedOperator, CompilationError::WHILE_EXPECTED);
     
     if (expectedOperator) {
-        return OperatorSeparator (expectedOperator, NULL);   
+        return OperatorSeparator (expectedOperator, nullptr);   
     }
 
     #define GetExpectedOperator(FUNCTION, ERROR)                    \
@@ -380,7 +380,7 @@ static Tree::Node <AstNode> *GetArgumentList (CompilationContext *context, int l
     
     if (!separator) {
         context->errorBuffer.currentIndex--;
-        return ArgumentSeparator (argument, NULL);
+        return ArgumentSeparator (argument, nullptr);
     }
     
     Tree::Node <AstNode> *nextArgument = GetArgumentList (context, localNameTableId);
@@ -405,7 +405,7 @@ static Tree::Node <AstNode> *GetParameterList (CompilationContext *context, int 
     
     if (!separator) {
         context->errorBuffer.currentIndex--;
-        return ArgumentSeparator (parameter, NULL);
+        return ArgumentSeparator (parameter, nullptr);
     }
     
     Tree::Node <AstNode> *nextParameter = GetParameterList (context, localNameTableId);

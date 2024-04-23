@@ -27,7 +27,7 @@
                     .line = context->tokens.data [context->tokenIndex]->nodeData.line,                          \
                     .file = context->tokens.data [context->tokenIndex]->nodeData.file};                         \
                 WriteDataToBuffer (&context->errorBuffer, &newError, 1);                                        \
-                return NULL;                                                                                    \
+                return nullptr;                                                                                 \
             }                                                                                                   \
         } while (0)
     
@@ -37,13 +37,13 @@
     #define DestroyCurrentNode()                                                                                \
         do {                                                                                                    \
             Tree::DestroySingleNode (currentToken);                                                             \
-            currentToken = NULL;                                                                                \
+            currentToken = nullptr;                                                                             \
         } while (0)
     
     #define NotNull(EXPRESSION)                                                                                 \
         do {                                                                                                    \
             if (!(EXPRESSION)) {                                                                                \
-                return NULL;                                                                                    \
+                return nullptr;                                                                                 \
             }                                                                                                   \
         } while (0)
     
@@ -51,7 +51,7 @@
         do {                                                                                                    \
             if (!(NODE)) {                                                                                      \
                 if (context->errorBuffer.data [context->errorBuffer.currentIndex - 1].error != ERROR) {         \
-                    return NULL;                                                                                \
+                    return nullptr;                                                                             \
                 }                                                                                               \
                 context->errorBuffer.currentIndex--;                                                            \
             }                                                                                                   \

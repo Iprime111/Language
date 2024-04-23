@@ -6,7 +6,6 @@
 #include "ErrorWriter.h"
 #include "Buffer.h"
 #include "FrontendCore.h"
-#include "Logger.h"
 #include "NameTable.h"
 
 #define WriteToHtml(data)                                                                   \

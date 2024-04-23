@@ -1,4 +1,5 @@
 #include <cctype>
+#include <cassert>
 
 #include "TreeReader.h"
 #include "SyntaxTree.h"
@@ -22,10 +23,8 @@ static TranslationError DummyRead    (char **dataString, Tree::Node <AstNode> *n
 static const reader_t Readers [7] = {ReadConstant, ReadName, ReadKeyword, ReadName, DummyRead, ReadName, DummyRead};
 
 TranslationError ReadSyntaxTree (Tree::Tree <AstNode> *tree, size_t *entryPoint, char *fileContent) {
-    PushLog (3);
-
-    custom_assert (tree,        pointer_is_null, TranslationError::CONTEXT_ERROR);
-    custom_assert (fileContent, pointer_is_null, TranslationError::INPUT_FILE_ERROR);
+    assert (tree);
+    assert (fileContent);
 
     int entryPointLength = 0;
     sscanf (fileContent, "%lu%n", entryPoint, &entryPointLength);
@@ -35,20 +34,21 @@ TranslationError ReadSyntaxTree (Tree::Tree <AstNode> *tree, size_t *entryPoint,
     tree->root = ReadSyntaxTreeInternal (tree, &fileContent);
 
     if (!tree->root) {
-        RETURN TranslationError::INPUT_FILE_ERROR;
+        return TranslationError::INPUT_FILE_ERROR;
     }
 
-    RETURN TranslationError::NO_ERRORS;
+    return TranslationError::NO_ERRORS;
 }
 
 static Tree::Node <AstNode> *ReadSyntaxTreeInternal (Tree::Tree <AstNode> *tree, char **treeBegin) {
-    PushLog (3);
+    assert (tree);
+    assert (treeBegin);
 
     SkipSpaces ();
 
     if ((*treeBegin) [0] != '(') {
         (*treeBegin)++;
-        RETURN NULL;
+        return nullptr;
     }
 
     (*treeBegin)++;
@@ -58,13 +58,13 @@ static Tree::Node <AstNode> *ReadSyntaxTreeInternal (Tree::Tree <AstNode> *tree,
     sscanf (*treeBegin, "%d", &intNodeType);
 
     if (intNodeType < 1 || intNodeType > 7) {
-        RETURN NULL;
+        return nullptr;
     }
     
     (*treeBegin)++;
     SkipSpaces ();
 
-    Tree::Node <AstNode> *newNode = NULL;
+    Tree::Node <AstNode> *newNode = nullptr;
     Tree::InitNode (&newNode);
 
     newNode->nodeData.type = (NodeType) intNodeType;
@@ -83,11 +83,12 @@ static Tree::Node <AstNode> *ReadSyntaxTreeInternal (Tree::Tree <AstNode> *tree,
     SkipSpaces ();
     (*treeBegin)++;
 
-    RETURN newNode;
+    return newNode;
 }
 
 static TranslationError ReadConstant (char **dataString, Tree::Node <AstNode> *newNode) {
-    PushLog (4);
+    assert (dataString);
+    assert (newNode);
     
     double constant = NAN;
     int    length   = 0;
@@ -97,11 +98,12 @@ static TranslationError ReadConstant (char **dataString, Tree::Node <AstNode> *n
 
     newNode->nodeData.content.number = constant;
 
-    RETURN TranslationError::NO_ERRORS;
+    return TranslationError::NO_ERRORS;
 }
 
 static TranslationError ReadKeyword (char **dataString, Tree::Node <AstNode> *newNode) {
-    PushLog (4);
+    assert (dataString);
+    assert (newNode);
     
     int keywordIndex = 0;
     int length   = 0;
@@ -111,21 +113,24 @@ static TranslationError ReadKeyword (char **dataString, Tree::Node <AstNode> *ne
 
     newNode->nodeData.content.keyword = (Keyword) keywordIndex;    
 
-    RETURN TranslationError::NO_ERRORS;
+    return TranslationError::NO_ERRORS;
 }
 
 static TranslationError ReadName (char **dataString, Tree::Node <AstNode> *newNode) {
-    PushLog (4);
+    assert (dataString);
+    assert (newNode);
 
     int identifierLength = 0; 
     sscanf (*dataString, "%lu%n", &newNode->nodeData.content.nameTableIndex, &identifierLength);
 
     (*dataString) += identifierLength;
 
-    RETURN TranslationError::NO_ERRORS;
+    return TranslationError::NO_ERRORS;
 }
 
 static TranslationError DummyRead (char **dataString, Tree::Node <AstNode> *newNode) {
-    
+    assert (dataString);
+    assert (newNode);
+
     return TranslationError::NO_ERRORS;
 }

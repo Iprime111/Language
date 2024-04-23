@@ -299,7 +299,7 @@ static const char *GetKeyword (Keyword keyword) {
 
     #undef KEYWORD
 
-    return NULL;
+    return nullptr;
 }
 
 static BracketsPlacement GetBracketsPlacement (Tree::Node <AstNode> *node) {

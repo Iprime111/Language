@@ -9,8 +9,8 @@ const int    INITIAL_ADDRESS   = 30000;
 
 struct CreationData {
     size_t blockIndex  = 0;
-    char  *blockName   = NULL;
-    char  *blockSource = NULL;
+    char  *blockName   = nullptr;
+    char  *blockSource = nullptr;
 };
 
 #define Traversal(direction)         TreeTraversal (context, node->direction, outputBuffer, currentNameTableIndex)

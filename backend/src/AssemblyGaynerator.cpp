@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <cassert>
 
 #include "AssemblyGaynerator.h"
 #include "BackendCore.h"
@@ -15,9 +16,7 @@
     } while (0)
 
 static TranslationError LoadProgram               (TranslationContext *context, Buffer <char> *outputBuffer);
-
 static TranslationError TreeTraversal             (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex);
-
 static TranslationError WriteConstant             (double constant, Buffer <char> *outputBuffer);
 static TranslationError WriteIdentifier           (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex);
 static TranslationError NewFunction               (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex);
@@ -31,17 +30,14 @@ static TranslationError WriteCreationSource       (TranslationContext *context, 
 static TranslationError WriteLabel                (TranslationContext *context, Buffer <char> *outputBuffer, char *labelName, size_t labelIndex);
 
 TranslationError GenerateAssembly (TranslationContext *context, FILE *outputStream) {
-    PushLog (1);
-
-    custom_assert (context,                          pointer_is_null, TranslationError::CONTEXT_ERROR);
-    custom_assert (context->abstractSyntaxTree.root, pointer_is_null, TranslationError::TREE_ERROR);
-    custom_assert (outputStream,                     pointer_is_null, TranslationError::OUTPUT_FILE_ERROR);
+    assert (context);
+    assert (context->abstractSyntaxTree.root);
+    assert (outputStream);
 
     Buffer <char> outputBuffer = {};
 
-    if (InitBuffer (&outputBuffer) != BufferErrorCode::NO_BUFFER_ERRORS) {
+    if (InitBuffer (&outputBuffer) != BufferErrorCode::NO_BUFFER_ERRORS)
         return TranslationError::OUTPUT_FILE_ERROR;
-    }
 
     LoadProgram (context, &outputBuffer);
     TreeTraversal (context, context->abstractSyntaxTree.root, &outputBuffer, 0);
@@ -54,7 +50,8 @@ TranslationError GenerateAssembly (TranslationContext *context, FILE *outputStre
 }
 
 static TranslationError LoadProgram (TranslationContext *context, Buffer <char> *outputBuffer) {
-    PushLog (4);
+    assert (context);
+    assert (outputBuffer);
 
     char initialAddressBuffer [MAX_NUMBER_LENGTH] = "";
     snprintf (initialAddressBuffer, MAX_NUMBER_LENGTH, "%d", INITIAL_ADDRESS);
@@ -73,11 +70,12 @@ static TranslationError LoadProgram (TranslationContext *context, Buffer <char> 
 }
 
 static TranslationError TreeTraversal (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex) {
-    PushLog (2);
+    assert (context);
+    assert (node);
+    assert (outputBuffer);
 
-    if (!node) {
+    if (!node)
         return TranslationError::NO_ERRORS;
-    }
 
     #define NextCall(enumMember, function)                                  \
         case NodeType::enumMember: {                                        \
@@ -87,24 +85,21 @@ static TranslationError TreeTraversal (TranslationContext *context, Tree::Node <
 
     switch (node->nodeData.type) {
 
-        case NodeType::TERMINATOR: {
+        case NodeType::TERMINATOR:
             return TranslationError::TREE_ERROR;
-        }
 
-        case NodeType::CONSTANT: {
+        case NodeType::CONSTANT:
             WriteConstant (node->nodeData.content.number, outputBuffer);
             break;
-        }
 
-        case NodeType::FUNCTION_ARGUMENTS: {
+        case NodeType::FUNCTION_ARGUMENTS:
             context->areCallArguments = false;
 
             TreeTraversal (context, node->left,  outputBuffer, currentNameTableIndex);
             TreeTraversal (context, node->right, outputBuffer, currentNameTableIndex);
             break;
-        }
 
-        NextCall (STRING,                 WriteIdentifier);
+        NextCall (STRING,               WriteIdentifier);
         NextCall (KEYWORD,              WriteKeyword);
         NextCall (FUNCTION_DEFINITION,  NewFunction);
         NextCall (VARIABLE_DECLARATION, NewVariable);
@@ -117,8 +112,8 @@ static TranslationError TreeTraversal (TranslationContext *context, Tree::Node <
 }
 
 static TranslationError WriteConstant (double constant, Buffer <char> *outputBuffer) {
-    PushLog (4);
-    
+    assert (outputBuffer);
+
     char numberBuffer [MAX_NUMBER_LENGTH] = "";
     snprintf (numberBuffer, MAX_NUMBER_LENGTH, "%lg", constant);
 
@@ -130,7 +125,9 @@ static TranslationError WriteConstant (double constant, Buffer <char> *outputBuf
 }
 
 static TranslationError WriteIdentifier (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex) {
-    PushLog (4);
+    assert (context);
+    assert (node);
+    assert (outputBuffer);
 
     WriteString ("\tpush ");
 
@@ -140,7 +137,9 @@ static TranslationError WriteIdentifier (TranslationContext *context, Tree::Node
 }
 
 static TranslationError WriteIdentifierMemoryCell (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex) {
-    PushLog (4);
+    assert (context);
+    assert (node);
+    assert (outputBuffer);
 
     char indexBuffer [MAX_NUMBER_LENGTH] = "";
     int  identifierIndex                 = -1;
@@ -161,9 +160,8 @@ static TranslationError WriteIdentifierMemoryCell (TranslationContext *context, 
 
     identifierIndex = GetIndexInLocalTable (0, &context->localTables, node->nodeData.content.nameTableIndex, LocalNameType::VARIABLE_IDENTIFIER);
 
-    if (identifierIndex < 0) {
+    if (identifierIndex < 0)
         return TranslationError::TREE_ERROR;
-    }
 
     identifierIndex += INITIAL_ADDRESS;
     snprintf (indexBuffer, MAX_NUMBER_LENGTH, "%d", identifierIndex);
@@ -177,7 +175,9 @@ static TranslationError WriteIdentifierMemoryCell (TranslationContext *context, 
 }
 
 static TranslationError NewFunction (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex) {
-    PushLog (4);
+    assert (context);
+    assert (node);
+    assert (outputBuffer);
 
     int tableIndex = GetLocalNameTableIndex ((int) node->nodeData.content.nameTableIndex, &context->localTables);
 
@@ -185,9 +185,8 @@ static TranslationError NewFunction (TranslationContext *context, Tree::Node <As
     WriteString (context->nameTable.data [node->nodeData.content.nameTableIndex].name);
     WriteString (":\n");
 
-    if (tableIndex < 0) {
+    if (tableIndex < 0)
         return TranslationError::NAME_TABLE_ERROR;
-    }
 
     if (node->right) {
         TreeTraversal (context, node->right, outputBuffer, tableIndex);
@@ -199,7 +198,9 @@ static TranslationError NewFunction (TranslationContext *context, Tree::Node <As
 }
 
 static TranslationError NewVariable (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex) {
-    PushLog (4);
+    assert (context);
+    assert (node);
+    assert (outputBuffer);
 
     //TODO: variable size
     context->localTables.data [currentNameTableIndex].tableSize += 1;
@@ -212,7 +213,9 @@ static TranslationError NewVariable (TranslationContext *context, Tree::Node <As
 }
 
 static TranslationError WriteFunctionCall (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex) {
-    PushLog (4);
+    assert (context);
+    assert (node);
+    assert (outputBuffer);
 
     size_t blockIndex = ++context->operatorsCount.callCount;
     char  *blockName  = "CALL OPERATOR";
@@ -245,15 +248,16 @@ static TranslationError WriteFunctionCall (TranslationContext *context, Tree::No
     WriteString (context->nameTable.data [node->right->nodeData.content.nameTableIndex].name);
     WriteString ("\n\tpop rbp\n");
 
-    if (node->parent && !(node->parent->nodeData.type == NodeType::KEYWORD && node->parent->nodeData.content.keyword == Keyword::OPERATOR_SEPARATOR)) { 
+    if (node->parent && !(node->parent->nodeData.type == NodeType::KEYWORD && node->parent->nodeData.content.keyword == Keyword::OPERATOR_SEPARATOR)) 
         WriteString ("\tpush rax\n");
-    }
 
     return TranslationError::NO_ERRORS;
 }
 
 static TranslationError WriteLabel (TranslationContext *context, Buffer <char> *outputBuffer, char *labelName, size_t labelIndex) {
-    PushLog (4);
+    assert (context);
+    assert (outputBuffer);
+    assert (labelName);
     
     char labelIndexBuffer [MAX_NUMBER_LENGTH] = "";
     snprintf (labelIndexBuffer, MAX_NUMBER_LENGTH, "%lu", labelIndex);
@@ -266,7 +270,8 @@ static TranslationError WriteLabel (TranslationContext *context, Buffer <char> *
 }
 
 static TranslationError WriteCreationSource (TranslationContext *context, Buffer <char> *outputBuffer, CreationData crationData) {
-    PushLog (4);
+    assert (context);
+    assert (outputBuffer);
 
     char numberBuffer [MAX_NUMBER_LENGTH] = "";
     snprintf (numberBuffer, MAX_NUMBER_LENGTH, "%lu", crationData.blockIndex);
@@ -284,7 +289,9 @@ static TranslationError WriteCreationSource (TranslationContext *context, Buffer
 }
 
 static TranslationError WriteKeyword (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex) {
-    PushLog (4);
+    assert (context);
+    assert (node);
+    assert (outputBuffer);
 
     #define AssemblyOperator(opcode, ...)   \
     case Keyword::opcode: {                 \
@@ -359,7 +366,7 @@ static TranslationError WriteKeyword (TranslationContext *context, Tree::Node <A
         AssemblyOperator (ABORT,              WriteString     ("\thlt\n");)
         AssemblyOperator (NOT,                ToLogicExpression (left); LogicJump ("je");)
         AssemblyOperator (RETURN_OPERATOR,    Traversal (right); WriteString ("\tpop rax\n\tret\n");)
-        AssemblyOperator (BREAK_OPERATOR,     WriteString ("\tjmp "); Label ("WHILE_END", context->operatorsCount.whileCount);   WriteString ("\n");) //FIXME: inner breaks
+        AssemblyOperator (BREAK_OPERATOR,     WriteString ("\tjmp "); Label ("WHILE_END", context->operatorsCount.whileCount); WriteString ("\n");) //FIXME: inner breaks
         AssemblyOperator (CONTINUE_OPERATOR,  WriteString ("\tjmp "); Label ("WHILE_END", context->operatorsCount.whileCount); WriteString ("\n");)
         AssemblyOperator (IN,                 WriteString ("\tin\n");)
         AssemblyOperator (OUT,                Traversal (right); WriteString ("\tout\n");)

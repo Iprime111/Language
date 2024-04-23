@@ -200,7 +200,7 @@ static Tree::Node <AstNode> *GetPrimaryExpression (CompilationContext *context, 
 static Tree::Node <AstNode> *GetOperationWithPriority (CompilationContext *context, size_t priority, int localNameTableId) {
     assert (context);
 
-    Tree::Node <AstNode> *operation = NULL;
+    Tree::Node <AstNode> *operation = nullptr;
 
     for (size_t operationIndex = 0; operationIndex < OperationsCount [priority]; operationIndex++) {
         operation = GetKeyword (context, Operations [priority][operationIndex], CompilationError::OPERATION_EXPECTED);

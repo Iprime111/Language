@@ -2,12 +2,12 @@
 #include "TreeDefinitions.h"
 
 Tree::Node <AstNode> *EmplaceNode (Tree::Node <AstNode> node) {
-    Tree::Node <AstNode> *newNode = NULL;
+    Tree::Node <AstNode> *newNode = nullptr;
 
     Tree::InitNode (&newNode);
 
     if (!newNode) {
-        return NULL;
+        return nullptr;
     }
 
     *newNode = node;

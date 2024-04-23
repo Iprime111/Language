@@ -87,8 +87,8 @@ CompilationError DumpToken (CompilationContext *context, Tree::Node <AstNode> *t
     assert (context);
     assert (token);
 
-    if (token == NULL) {
-        printf ("NULL\n");
+    if (token == nullptr) {
+        printf ("null\n");
 
         return CompilationError::NO_ERRORS;
     }
@@ -123,5 +123,5 @@ static const char *NameTypeToString (NameType type) {
             return "separator";
     }
 
-    return NULL;
+    return nullptr;
 }

@@ -41,7 +41,7 @@ TranslationError DumpSyntaxTree (TranslationContext *context, char *dumpFilename
     WriteToDumpWithErrorCheck (&dumpBuffer, "}");
 
     FILE *dumpFile = fopen (dumpFilename, "w");
-    CatchError (TranslationError::DUMP_ERROR, dumpFile != NULL);
+    CatchError (TranslationError::DUMP_ERROR, dumpFile);
 
     fwrite (dumpBuffer.data, sizeof (char), dumpBuffer.currentIndex, dumpFile);
 

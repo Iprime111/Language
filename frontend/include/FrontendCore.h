@@ -44,7 +44,7 @@ enum class CompilationError: long long int {
 struct ErrorData {
     CompilationError error = CompilationError::NO_ERRORS;
     int              line  = 0;
-    char            *file  = NULL;
+    char            *file  = nullptr;
 };
 
 struct CompilationContext {
@@ -61,7 +61,7 @@ struct CompilationContext {
 
     Tree::Tree <AstNode> abstractSyntaxTree = {};
 
-    char *fileContent = NULL;
+    char *fileContent = nullptr;
     size_t fileLength = 0;
 
     size_t entryPoint = 0;

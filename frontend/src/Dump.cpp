@@ -41,7 +41,7 @@ CompilationError DumpSyntaxTree (CompilationContext *context, char *dumpFilename
     WriteToDumpWithErrorCheck (&dumpBuffer, "}");
 
     FILE *dumpFile = fopen (dumpFilename, "w");
-    CatchError (CompilationError::DUMP_ERROR, dumpFile != NULL);
+    CatchError (CompilationError::DUMP_ERROR, dumpFile);
 
     fwrite (dumpBuffer.data, sizeof (char), dumpBuffer.currentIndex, dumpFile);
 

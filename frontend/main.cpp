@@ -67,7 +67,7 @@ static char *GetSourceFileContent (const char *filename) {
 
     if (!sourceFile) {
         printf ("Can not open source file\n");
-        return NULL;
+        return nullptr;
     }
 
     fseek (sourceFile, 0, SEEK_END);

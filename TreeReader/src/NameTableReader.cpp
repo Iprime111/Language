@@ -1,20 +1,17 @@
+#include <cassert>
+#include <clocale>
 
 #include "Buffer.h"
-#include "CustomAssert.h"
-#include "Logger.h"
 #include "NameTable.h"
 #include "TreeReader.h"
-#include <clocale>
 
 static TranslationError ReadGlobalTable (Buffer <NameTableRecord> *globalTable, char **fileContent);
 static TranslationError ReadLocalTable (Buffer <LocalNameTable> *localTables, size_t tableIndex, char **fileContent);
 
 TranslationError ReadNameTables (Buffer <NameTableRecord> *globalTable, Buffer <LocalNameTable> *localTables, char *fileContent) {
-    PushLog (3);
-
-    custom_assert (globalTable, pointer_is_null, TranslationError::NAME_TABLE_ERROR);
-    custom_assert (localTables, pointer_is_null, TranslationError::NAME_TABLE_ERROR);
-    custom_assert (fileContent, pointer_is_null, TranslationError::INPUT_FILE_ERROR);
+    assert (globalTable);
+    assert (localTables);
+    assert (fileContent);
 
     ReadGlobalTable (globalTable, &fileContent);
 
@@ -32,11 +29,12 @@ TranslationError ReadNameTables (Buffer <NameTableRecord> *globalTable, Buffer <
         ReadLocalTable (localTables, tableIndex, &fileContent);
     }
 
-    RETURN TranslationError::NO_ERRORS;
+    return TranslationError::NO_ERRORS;
 }
 
 static TranslationError ReadGlobalTable (Buffer <NameTableRecord> *globalTable, char **fileContent) {
-    PushLog (3);
+    assert (globalTable);
+    assert (fileContent);
 
     size_t tableSize        = 0;
     int    sizeNumberLength = 0;
@@ -49,7 +47,7 @@ static TranslationError ReadGlobalTable (Buffer <NameTableRecord> *globalTable, 
 
     for (size_t globalTableRecord = 0; globalTableRecord < tableSize; globalTableRecord++) {
         
-        char *newIdentifier  = NULL;
+        char *newIdentifier  = nullptr;
         int   identifierSize = 0;
         sscanf (*fileContent, "%ms%n[^\n]", &newIdentifier, &identifierSize);
         
@@ -58,11 +56,12 @@ static TranslationError ReadGlobalTable (Buffer <NameTableRecord> *globalTable, 
         AddIdentifier (globalTable, newIdentifier);
     }
 
-    RETURN TranslationError::NO_ERRORS;
+    return TranslationError::NO_ERRORS;
 }
 
 static TranslationError ReadLocalTable (Buffer <LocalNameTable> *localTables, size_t tableIndex, char **fileContent) {
-    PushLog (3);
+    assert (localTables);
+    assert (fileContent);
 
     size_t tableSize        = 0;
     int    nameTableId      = 0;
@@ -88,6 +87,6 @@ static TranslationError ReadLocalTable (Buffer <LocalNameTable> *localTables, si
                             LocalNameTableRecord {.nameType = (LocalNameType) nameType, .globalNameId = globalTableIndex}, 0);
     }
 
-    RETURN TranslationError::NO_ERRORS;
+    return TranslationError::NO_ERRORS;
 
 }
