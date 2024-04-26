@@ -5,3 +5,6 @@
     path = libs/Tree
     branch = tree-lib
 	url = https://github.com/Iprime111/BinaryTree
+[submodule "libs/ConsoleParser"]
+	path = libs/ConsoleParser
+	url = git@github.com:Iprime111/ConsoleParser.git

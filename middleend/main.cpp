@@ -1,21 +1,28 @@
+#include <cassert>
+
+#include "ConsoleParser.h"
 #include "MiddleEndCore.h"
 #include "Optimizations.h"
 #include "Differentiator.h"
 #include "TreeReader.h"
 #include "TreeSaver.h"
-#include <cassert>
 
-static char *GetFileContent (const char *filename);
+static char *TreeFile   = nullptr;
+static char *NamesFile  = nullptr;
+
+static void SetTreeFilename  (char **name);
+static void SetNamesFilename (char **name);
+static char *GetFileContent  (const char *filename);
 
 int main (int argc, char **argv) {
 
-     if (argc < 3) {
-        printf ("Console arguments (syntax tree file and name table file paths) expected\n");
-        return 0;
-    }
+    RegisterFlag ("-t", "--tree",   SetTreeFilename,   1);
+    RegisterFlag ("-n", "--names",  SetNamesFilename,  1);
+    
+    ParseFlags (argc, argv);
 
-    char *treeData      = GetFileContent (argv [1]);
-    char *nameTableData = GetFileContent (argv [2]);
+    char *treeData      = GetFileContent (TreeFile);
+    char *nameTableData = GetFileContent (NamesFile);
 
     if (!treeData || !nameTableData) {
         printf ("Can not read data from file\n");
@@ -33,7 +40,7 @@ int main (int argc, char **argv) {
     DifferentiationTraversal (&context, context.abstractSyntaxTree.root);
     DoOptimizations          (&context);
 
-    FILE *treeFile = fopen (argv [1], "w");
+    FILE *treeFile = fopen (TreeFile, "w");
 
     if (!treeFile) {
         printf ("Can not open tree file for writing\n");
@@ -46,6 +53,21 @@ int main (int argc, char **argv) {
     DestroyTranslationContext (&context);
 }
 
+static void SetTreeFilename (char **name) {
+    assert (name);
+    assert (*name);
+
+    TreeFile = name [0];
+}
+
+static void SetNamesFilename (char **name) {
+    assert (name);
+    assert (*name);
+
+    NamesFile = name [0];
+}
+
+
 static char *GetFileContent (const char *filename) {
     assert (filename);
 
@@ -53,7 +75,7 @@ static char *GetFileContent (const char *filename) {
 
     if (!sourceFile) {
         printf ("Can not open source file\n");
-        return NULL;
+        return nullptr;
     }
     
     fseek (sourceFile, 0, SEEK_END);

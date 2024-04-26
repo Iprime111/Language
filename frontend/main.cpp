@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <cassert>
 
+#include "ConsoleParser.h"
 #include "FrontendCore.h"
 #include "Lexer.h"
 #include "Parser.h"
@@ -8,17 +9,30 @@
 #include "ErrorWriter.h"
 #include "TreeSaver.h"
 
+static char *SourceFile   = nullptr;
+static char *TreeFile     = nullptr;
+static char *NamesFile    = nullptr;
+static char *TreeDumpFile = nullptr;
+
 static char *GetSourceFileContent (const char *filename);
+static void SetSourceFilename     (char **name);
+static void SetTreeFilename       (char **name);
+static void SetNamesFilename      (char **name);
+static void SetTreeDumpFilename   (char **name);
 
 int main (int argc, char **argv) {
+
+    RegisterFlag ("-s", "--source", SetSourceFilename,   1);
+    RegisterFlag ("-t", "--tree",   SetTreeFilename,     1);
+    RegisterFlag ("-n", "--names",  SetNamesFilename,    1);
+    RegisterFlag ("-d", "--dump",   SetTreeDumpFilename, 1);
+
+    
+    ParseFlags (argc, argv);
+        
     CompilationContext context = {};
 
-    if (argc < 2) {
-        printf ("Console argument (source file name) expected\n");
-        return 0;
-    }
-
-    char *sourceData = GetSourceFileContent (argv [1]);
+    char *sourceData = GetSourceFileContent (SourceFile);
 
     if (!sourceData) {
         printf ("Can not read source data");
@@ -39,11 +53,12 @@ int main (int argc, char **argv) {
 
     GenerateErrorHtml (&context, "CompilationReport.html");
 
-    FILE *nameTableFile = fopen ("NameTables.tmp", "w");
-    FILE *treeFile      = fopen ("SyntaxTree.tmp", "w");
+    FILE *nameTableFile = fopen (NamesFile, "w");
+    FILE *treeFile      = fopen (TreeFile,  "w");
 
     if (!nameTableFile || !treeFile) {
         printf ("Error while opening output file\n");
+        DestroyCompilationContext (&context);
         return 0;
     }
 
@@ -53,11 +68,40 @@ int main (int argc, char **argv) {
     fclose (nameTableFile);
     fclose (treeFile);
 
-    DumpSyntaxTree (&context, "TreeDumpFrontend.dot");
+    if (TreeDumpFile)
+        DumpSyntaxTree (&context, TreeDumpFile);
 
     DestroyCompilationContext (&context);
 
     return 0;
+}
+
+static void SetSourceFilename (char **name) {
+    assert (name);
+    assert (*name);
+
+    SourceFile = name [0];
+}
+
+static void SetTreeFilename (char **name) {
+    assert (name);
+    assert (*name);
+
+    TreeFile = name [0];
+}
+
+static void SetNamesFilename (char **name) {
+    assert (name);
+    assert (*name);
+
+    NamesFile = name [0];
+}
+
+static void SetTreeDumpFilename (char **name) {
+    assert (name);
+    assert (*name);
+
+    TreeDumpFile = name [0];
 }
 
 static char *GetSourceFileContent (const char *filename) {

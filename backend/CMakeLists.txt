@@ -11,6 +11,7 @@ target_link_options (${PROJECT_NAME} PRIVATE $<$<CONFIG:Debug>:${DEBUG_FLAGS}>)
 target_link_options (${PROJECT_NAME} PRIVATE $<$<CONFIG:Release>:${RELEASE_FLAGS}>)
 
 target_link_libraries (${PROJECT_NAME} PRIVATE Tree)
+target_link_libraries (${PROJECT_NAME} PRIVATE ConsoleParser)
 target_link_libraries (${PROJECT_NAME} PRIVATE Buffer)
 
 target_link_libraries (${PROJECT_NAME} PRIVATE TreeReader)
