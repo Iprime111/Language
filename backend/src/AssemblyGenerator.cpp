@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cassert>
 
-#include "AssemblyGaynerator.h"
+#include "AssemblyGenerator.h"
 #include "BackendCore.h"
 #include "Buffer.h"
 #include "NameTable.h"
@@ -15,7 +15,7 @@
         }                                                                                       \
     } while (0)
 
-static TranslationError LoadProgram               (TranslationContext *context, Buffer <char> *outputBuffer);
+static TranslationError SetupProgram              (TranslationContext *context, Buffer <char> *outputBuffer);
 static TranslationError TreeTraversal             (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex);
 static TranslationError WriteConstant             (double constant, Buffer <char> *outputBuffer);
 static TranslationError WriteIdentifier           (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex);
@@ -39,7 +39,7 @@ TranslationError GenerateAssembly (TranslationContext *context, FILE *outputStre
     if (InitBuffer (&outputBuffer) != BufferErrorCode::NO_BUFFER_ERRORS)
         return TranslationError::OUTPUT_FILE_ERROR;
 
-    LoadProgram (context, &outputBuffer);
+    SetupProgram (context, &outputBuffer);
     TreeTraversal (context, context->abstractSyntaxTree.root, &outputBuffer, 0);
 
     fwrite (outputBuffer.data, outputBuffer.currentIndex, 1, outputStream);
@@ -49,22 +49,15 @@ TranslationError GenerateAssembly (TranslationContext *context, FILE *outputStre
     return TranslationError::NO_ERRORS;
 }
 
-static TranslationError LoadProgram (TranslationContext *context, Buffer <char> *outputBuffer) {
+static TranslationError SetupProgram (TranslationContext *context, Buffer <char> *outputBuffer) {
     assert (context);
     assert (outputBuffer);
 
     char initialAddressBuffer [MAX_NUMBER_LENGTH] = "";
     snprintf (initialAddressBuffer, MAX_NUMBER_LENGTH, "%d", INITIAL_ADDRESS);
 
-    Source      (0, "SETTING RBP", "PROGRAM LOADER");
-    WriteString ("\tpush ");
-    WriteString (initialAddressBuffer);
-    WriteString ("\n\tpop rbp\n");
-
-    Source      (0, "ENTRY POINT CALL", "PROGRAMM LOADER");
-    WriteString ("\tcall ");
-    WriteString (context->nameTable.data [context->entryPoint].name);
-    WriteString ("\n\thlt");
+    Source      (0, "setting .text section and _start label visibility", "program setup");
+    WriteString ("section .text\nglobal _start");
 
     return TranslationError::NO_ERRORS;
 }

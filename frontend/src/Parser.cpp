@@ -72,7 +72,6 @@ static Tree::Node <AstNode> *GetTranslationUnit (CompilationContext *context) {
 
     NotNull (externalDeclaration);
 
-    //TODO: STRING
     SyntaxAssert (currentToken->nodeData.type == NodeType::STRING && 
                     context->nameTable.data [currentNameTableIndex].keyword == Keyword::OPERATOR_SEPARATOR, 
                     CompilationError::OPERATOR_SEPARATOR_EXPECTED);

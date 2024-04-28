@@ -1,5 +1,5 @@
-#ifndef ASSEMBLY_GAYNERATOR_H_
-#define ASSEMBLY_GAYNERATOR_H_
+#ifndef ASSEMBLY_GENERATOR_H_
+#define ASSEMBLY_GENERATOR_H_
 
 #include <stddef.h>
 #include "BackendCore.h"
