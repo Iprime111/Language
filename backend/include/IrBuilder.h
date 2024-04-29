@@ -17,7 +17,7 @@ class IRBuilder final {
         Instruction *CreateDiv ();
 
     private:
-        Instruction *CreateBinaryOperation (Instruction newInstruction);
+        Instruction *InsertInstruction (Instruction newInstruction);
 
         Value *insertPoint = nullptr;
 };

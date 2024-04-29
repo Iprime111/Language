@@ -3,47 +3,46 @@
 
 #include "Register.h"
 
-RegisterSet::RegisterSet () : count(0) {
-    this->count = 0; // TODO never write this->
-}
+RegisterSet::RegisterSet () : count(0) {}
 
-RegisterSet::RegisterSet (size_t count, ...) {
+RegisterSet::RegisterSet (size_t registersCount, ...) {
     va_list args;
     va_start (args, count);
 
-    if (count > AVAILABLE_REGISTERS_COUNT)
-        this->count = 0;
+    if (registersCount > AVAILABLE_REGISTERS_COUNT)
+        count = 0;
 
-    this->count = count;
+    registersCount = count;
 
-    for (size_t registerIndex = 0; registerIndex < this->count; registerIndex++)
-        this->registers [registerIndex] = va_arg (args, Register *);
+    for (size_t registerIndex = 0; registerIndex < count; registerIndex++)
+        registers [registerIndex] = va_arg (args, Register *);
 
     va_end (args);
 }
 
-RegisterSet::RegisterSet (size_t count, Register **registers) {
-    assert (registers);
+RegisterSet::RegisterSet (size_t registersCount, Register **registers) {
+    if (!registers)
+        return;
 
-    if (count > AVAILABLE_REGISTERS_COUNT)
-        this->count = 0;
+    if (registersCount > AVAILABLE_REGISTERS_COUNT)
+        count = 0;
 
-    this->count = count;
+    count = registersCount;
 
-    for (size_t registerIndex = 0; registerIndex < this->count; registerIndex++)
-        this->registers [registerIndex] = registers [registerIndex];
+    for (size_t registerIndex = 0; registerIndex < count; registerIndex++)
+        registers [registerIndex] = registers [registerIndex];
 
 }
 
 Register *RegisterSet::GetRegister (size_t index) {
-    if (index >= this->count)
+    if (index >= count)
         return nullptr;
 
-    return this->registers [index];
+    return registers [index];
 }
 
 size_t RegisterSet::GetCount () {
-    return this->count;
+    return count;
 }
 
 

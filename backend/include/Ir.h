@@ -18,32 +18,49 @@ enum class ValueType {
     INSTRUCTION  = 1 << 1,
     BASIC_BLOCK  = 1 << 2,
     FUNCTION     = 1 << 3,
-    CONSTANT_I64 = 1 << 4,
 };
+
+enum class InstructionId {
+    NO_ID = 0,
+    ADD   = 1,
+    SUB   = 2,
+    MUL   = 3,
+    DIV   = 4,
+};
+
+//TODO split to files
 
 class Value { // TODO: def-use chain
               // TODO  UML diagram
 
-    //TODO GetParent (), GetNext (), GetPrev ()
     public:
-        Value *parent    = nullptr;
-        Value *nextBlock = nullptr;
-        Value *prevBlock = nullptr;
+        virtual ~Value () = 0;
+
+        Value *GetParent ();
+        Value *GetNext   ();
+        Value *GetPrev   ();
+
+        ValueType GetType ();
+
+    protected:
+        Value (ValueType valueType);
+
+    private:
+        Value *parent = nullptr;
+        Value *next   = nullptr;
+        Value *prev   = nullptr;
 
         ValueType valueType = ValueType::VALUE;
 
-        virtual ~Value () = default;
 };
 
 class Instruction final : public Value {
     public:
-        char   *name                        = nullptr;
-        uint8_t opcode [MAX_OPCODE_LENGTH]  = "";
-        size_t  opcodeLength                = 0;
+        Instruction (InstructionId instructionId);
 
-        RegisterSet explicitOperands = {};
-        RegisterSet implicitOperands = {};
-        RegisterSet outputRegisters  = {};
+        InstructionId GetId ();
+    private:
+        InstructionId instructionId = InstructionId::NO_ID;
 };
 
 
@@ -51,30 +68,37 @@ class BasicBlock final : public Value {
     
     public:
         Buffer <Instruction> instructions = {};
-        size_t               blockLength  = 0;
-        char                *name         = nullptr;
 
         BasicBlock () = delete;
+
+        char  *GetName   ();
+        size_t GetLength ();
 
         static BasicBlock *Create (char *name, Function *function);
 
     private:
+        char   *name         = nullptr;
+        size_t  blockLength  = 0;
+
         BasicBlock (char *name);
         
-        //TODO reinitialize valueType
 };
 
 class Function final : public Value {
     public:
-        char               *name        = nullptr;
-        FunctionType        type        = {};
         Buffer <BasicBlock> basicBlocks = {};
-        
+
         Function () = delete;
+
+        char         *GetName ();
+        FunctionType *GetType ();
 
         static Function *Create (FunctionType *type, char *name, TranslationContext *context);
 
     private:
+        char         *name = nullptr;
+        FunctionType  type = {};
+
         Function (char *name, FunctionType *type);
 };
 

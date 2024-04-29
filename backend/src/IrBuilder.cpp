@@ -3,7 +3,6 @@
 #include "IrBuilder.h"
 #include "Buffer.h"
 #include "Ir.h"
-#include "Register.h"
 
 static Instruction *CreateBinaryOperation (IRBuilder *builder, Instruction newInstruction);
 
@@ -25,51 +24,33 @@ static Instruction *CreateBinaryOperation (IRBuilder *builder, Instruction newIn
 //};
 
 Instruction *IRBuilder::CreateAdd () {
-    return CreateBinaryOperation ({
-            .name = "add", 
-            .opcode = "\x48\x01\xd8",  // TODO move to data tructure
-            .opcodeLength = 3,
-            .explicitOperands  = RegisterSet (2, RAX, RBX),
-            .implicitOperands  = RegisterSet (), 
-            .outputRegisters   = RegisterSet (1, RAX)});
+    return InsertInstruction (Instruction (InstructionId::ADD));
 }
 
 Instruction *IRBuilder::CreateSub () {
-    return CreateBinaryOperation ({
-            .name = "sub", 
-            .opcode = "\x48\x29\xd8", 
-            .opcodeLength = 3,
-            .explicitOperands  = RegisterSet (2, RAX, RBX),
-            .implicitOperands  = RegisterSet (), 
-            .outputRegisters   = RegisterSet (1, RAX)});
+    return InsertInstruction (Instruction (InstructionId::ADD));
 }
 
 Instruction *IRBuilder::CreateMul () {
-    return CreateBinaryOperation ({
-            .name = "mul", 
-            .opcode = "\x48\x0f\xaf\xc3", 
-            .opcodeLength = 4,
-            .explicitOperands  = RegisterSet (2, RAX, RBX),
-            .implicitOperands  = RegisterSet (), 
-            .outputRegisters   = RegisterSet (1, RAX)});
+    return InsertInstruction (Instruction (InstructionId::ADD));
 }
 
 Instruction *IRBuilder::CreateDiv () {
-    return CreateBinaryOperation ({
-            .name = "div", 
-            .opcode = "\x48\x99\x48\xf7\xfb", 
-            .opcodeLength = 5, 
-            .explicitOperands  = RegisterSet (1, RBX),
-            .implicitOperands  = RegisterSet (1, RAX), 
-            .outputRegisters   = RegisterSet (1, RAX)});
+    return InsertInstruction (Instruction (InstructionId::ADD));
 }
 
-Instruction *IRBuilder::CreateBinaryOperation (Instruction newInstruction) {
-    //FIXME works only if insertPoint is BasicBlock
-    if (WriteDataToBuffer (&((BasicBlock *) insertPoint)->instructions, &newInstruction, 1) != BufferErrorCode::NO_BUFFER_ERRORS)
+Instruction *IRBuilder::InsertInstruction (Instruction newInstruction) {
+    if (!insertPoint)
         return nullptr;
 
-    ((BasicBlock *) insertPoint)->blockLength += newInstruction.opcodeLength;
+    ValueType insertPointType = insertPoint->GetType ();
 
-    return &builder->insertPoint->instructions.data [builder->insertPoint->instructions.currentIndex - 1];
+    //TODO
+    if (insertPointType == ValueType::BASIC_BLOCK) {
+
+    } else if (insertPointType == ValueType::INSTRUCTION) {
+        
+    } else {
+        return nullptr;
+    }
 }
