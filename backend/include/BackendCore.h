@@ -1,6 +1,7 @@
 #ifndef BACKEND_CORE_H_
 #define BACKEND_CORE_H_
 
+#include "FunctionType.h"
 #include "Ir.h"
 #include "NameTable.h"
 #include "SyntaxTree.h"
@@ -18,7 +19,9 @@ struct OperatorsCount {
 struct TranslationContext {
     Tree::Tree <AstNode>     abstractSyntaxTree = {};
     Buffer <NameTableRecord> nameTable          = {};
-    Buffer <BasicBlock>      basicBlocks        = {};
+    Buffer <Function>        functions          = {};
+
+    TypesImplementation types = {};
 
     TranslationError error = TranslationError::NO_ERRORS;
 

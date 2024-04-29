@@ -4,6 +4,7 @@
 #include "Buffer.h"
 #include "NameTable.h"
 #include "TreeDefinitions.h"
+#include "TreeReader.h"
 
 TranslationError InitTranslationContext (TranslationContext *context) {
     assert (context);
@@ -13,6 +14,9 @@ TranslationError InitTranslationContext (TranslationContext *context) {
 
     if (InitBuffer (&context->localTables) != BufferErrorCode::NO_BUFFER_ERRORS)
         return TranslationError::NAME_TABLE_ERROR;
+
+    if (InitBuffer (&context->functions) != BufferErrorCode::NO_BUFFER_ERRORS)
+        return TranslationError::CONTEXT_ERROR;
 
     AddLocalNameTable (0, &context->localTables);
 
@@ -37,6 +41,8 @@ TranslationError DestroyTranslationContext (TranslationContext *context) {
         DestroyBuffer (&context->localTables.data [localTableIndex].items);
 
     DestroyBuffer (&context->localTables);
+    DestroyBuffer (&context->functions);
+    //TODO destroy all basic blocks
 
     return TranslationError::NO_ERRORS;
 }

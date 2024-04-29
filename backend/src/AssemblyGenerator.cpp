@@ -4,6 +4,9 @@
 #include "AssemblyGenerator.h"
 #include "BackendCore.h"
 #include "Buffer.h"
+#include "FunctionType.h"
+#include "Ir.h"
+#include "IrBuilder.h"
 #include "NameTable.h"
 #include "SyntaxTree.h"
 #include "TreeReader.h"
@@ -15,64 +18,46 @@
         }                                                                                       \
     } while (0)
 
-static TranslationError SetupProgram              (TranslationContext *context, Buffer <char> *outputBuffer);
-static TranslationError TreeTraversal             (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex);
-static TranslationError WriteConstant             (double constant, Buffer <char> *outputBuffer);
-static TranslationError WriteIdentifier           (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex);
-static TranslationError NewFunction               (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex);
-static TranslationError NewVariable               (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex);
-static TranslationError WriteFunctionCall         (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex);
-static TranslationError WriteKeyword              (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex);
-static TranslationError WriteIdentifierMemoryCell (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex);
+static TranslationError SetupProgram              (IRBuilder *builder);
+static TranslationError TreeTraversal             (IRBuilder *builder, Tree::Node <AstNode> *node, int currentNameTableIndex);
+static TranslationError WriteConstant             (double constant);
+static TranslationError WriteIdentifier           (IRBuilder *builder, Tree::Node <AstNode> *node, int currentNameTableIndex);
+static TranslationError NewFunction               (IRBuilder *builder, Tree::Node <AstNode> *node, int currentNameTableIndex);
+static TranslationError NewVariable               (IRBuilder *builder, Tree::Node <AstNode> *node, int currentNameTableIndex);
+static TranslationError WriteFunctionCall         (IRBuilder *builder, Tree::Node <AstNode> *node, int currentNameTableIndex);
+static TranslationError WriteKeyword              (IRBuilder *builder, Tree::Node <AstNode> *node, int currentNameTableIndex);
+static TranslationError WriteIdentifierMemoryCell (IRBuilder *builder, Tree::Node <AstNode> *node, int currentNameTableIndex);
 
-static TranslationError WriteCreationSource       (TranslationContext *context, Buffer <char> *outputBuffer, CreationData creationData);
+static TranslationError WriteCreationSource       (IRBuilder *builder, Buffer <char> *outputBuffer, CreationData creationData);
 
-static TranslationError WriteLabel                (TranslationContext *context, Buffer <char> *outputBuffer, char *labelName, size_t labelIndex);
+static TranslationError WriteLabel                (IRBuilder *builder, Buffer <char> *outputBuffer, char *labelName, size_t labelIndex);
 
-TranslationError GenerateAssembly (TranslationContext *context, FILE *outputStream) {
-    assert (context);
-    assert (context->abstractSyntaxTree.root);
-    assert (outputStream);
+TranslationError GenerateAssembly (IRBuilder *builder) {
+    assert (builder);
 
     Buffer <char> outputBuffer = {};
 
     if (InitBuffer (&outputBuffer) != BufferErrorCode::NO_BUFFER_ERRORS)
         return TranslationError::OUTPUT_FILE_ERROR;
 
-    SetupProgram (context, &outputBuffer);
-    TreeTraversal (context, context->abstractSyntaxTree.root, &outputBuffer, 0);
-
-    fwrite (outputBuffer.data, outputBuffer.currentIndex, 1, outputStream);
+    SetupProgram  (builder);
+    TreeTraversal (builder, builder->context->abstractSyntaxTree.root, 0);
 
     DestroyBuffer (&outputBuffer);
 
     return TranslationError::NO_ERRORS;
 }
 
-static TranslationError SetupProgram (TranslationContext *context, Buffer <char> *outputBuffer) {
-    assert (context);
-    assert (outputBuffer);
-
-    char initialAddressBuffer [MAX_NUMBER_LENGTH] = "";
-    snprintf (initialAddressBuffer, MAX_NUMBER_LENGTH, "%d", INITIAL_ADDRESS);
-
-    Source      (0, "setting .text section and _start label visibility", "program setup");
-    WriteString ("section .text\nglobal _start");
-
-    return TranslationError::NO_ERRORS;
-}
-
-static TranslationError TreeTraversal (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex) {
-    assert (context);
-    assert (node);
-    assert (outputBuffer);
+static TranslationError TreeTraversal (IRBuilder *builder, Tree::Node <AstNode> *node, int currentNameTableIndex) {
+    assert (builder);
+    assert (builder->context);
 
     if (!node)
         return TranslationError::NO_ERRORS;
 
-    #define NextCall(enumMember, function)                                  \
-        case NodeType::enumMember: {                                        \
-            function (context, node, outputBuffer, currentNameTableIndex);  \
+    #define NextCall(enumMember, function)                      \
+        case NodeType::enumMember: {                            \
+            function (builder, node, currentNameTableIndex);    \
             break;                                                          \
         }
 
@@ -82,14 +67,14 @@ static TranslationError TreeTraversal (TranslationContext *context, Tree::Node <
             return TranslationError::TREE_ERROR;
 
         case NodeType::CONSTANT:
-            WriteConstant (node->nodeData.content.number, outputBuffer);
+            WriteConstant (node->nodeData.content.number);
             break;
 
         case NodeType::FUNCTION_ARGUMENTS:
-            context->areCallArguments = false;
+            builder->context->areCallArguments = false;
 
-            TreeTraversal (context, node->left,  outputBuffer, currentNameTableIndex);
-            TreeTraversal (context, node->right, outputBuffer, currentNameTableIndex);
+            TreeTraversal (builder, node->left,  currentNameTableIndex);
+            TreeTraversal (builder, node->right, currentNameTableIndex);
             break;
 
         NextCall (STRING,               WriteIdentifier);
@@ -104,125 +89,74 @@ static TranslationError TreeTraversal (TranslationContext *context, Tree::Node <
     return TranslationError::NO_ERRORS;
 }
 
-static TranslationError WriteConstant (double constant, Buffer <char> *outputBuffer) {
-    assert (outputBuffer);
+static TranslationError WriteConstant (IRBuilder *builder, double constant) {
+    assert (builder);
 
-    char numberBuffer [MAX_NUMBER_LENGTH] = "";
-    snprintf (numberBuffer, MAX_NUMBER_LENGTH, "%lg", constant);
-
-    WriteString ("\tpush ");
-    WriteString (numberBuffer);
-    WriteString ("\n");
+    //TODO    
 
     return TranslationError::NO_ERRORS;
 }
 
-static TranslationError WriteIdentifier (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex) {
-    assert (context);
+static TranslationError WriteIdentifier (IRBuilder *builder, Tree::Node <AstNode> *node, int currentNameTableIndex) {
+    assert (builder);
     assert (node);
-    assert (outputBuffer);
 
-    WriteString ("\tpush ");
-
-    WriteIdentifierMemoryCell (context, node, outputBuffer, currentNameTableIndex);
+    //TODO
 
     return TranslationError::NO_ERRORS;
 }
 
-static TranslationError WriteIdentifierMemoryCell (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex) {
-    assert (context);
+static TranslationError NewFunction (IRBuilder *builder, Tree::Node <AstNode> *node, int currentNameTableIndex) {
+    assert (builder);
     assert (node);
-    assert (outputBuffer);
 
-    char indexBuffer [MAX_NUMBER_LENGTH] = "";
-    int  identifierIndex                 = -1;
+    int tableIndex = GetLocalNameTableIndex ((int) node->nodeData.content.nameTableIndex, &builder->context->localTables);
 
-    if (currentNameTableIndex != 0) {
-        identifierIndex = GetIndexInLocalTable (currentNameTableIndex, &context->localTables, node->nodeData.content.nameTableIndex, LocalNameType::VARIABLE_IDENTIFIER);
-        
-        if (identifierIndex >= 0) {
-            snprintf (indexBuffer, MAX_NUMBER_LENGTH, "%d", identifierIndex);
-        
-            WriteString ("[rbp+");
-            WriteString (indexBuffer);
-            WriteString ("]\n");
-        
-            return TranslationError::NO_ERRORS;
-        }
-    }
+    FunctionType type = {
+        .returnValue = INT64,
+        .params      = {},
+    };
 
-    identifierIndex = GetIndexInLocalTable (0, &context->localTables, node->nodeData.content.nameTableIndex, LocalNameType::VARIABLE_IDENTIFIER);
+    InitBuffer (&type.params);
 
-    if (identifierIndex < 0)
-        return TranslationError::TREE_ERROR;
-
-    identifierIndex += INITIAL_ADDRESS;
-    snprintf (indexBuffer, MAX_NUMBER_LENGTH, "%d", identifierIndex);
-
-    WriteString ("[");
-    WriteString (indexBuffer);
-    WriteString ("]\n");
-
-    return TranslationError::NO_ERRORS;
-
-}
-
-static TranslationError NewFunction (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex) {
-    assert (context);
-    assert (node);
-    assert (outputBuffer);
-
-    int tableIndex = GetLocalNameTableIndex ((int) node->nodeData.content.nameTableIndex, &context->localTables);
-
-    Source ((size_t) tableIndex, "FUNCTION LABEL", "FUNCTION DECLARATION");
-    WriteString (context->nameTable.data [node->nodeData.content.nameTableIndex].name);
-    WriteString (":\n");
+    Function *function = Function::Create   (&type, builder->context->nameTable.data [node->nodeData.content.nameTableIndex].name, builder->context);
+    BasicBlock *block  = BasicBlock::Create ("Function begin", function);
 
     if (tableIndex < 0)
         return TranslationError::NAME_TABLE_ERROR;
 
-    if (node->right) {
-        TreeTraversal (context, node->right, outputBuffer, tableIndex);
-    } else {
+    if (node->right)
+        TreeTraversal (builder, node->right, tableIndex);
+    else
         return TranslationError::TREE_ERROR;
-    }
 
     return TranslationError::NO_ERRORS;
 }
 
-static TranslationError NewVariable (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex) {
-    assert (context);
+static TranslationError NewVariable (IRBuilder *builder, Tree::Node <AstNode> *node, int currentNameTableIndex) {
+    assert (builder);
     assert (node);
-    assert (outputBuffer);
 
     //TODO: variable size
-    context->localTables.data [currentNameTableIndex].tableSize += 1;
+    builder->context->localTables.data [currentNameTableIndex].tableSize += 1;
 
-    if (node->right && node->right->nodeData.type == NodeType::KEYWORD) {
-        TreeTraversal (context, node->right, outputBuffer, currentNameTableIndex);
-    }
+    if (node->right && node->right->nodeData.type == NodeType::KEYWORD)
+        TreeTraversal (builder, node->right, currentNameTableIndex);
 
     return TranslationError::NO_ERRORS; 
 }
 
-static TranslationError WriteFunctionCall (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex) {
-    assert (context);
+static TranslationError WriteFunctionCall (IRBuilder *builder, Tree::Node <AstNode> *node, int currentNameTableIndex) {
+    assert (builder);
     assert (node);
-    assert (outputBuffer);
 
-    size_t blockIndex = ++context->operatorsCount.callCount;
+    size_t blockIndex = ++builder->context->operatorsCount.callCount;
     char  *blockName  = "CALL OPERATOR";
 
-    if (!node->right) {
+    if (!node->right)
         return TranslationError::TREE_ERROR;
-    }
 
-    context->areCallArguments = true;
-
-    Source      (blockIndex, "STACK FRAME SAVE", blockName);
-    WriteString ("\tpush rbp\n");
-
-    Source      (blockIndex, "CALL ARGUMENTS", blockName);
+    builder->context->areCallArguments = true;
 
     if (node->left) {
         TreeTraversal (context, node->left, outputBuffer, currentNameTableIndex);
@@ -231,15 +165,6 @@ static TranslationError WriteFunctionCall (TranslationContext *context, Tree::No
     char stackFrameSizeBuffer [MAX_NUMBER_LENGTH] = "";
     snprintf (stackFrameSizeBuffer, MAX_NUMBER_LENGTH, "%lu", context->localTables.data [currentNameTableIndex].tableSize);
     
-    Source      (blockIndex, "STACK FRAME CHANGE", blockName);
-    WriteString ("\tpush rbp+");
-    WriteString (stackFrameSizeBuffer);
-    WriteString ("\n\tpop rbp\n");
-    
-    Source      (blockIndex, "FUNCTION CALL", blockName);
-    WriteString ("\tcall ");
-    WriteString (context->nameTable.data [node->right->nodeData.content.nameTableIndex].name);
-    WriteString ("\n\tpop rbp\n");
 
     if (node->parent && !(node->parent->nodeData.type == NodeType::KEYWORD && node->parent->nodeData.content.keyword == Keyword::OPERATOR_SEPARATOR)) 
         WriteString ("\tpush rax\n");
@@ -247,44 +172,9 @@ static TranslationError WriteFunctionCall (TranslationContext *context, Tree::No
     return TranslationError::NO_ERRORS;
 }
 
-static TranslationError WriteLabel (TranslationContext *context, Buffer <char> *outputBuffer, char *labelName, size_t labelIndex) {
-    assert (context);
-    assert (outputBuffer);
-    assert (labelName);
-    
-    char labelIndexBuffer [MAX_NUMBER_LENGTH] = "";
-    snprintf (labelIndexBuffer, MAX_NUMBER_LENGTH, "%lu", labelIndex);
-
-    WriteString (labelName);
-    WriteString ("_");
-    WriteString (labelIndexBuffer);
-
-    return TranslationError::NO_ERRORS;
-}
-
-static TranslationError WriteCreationSource (TranslationContext *context, Buffer <char> *outputBuffer, CreationData crationData) {
-    assert (context);
-    assert (outputBuffer);
-
-    char numberBuffer [MAX_NUMBER_LENGTH] = "";
-    snprintf (numberBuffer, MAX_NUMBER_LENGTH, "%lu", crationData.blockIndex);
-
-    WriteString ("\n; CODE BLOCK: ");
-    WriteString (crationData.blockName);
-    WriteString (", SOURCE: ");
-    WriteString (crationData.blockSource);
-    WriteString (" (#");
-    WriteString (numberBuffer);
-    WriteString (")\n");
-
-
-    return TranslationError::NO_ERRORS;
-}
-
-static TranslationError WriteKeyword (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer, int currentNameTableIndex) {
-    assert (context);
+static TranslationError WriteKeyword (IRBuilder *builder, Tree::Node <AstNode> *node, int currentNameTableIndex) {
+    assert (builder);
     assert (node);
-    assert (outputBuffer);
 
     #define AssemblyOperator(opcode, ...)   \
     case Keyword::opcode: {                 \
@@ -344,10 +234,10 @@ static TranslationError WriteKeyword (TranslationContext *context, Tree::Node <A
         AssemblyOperator (COS,                UnaryOperation  ("cos"))
         AssemblyOperator (FLOOR,              UnaryOperation  ("floor"))
         AssemblyOperator (SQRT,               UnaryOperation  ("sqrt"))
-        AssemblyOperator (ADD,                BinaryOperation ("add"))
-        AssemblyOperator (SUB,                BinaryOperation ("sub"))
-        AssemblyOperator (MUL,                BinaryOperation ("mul"))
-        AssemblyOperator (DIV,                BinaryOperation ("div"))
+        AssemblyOperator (ADD,                CreateAdd (builder))
+        AssemblyOperator (SUB,                CreateSub (builder))
+        AssemblyOperator (MUL,                CreateMul (builder))
+        AssemblyOperator (DIV,                CreateDiv (builder))
         AssemblyOperator (EQUAL,              JumpOperator    ("je"))
         AssemblyOperator (LESS,               JumpOperator    ("jb"))
         AssemblyOperator (GREATER,            JumpOperator    ("ja"))

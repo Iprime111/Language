@@ -4,9 +4,25 @@
 #include "BackendCore.h"
 #include "Ir.h"
 
-struct IRBuilder {
-    TranslationContext *context     = nullptr;
-    BasicBlock         *insertPoint = {};
+class IRBuilder final {
+    public:
+        TranslationContext *context = nullptr;
+
+        void SetInsertPoint (BasicBlock  *insertPoint);
+        void SetInsertPoint (Instruction *insertPoint);
+
+        Instruction *CreateAdd ();
+        Instruction *CreateSub ();
+        Instruction *CreateMul ();
+        Instruction *CreateDiv ();
+
+    private:
+        Instruction *CreateBinaryOperation (Instruction newInstruction);
+
+        Value *insertPoint = nullptr;
 };
+
+
+
 
 #endif 

@@ -72,7 +72,6 @@ TranslationError TranslateTree (TranslationContext *context, FILE *stream) {
 
 static TranslationError TreeTraversal (TranslationContext *context, Tree::Node <AstNode> *node, Buffer <char> *outputBuffer) {
     assert (context);
-    assert (node);
     assert (outputBuffer);
 
     if (!node)
@@ -329,7 +328,6 @@ static BracketsPlacement GetBracketsPlacement (Tree::Node <AstNode> *node) {
 }
 
 static size_t DeterminePriority (Tree::Node <AstNode> *node) {
-    assert (node);
 
     if (!node)
         return 0;

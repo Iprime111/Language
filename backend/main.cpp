@@ -1,7 +1,7 @@
 #include <cassert>
 
 #include "ConsoleParser.h"
-#include "AssemblyGaynerator.h"
+#include "AssemblyGenerator.h"
 #include "BackendCore.h"
 #include "TreeReader.h"
 #include "Dump.h"

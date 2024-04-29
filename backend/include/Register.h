@@ -14,20 +14,25 @@ constexpr Register AVAILABLE_REGISTERS [] = {
     {"r10", 8},  {"r11", 9},  {"r12", 10}, {"r13", 11},
     {"r14", 12}, {"r15", 13},
 };
-#define RAX &AVAILABLE_REGISTERS [0]
-#define RBX &AVAILABLE_REGISTERS [1]
-#define RCX &AVAILABLE_REGISTERS [2]
-#define RDX &AVAILABLE_REGISTERS [3]
-#define RSI &AVAILABLE_REGISTERS [4]
-#define RDI &AVAILABLE_REGISTERS [5]
-#define R8  &AVAILABLE_REGISTERS [6]
-#define R9  &AVAILABLE_REGISTERS [7]
-#define R10 &AVAILABLE_REGISTERS [8]
-#define R11 &AVAILABLE_REGISTERS [9]
-#define R12 &AVAILABLE_REGISTERS [10]
-#define R13 &AVAILABLE_REGISTERS [11]
-#define R14 &AVAILABLE_REGISTERS [12]
-#define R15 &AVAILABLE_REGISTERS [13]
+
+constexpr const Register *GetReg (size_t index) {
+    return &AVAILABLE_REGISTERS [index];
+}
+
+constexpr const Register* RAX = &AVAILABLE_REGISTERS [0];
+constexpr const Register* RBX = &AVAILABLE_REGISTERS [1];
+constexpr const Register* RCX = &AVAILABLE_REGISTERS [2];
+constexpr const Register* RDX = &AVAILABLE_REGISTERS [3];
+constexpr const Register* RSI = &AVAILABLE_REGISTERS [4];
+constexpr const Register* RDI = &AVAILABLE_REGISTERS [5];
+constexpr const Register* R8  = &AVAILABLE_REGISTERS [6];
+constexpr const Register* R9  = &AVAILABLE_REGISTERS [7];
+constexpr const Register* R10 = &AVAILABLE_REGISTERS [8];
+constexpr const Register* R11 = &AVAILABLE_REGISTERS [9];
+constexpr const Register* R12 = &AVAILABLE_REGISTERS [10];
+constexpr const Register* R13 = &AVAILABLE_REGISTERS [11];
+constexpr const Register* R14 = &AVAILABLE_REGISTERS [12];
+constexpr const Register* R15 = &AVAILABLE_REGISTERS [13];
 
 constexpr size_t AVAILABLE_REGISTERS_COUNT = sizeof (AVAILABLE_REGISTERS) / sizeof (Register);
 
@@ -35,6 +40,7 @@ class RegisterSet {
     public:
         RegisterSet           ();
         RegisterSet           (size_t count, ...);
+        RegisterSet           (size_t count, Register **registers);
 
         Register *GetRegister (size_t index);
         size_t    GetCount    ();

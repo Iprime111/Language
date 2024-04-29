@@ -23,7 +23,7 @@ enum class Keyword {
 #undef KEYWORD
 
 struct NameTableRecord {
-    const char *name    = nullptr;
+    char       *name    = nullptr;
     NameType    type    = NameType::IDENTIFIER;
     Keyword     keyword = Keyword::NOT_KEYWORD;
 };
