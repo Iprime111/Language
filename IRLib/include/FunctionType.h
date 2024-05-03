@@ -4,8 +4,10 @@
 #include "Buffer.h"
 
 class IntegerType;
-struct TranslationContext;
+struct IRContext;
 struct TypesImplementation;
+
+//TODO split to different files
 
 enum class TypeId {
     NO_TYPE      = 0,
@@ -21,7 +23,7 @@ class Type {
         size_t GetSize   ();
         TypeId GetTypeId ();
 
-        static IntegerType *GetInt64Ty (TranslationContext *context);
+        static IntegerType *GetInt64Ty (IRContext *context);
     
     protected:
         Type (size_t size, TypeId typeId);

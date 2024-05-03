@@ -7,6 +7,7 @@ set (RELEASE_FLAGS -O3 -std=c++17)
 
 add_subdirectory (SyntaxTree)
 add_subdirectory (TreeReader)
+add_subdirectory (IRLib)
 add_subdirectory (ReverseFrontend)
 add_subdirectory (frontend)
 add_subdirectory (backend)
@@ -17,7 +18,7 @@ set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-set_target_properties (ReverseFrontend frontend backend middleend Buffer Tree CustomAssert TreeReader SyntaxTree
+set_target_properties (ReverseFrontend frontend backend middleend IRLib Buffer Tree CustomAssert TreeReader SyntaxTree
                        PROPERTIES
                        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
                        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
