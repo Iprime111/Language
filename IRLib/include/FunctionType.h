@@ -1,7 +1,7 @@
 #ifndef FUNCTION_TYPE_H_
 #define FUNCTION_TYPE_H_
 
-#include "Buffer.h"
+#include <vector>
 
 class IntegerType;
 struct IRContext;
@@ -18,12 +18,12 @@ class Type {
     friend struct TypesImplementation;
 
     public:
-        virtual ~Type () = 0;
+        virtual ~Type () = default;
 
-        size_t GetSize   ();
-        TypeId GetTypeId ();
+        size_t GetSize   () const;
+        TypeId GetTypeId () const;
 
-        static IntegerType *GetInt64Ty (IRContext *context);
+        static const IntegerType *GetInt64Ty (IRContext *context);
     
     protected:
         Type (size_t size, TypeId typeId);
@@ -37,7 +37,9 @@ class IntegerType final : public Type {
     friend struct TypesImplementation;
 
     public:
-        bool IsUnsigned ();
+        ~IntegerType () = default;    
+
+        bool IsUnsigned () const;
 
     private:
         bool isUnsigned = false;
@@ -46,8 +48,8 @@ class IntegerType final : public Type {
 };
 
 struct FunctionType {
-    Type           *returnValue = {};
-    Buffer <Type *> params      = {}; 
+    const Type                *returnValue = {};
+    std::vector <const Type *> params      = {}; 
 };
 
 struct TypesImplementation {

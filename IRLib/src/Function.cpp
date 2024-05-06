@@ -1,23 +1,26 @@
+#include "BasicBlock.h"
 #include "FunctionType.h"
 #include "Function.h"
 #include "IRContext.h"
 
-Function::Function (char *name, FunctionType *type) : Value (ValueType::FUNCTION), name (name), type (*type) {
-    InitBuffer (&basicBlocks);
+Function::Function (char *name, FunctionType *type) : Value (ValueId::FUNCTION, type->returnValue), name (name), type (*type) {
+    parent = nullptr;
 }
 
-char         *Function::GetName () { return name; }
-FunctionType *Function::GetType () { return &type; }
+      char         *Function::GetName         () const { return name; }
+const FunctionType *Function::GetFunctionType () const { return &type; }
 
+BasicBlock *Function::GetHead () const { return head; }
+BasicBlock *Function::GetTail () const { return tail; }
 
 Function *Function::Create (FunctionType *type, char *name, IRContext *context) {
     if (!context || !name)
         return nullptr;
 
-    Function newFunction (name, type);
+    //TODO Allocating this shit like this to have an ability to derive a Function class from Constant in future
+    Function *newFunction = new Function (name, type);
 
-    if (WriteDataToBuffer (&context->functions, &newFunction, 1) != BufferErrorCode::NO_BUFFER_ERRORS)
-        return nullptr;
+    context->functions.push_back (newFunction);
 
-    return &context->functions.data [context->functions.currentIndex - 1];
+    return newFunction;
 }

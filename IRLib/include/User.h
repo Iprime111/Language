@@ -3,23 +3,23 @@
 
 #include <cstddef>
 
-#include "Buffer.h"
 #include "Use.h"
 #include "Value.h"
 
 class User : public Value {
     public:
-        virtual ~User () = 0;
+        virtual ~User ();
 
-        Use   *GetOperandsList  ();
-        Value *GetOperand       (size_t operandIndex);
-        size_t GetOperandsCount ();
+        const Use   *GetOperandsList  () const;
+        const Value *GetOperand       (size_t operandIndex) const;
+        size_t GetOperandsCount () const;
 
     protected:
-        User (ValueType type);
+        User (ValueId valueId, const Type *valueType, size_t operandsCount);
+        User (ValueId valueId, const Type *valueType);
 
-    private:
-        Buffer <Use> operands = {};
+        Use *operands        = nullptr;
+        size_t operandsCount = 0;
 };
 
 #endif

@@ -1,11 +1,7 @@
 #include "IRContext.h"
-#include "Buffer.h"
-
-IRContext::IRContext () {
-    InitBuffer (&functions);
-}
 
 IRContext::~IRContext () {
-    // TODO: destroy basic blocks
-    DestroyBuffer (&functions);
+    for (size_t functionIndex = 0; functionIndex < functions.size (); functionIndex++) {
+        delete functions [functionIndex];
+    }
 }

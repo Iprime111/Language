@@ -3,6 +3,10 @@
 #include "ConsoleParser.h"
 #include "AssemblyGenerator.h"
 #include "BackendCore.h"
+#include "IRBuilder.h"
+#include "IRContext.h"
+#include "IRPrinter.h"
+#include "Opcodes.h"
 #include "TreeReader.h"
 #include "Dump.h"
 
@@ -48,7 +52,16 @@ int main (int argc, char **argv) {
     FILE *assemblyStream = fopen (AssemblyFile, "w");
 
     if (assemblyStream) {
-        GenerateAssembly (&context, assemblyStream);
+        IRContext irContext = {};
+        IRBuilder builder   = IRBuilder (&irContext);
+
+        GenerateAssembly (&builder, &context);
+
+        x86Opcodes opcodes = x86Opcodes ();
+        IRPrinter  printer = IRPrinter (&irContext, &opcodes);
+        
+        printer.PrintIR ();
+
         fclose (assemblyStream);
     }
 

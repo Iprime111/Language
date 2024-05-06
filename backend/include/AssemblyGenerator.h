@@ -1,8 +1,10 @@
 #ifndef ASSEMBLY_GENERATOR_H_
 #define ASSEMBLY_GENERATOR_H_
 
-#include <stddef.h>
 #include "BackendCore.h"
+#include "IRBuilder.h"
+
+#include <stddef.h>
 
 const size_t MAX_NUMBER_LENGTH = 32;
 const int    INITIAL_ADDRESS   = 30000;
@@ -13,32 +15,16 @@ struct CreationData {
     char  *blockSource = nullptr;
 };
 
-#define Traversal(direction)         TreeTraversal (context, node->direction, outputBuffer, currentNameTableIndex)
-#define BothWayTraversal()           Traversal (left);    Traversal (right)
-#define UnaryOperation(operation)    Traversal (right);   WriteString ("\t" operation "\n");
-#define BinaryOperation(operation)   BothWayTraversal (); WriteString ("\t" operation "\n");
-#define MemoryCell(direction)        WriteIdentifierMemoryCell (context, node->direction, outputBuffer, currentNameTableIndex)
-#define Label(name, index)           WriteLabel (context, outputBuffer, name, index)
-#define NewLabel(name, index)        Label (name, index); WriteString (":\n")
+#define Traversal(direction)         TreeTraversal (builder, context, node->direction, currentNameTableIndex)
 
-#define LogicJump(operation)                                                            \
-    context->operatorsCount.logicExpressionCount++;                                     \
-    WriteString ("\t" operation " ");                                                   \
-    Label       ("LOGIC_TRUE_BRANCH", context->operatorsCount.logicExpressionCount);    \
-    WriteString ("\n\tpush 0\n\tjmp ");                                                 \
-    Label       ("LOGIC_JUMP_END",    context->operatorsCount.logicExpressionCount);    \
-    WriteString ("\n");                                                                 \
-    NewLabel    ("LOGIC_TRUE_BRANCH", context->operatorsCount.logicExpressionCount);    \
-    WriteString ("\tpush 1\n");                                                         \
-    NewLabel    ("LOGIC_JUMP_END",    context->operatorsCount.logicExpressionCount)
+#define UnaryOperation(operation)    builder->CreateUnaryOperator    (UnaryOperatorId::operation, Traversal (right));
+#define BinaryOperation(operation)   builder->CreateBinaryOperator   (BinaryOperatorId::operation, Traversal (left), Traversal (right));
+#define StateChange(operation)       builder->CreateStateChanger     (StateChangerId::operation);
+#define ReturnOperation(returnValue) builder->CreateReturnOperator   (Traversal (right));
+#define CmpOperation(operation)      builder->CreateCmpOperator      (CmpOperatorId::operation, Traversal (left), Traversal (right));
+#define Load(variable)               builder->CreateLoadInstruction  (variable)
+#define Store(variable, expression)  builder->CreateStoreInstruction (variable, expression)
 
-#define JumpOperator(operation)      BothWayTraversal (); LogicJump (operation);
-#define ToLogicExpression(direction) Traversal (direction); WriteString ("\tpush 0"); LogicJump ("jne")
-#define LogicOperator(operation)     ToLogicExpression (left); ToLogicExpression (right); WriteString ("\t" operation "\n");
-
-#define Comment(str) WriteComment (context, outputBuffer, str);
-#define Source(index, name, source) WriteCreationSource (context, outputBuffer, CreationData {.blockIndex = index, .blockName = name, .blockSource = source})
-
-TranslationError GenerateAssembly (TranslationContext *context, FILE *outputStream);
+TranslationError GenerateAssembly (IRBuilder *builder, TranslationContext *context);
 
 #endif

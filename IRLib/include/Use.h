@@ -6,9 +6,10 @@ class Value;
 
 class Use final {
     public:
+        Use ();
         Use (Value *operand);
 
-        Value *GetOperand ();
+        Value *GetOperand () const;
 
     private:
         Value *operand = nullptr;

@@ -9,27 +9,28 @@
 //TODO Think whether I really need this...
 class Constant : public User {
     public:
-        virtual ~Constant () = 0;
+        virtual ~Constant () = default;
 
     protected:
-        Constant ();
+        Constant (const Type *type);
 
 };
 
 //TODO improve a way to set constant value
 class ConstantData : public Constant {
     public:
+        ConstantData (const ConstantData &data);
+
+        ConstantData (const Type *type);
+        ConstantData (const Type *type, void *data);
         ~ConstantData ();
 
-        ConstantData (Type *type);
-        ConstantData (Type *type, void *data);
+        const uint8_t *GetBytes () const;
 
-        uint8_t *GetBytes ();
-
-        static ConstantData *GetConstant (IRContext *context, ConstantData constant);
+        static ConstantData *GetConstant (IRContext *context, const Type *type, void *data);
 
     private:
-        Type    *type  = nullptr;
+
         uint8_t *bytes = nullptr;
 };
 

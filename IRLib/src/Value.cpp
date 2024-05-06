@@ -1,5 +1,6 @@
 #include "Value.h"
 
-Value::Value (ValueType valueType) : valueType (valueType) {}
+Value::Value (ValueId valueId, const Type *valueType) : valueId (valueId), valueType (valueType) {}
 
-ValueType Value::GetType () { return valueType; }
+    ValueId Value::GetValueId () const { return valueId; }
+const Type *Value::GetType    () const { return valueType; } 

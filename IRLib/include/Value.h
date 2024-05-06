@@ -1,9 +1,11 @@
 #ifndef IR_H_
 #define IR_H_
 
+#include "FunctionType.h"
+
 struct IRContext;
 
-enum class ValueType {
+enum class ValueId {
     VALUE        = 1 << 0,
     INSTRUCTION  = 1 << 1,
     BASIC_BLOCK  = 1 << 2,
@@ -13,19 +15,19 @@ enum class ValueType {
 
 class Value {
     public:
-        Value *next   = nullptr;
-        Value *prev   = nullptr;
         Value *parent = nullptr;
 
-        virtual ~Value () = 0;
+        virtual ~Value () = default;
 
-        ValueType GetType ();
+             ValueId GetValueId () const;
+        const Type * GetType    () const;
 
     protected:
-        Value (ValueType valueType);
+        Value (ValueId valueId, const Type *valueType);
 
     private:
-        ValueType valueType = ValueType::VALUE;
+        ValueId     valueId   = ValueId::VALUE;
+        const Type *valueType = nullptr;
 
 };
 

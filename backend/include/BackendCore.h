@@ -1,6 +1,9 @@
 #ifndef BACKEND_CORE_H_
 #define BACKEND_CORE_H_
 
+#include <unordered_map>
+
+#include "Instruction.h"
 #include "NameTable.h"
 #include "SyntaxTree.h"
 #include "TreeReader.h"
@@ -21,8 +24,8 @@ struct TranslationContext {
 
     Buffer <LocalNameTable> localTables = {};
 
-    size_t lastCycleEndLabel   = 0;
-    size_t lastCycleBeginLabel = 0;
+    std::unordered_map <size_t, AllocaInstruction *> localVariables  = {};
+    std::unordered_map <size_t, AllocaInstruction *> globalVariables = {};
 
     bool isParsingCallArguments = false;
 

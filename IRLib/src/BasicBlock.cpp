@@ -1,53 +1,67 @@
 #include "BasicBlock.h"
 #include "User.h"
 #include "Function.h"
+#include "Value.h"
 
-BasicBlock::BasicBlock (char *name) : User (ValueType::BASIC_BLOCK), instructions ({}), name (name), blockLength (0) {
-    InitBuffer (&instructions);
+BasicBlock::BasicBlock (char *name, Value *blockParent) : User (ValueId::BASIC_BLOCK, nullptr), name (name), blockLength (0), 
+                                                          prev (nullptr), next (nullptr), head (nullptr), tail (nullptr) {
+    parent = blockParent;
 }
 
-char  *BasicBlock::GetName   () { return name; }
-size_t BasicBlock::GetLength () { return blockLength; }
+BasicBlock::~BasicBlock () {
+    Instruction *currentInstruction = head;
 
+    while (currentInstruction) {
+        delete currentInstruction;
+
+        currentInstruction = currentInstruction->next;
+    }
+}
+
+char  *BasicBlock::GetName   () const { return name; }
+size_t BasicBlock::GetLength () const { return blockLength; }
+
+Instruction *BasicBlock::GetHead () const { return head; }
+Instruction *BasicBlock::GetTail () const { return tail; } 
 
 Instruction *BasicBlock::InsertTail (Instruction *newInstruction) {
     if (!newInstruction)
         return nullptr;
 
-    Instruction *insertedInstruction = InsertAfterPoint (newInstruction, tail);
+    if (tail) {
+        InsertAfterPoint (newInstruction, tail);
 
-    tail = insertedInstruction;
+    } else {
+        newInstruction->prev   = newInstruction->next = nullptr;
+        newInstruction->parent = this;
+
+        head  = newInstruction; 
+    }
+
+    tail = newInstruction;
     
-    return tail;
+    return newInstruction;
 }
 
 Instruction *BasicBlock::InsertAfterPoint (Instruction *newInstruction, Instruction *insertPoint) {
     if (!newInstruction || !insertPoint)
         return nullptr;
 
-    if (WriteDataToBuffer (&instructions, newInstruction, 1) != BufferErrorCode::NO_BUFFER_ERRORS)
-        return nullptr;
+    newInstruction->parent = insertPoint->parent;
 
-    Instruction *insertedInstruction = &instructions.data [instructions.currentIndex - 1];
+    newInstruction->next   = insertPoint->next;
+    newInstruction->prev   = insertPoint;
+    insertPoint->next      = newInstruction;
 
-    insertedInstruction->parent = insertPoint->parent;
-
-    insertedInstruction->next   = insertPoint->next;
-    insertedInstruction->prev   = insertPoint;
-    insertPoint->next           = insertedInstruction;
-
-    return insertedInstruction;
+    return newInstruction;
 }
 
 BasicBlock *BasicBlock::Create (char *name, Function *function) {
     if (!name || !function)
         return nullptr;
 
-    BasicBlock newBlock (name);
+    function->basicBlocks.emplace_back (name, function);
 
-    if (WriteDataToBuffer (&function->basicBlocks, &newBlock, 1) != BufferErrorCode::NO_BUFFER_ERRORS)
-        return nullptr;
-
-    return &function->basicBlocks.data [function->basicBlocks.currentIndex - 1];
+    return &function->basicBlocks [function->basicBlocks.size () - 1];
 }
 

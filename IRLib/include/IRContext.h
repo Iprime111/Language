@@ -1,18 +1,19 @@
 #ifndef IR_CONTEXT_H_
 #define IR_CONTEXT_H_
 
-#include "Buffer.h"
+#include <vector>
+
 #include "Constant.h"
 #include "Function.h"
 #include "FunctionType.h"
 #include "Value.h"
 
 struct IRContext final {
-    Buffer <Function>       functions = {};
-    Buffer <ConstantData>   constants = {};
-    TypesImplementation     types     = {};
+    std::vector <Function *>   functions = {};
+    std::vector <ConstantData> constants = {};
+    TypesImplementation        types     = {};
 
-    IRContext  ();
+    IRContext  () = default;
     ~IRContext ();
 };
 
