@@ -22,19 +22,13 @@ class Function final : public Value {
               char         *GetName         () const;
         const FunctionType *GetFunctionType () const;
 
-        BasicBlock *GetHead () const;
-        BasicBlock *GetTail () const;
-
         size_t GetAllocaSize () const;
 
         static Function *Create (FunctionType *type, char *name, IRContext *context);
 
     private:
         char         *name = nullptr;
-        FunctionType  type = {};
-
-        BasicBlock   *head = nullptr;
-        BasicBlock   *tail = nullptr;
+        FunctionType  functionType = {};
 
         size_t allocaSize  = 0;
 

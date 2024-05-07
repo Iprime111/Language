@@ -47,7 +47,7 @@ Opcode *MachineOpcodes::GetOpcodeByInstruction (Instruction *instruction) {
         ProcessInstructionType (BINARY_OPERATOR,        ProcessBinaryOperator)
         ProcessInstructionType (RETURN_OPERATOR,        ProcessReturnOperator)
         ProcessInstructionType (CMP_OPERATOR,           ProcessCmpOperator)
-        ProcessInstructionType (ALLOCATION_INSTRUCTION, ProcessAllocaInstruction)
+        ProcessInstructionType (ALLOCA_INSTRUCTION,     ProcessAllocaInstruction)
         ProcessInstructionType (STORE_INSTRUCTION,      ProcessStoreInstruction)
         ProcessInstructionType (LOAD_INSTRUCTION,       ProcessLoadInstruction)
     }

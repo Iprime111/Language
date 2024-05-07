@@ -4,7 +4,7 @@
 #include "Value.h"
 
 BasicBlock::BasicBlock (char *name, Value *blockParent) : User (ValueId::BASIC_BLOCK, nullptr), name (name), blockLength (0), 
-                                                          prev (nullptr), next (nullptr), head (nullptr), tail (nullptr) {
+                                                          head (nullptr), tail (nullptr) {
     parent = blockParent;
 }
 

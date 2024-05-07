@@ -10,9 +10,6 @@ class Function;
 
 class BasicBlock final : public User {
     public:
-        BasicBlock *next = nullptr;
-        BasicBlock *prev = nullptr;
-
         //TODO make this private and use push_back + copy constructor instead of emplace?
         BasicBlock (char *name, Value *blockParent);
         BasicBlock () = delete;
@@ -25,7 +22,7 @@ class BasicBlock final : public User {
         Instruction *GetTail () const;
 
         Instruction *InsertTail       (Instruction *newInstruction);
-        Instruction *InsertAfterPoint (Instruction *newInstruction, Instruction *point);
+        Instruction *InsertAfterPoint (Instruction *newInstruction, Instruction *insertPoint);
 
         static BasicBlock *Create (char *name, Function *function);
 

@@ -10,7 +10,7 @@ enum class InstructionId {
     BINARY_OPERATOR        = 3,
     RETURN_OPERATOR        = 4,
     CMP_OPERATOR           = 5,
-    ALLOCATION_INSTRUCTION = 6,
+    ALLOCA_INSTRUCTION     = 6,
     STORE_INSTRUCTION      = 7,
     LOAD_INSTRUCTION       = 8
 };

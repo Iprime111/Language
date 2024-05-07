@@ -42,7 +42,7 @@ CmpOperator::CmpOperator (CmpOperatorId id, Value *firstOperand, Value *secondOp
 CmpOperatorId CmpOperator::GetCmpOperatorId () const { return id; }
 
 AllocaInstruction::AllocaInstruction (const Type *type, size_t stackAddress) : 
-    Instruction (InstructionId::ALLOCATION_INSTRUCTION, type), stackAddress (stackAddress) {}
+    Instruction (InstructionId::ALLOCA_INSTRUCTION, type), stackAddress (stackAddress) {}
 
 size_t AllocaInstruction::GetStackAddress () const { return stackAddress; }
 

@@ -30,7 +30,6 @@ class ConstantData : public Constant {
         static ConstantData *GetConstant (IRContext *context, const Type *type, void *data);
 
     private:
-
         uint8_t *bytes = nullptr;
 };
 

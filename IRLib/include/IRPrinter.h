@@ -9,19 +9,17 @@
 class IRPrinter final {
     public:
         IRPrinter  (IRContext *context, MachineOpcodes *opcodes);
-        ~IRPrinter () = default;
+        ~IRPrinter ();
 
         void PrintIR ();
 
-        const Buffer <char> *GetListingBuffer ();
-        const Buffer <char> *GetBinaryBuffer  ();
+        const Buffer <char> *GetBuffer  ();
     
     private:
         IRContext      *context = nullptr;
         MachineOpcodes *opcodes = nullptr;
 
-        Buffer <char> listingBuffer = {};
-        Buffer <char> binaryBuffer  = {};
+        Buffer <char> buffer = {};
 
         void PrintFunction (Function *function);
 };

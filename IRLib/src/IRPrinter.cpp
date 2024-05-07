@@ -4,10 +4,15 @@
 #include "Instruction.h"
 #include <cstdio>
 
-IRPrinter::IRPrinter (IRContext *context, MachineOpcodes *opcodes) : context (context), opcodes (opcodes) {}
+IRPrinter::IRPrinter (IRContext *context, MachineOpcodes *opcodes) : context (context), opcodes (opcodes) {
+    InitBuffer (&buffer);
+}
 
-const Buffer <char> *IRPrinter::GetListingBuffer () { return &listingBuffer; }
-const Buffer <char> *IRPrinter::GetBinaryBuffer  () { return &listingBuffer; }
+IRPrinter::~IRPrinter () {
+    DestroyBuffer (&buffer);
+}
+
+const Buffer <char> *IRPrinter::GetBuffer  () { return &buffer; }
 
 //TODO comments in listing
 

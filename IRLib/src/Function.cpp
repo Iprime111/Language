@@ -3,7 +3,7 @@
 #include "Function.h"
 #include "IRContext.h"
 
-Function::Function (char *name, FunctionType *type) : Value (ValueId::FUNCTION, type->returnValue), name (name), type (*type) {
+Function::Function (char *name, FunctionType *type) : Value (ValueId::FUNCTION, type->returnValue), name (name), functionType (*type) {
     parent = nullptr;
 }
 
@@ -14,10 +14,7 @@ Function::~Function () {
 }
 
       char         *Function::GetName         () const { return name; }
-const FunctionType *Function::GetFunctionType () const { return &type; }
-
-BasicBlock *Function::GetHead () const { return head; }
-BasicBlock *Function::GetTail () const { return tail; }
+const FunctionType *Function::GetFunctionType () const { return &functionType; }
 
 size_t Function::GetAllocaSize () const { return allocaSize; }
 
