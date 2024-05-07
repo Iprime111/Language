@@ -7,11 +7,19 @@ Function::Function (char *name, FunctionType *type) : Value (ValueId::FUNCTION, 
     parent = nullptr;
 }
 
+Function::~Function () {
+    for (size_t blockIndex = 0; blockIndex < basicBlocks.size (); blockIndex++) {
+        delete basicBlocks [blockIndex];
+    }
+}
+
       char         *Function::GetName         () const { return name; }
 const FunctionType *Function::GetFunctionType () const { return &type; }
 
 BasicBlock *Function::GetHead () const { return head; }
 BasicBlock *Function::GetTail () const { return tail; }
+
+size_t Function::GetAllocaSize () const { return allocaSize; }
 
 Function *Function::Create (FunctionType *type, char *name, IRContext *context) {
     if (!context || !name)

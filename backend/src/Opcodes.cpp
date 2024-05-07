@@ -2,22 +2,34 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <string>
 
 #include "Opcodes.h"
+#include "Constant.h"
+#include "Function.h"
 #include "Instruction.h"
 #include "Value.h"
 
-constexpr size_t MAX_INSTRUCTION_LENGTH = 128;
+const std::string INTEGER_DATA_REGISTERS [] = {"rax", "rbx"};
+
+Opcode *x86Opcodes::ProcessFunctionEnter (Function *function) {
+
+    size_t allocaSize = function->GetAllocaSize ();
+    size_t stackFrameSize = allocaSize + (16 - allocaSize % 16);
+
+    return CreateOpcode (std::string (function->GetName ()) + ":\n" +
+                         "push rbp\n"
+                         "mov rbp, rsp\n"
+                         "sub rsp, " + std::to_string (stackFrameSize) + "\n");
+} 
 
 Opcode *x86Opcodes::ProcessStateChanger (Instruction *instruction) {
     assert (instruction);
- 
-    //WARNING works only for hlt
-    char *hltOpcode = "mov rax, 0x3c\n"
-                      "mov rsi, 0x00\n"
-                      "syscall\n";
 
-    return InsertOpcode (strlen (hltOpcode), hltOpcode);
+    //WARNING works only for hlt
+    return CreateOpcode ("mov rax, 0x3c\n"
+                         "mov rsi, 0x00\n"
+                         "syscall\n");
 }
 
 Opcode *x86Opcodes::ProcessUnaryOperator (Instruction *instruction) {
@@ -30,6 +42,7 @@ Opcode *x86Opcodes::ProcessUnaryOperator (Instruction *instruction) {
         //TODO
         case UnaryOperatorId::SIN:
         case UnaryOperatorId::COS:
+            //TODO fuck...
             return nullptr;
 
         case UnaryOperatorId::NOT:
@@ -47,37 +60,32 @@ Opcode *x86Opcodes::ProcessUnaryOperator (Instruction *instruction) {
 Opcode *x86Opcodes::ProcessBinaryOperator (Instruction *instruction) {
     BinaryOperator *binaryOperator = (BinaryOperator *) instruction;
     
-    char *opcode = (char *) calloc (MAX_INSTRUCTION_LENGTH, sizeof (char));
+    Opcode *opcode = CreateOpcode ();
 
+    PrintOperandLoad (instruction, 0, opcode, 0);
+    PrintOperandLoad (instruction, 1, opcode, 0);
+    
     switch (binaryOperator->GetBinaryOperatorId ()) {
 
         case BinaryOperatorId::ADD:
-            opcode = "pop rax\n"
-                     "pop rbx\n"
-                     "add rax, rbx\n"
-                     "push rax\n";
+            opcode->opcodeContent += "add rax, rbx\n"
+                                     "push rax\n";
             break;
 
         case BinaryOperatorId::SUB:
-            opcode = "pop rax\n"
-                     "pop rbx\n"
-                     "sub rax, rbx\n"
-                     "push rax\n";
+            opcode->opcodeContent += "sub rax, rbx\n"
+                                     "push rax\n";
             break;
 
         case BinaryOperatorId::MUL:
-            opcode = "pop rax\n"
-                     "pop rbx\n"
-                     "imul rax, rbx\n"
-                     "push rax\n";
+            opcode->opcodeContent += "imul rax, rbx\n"
+                                     "push rax\n";
             break;
 
         case BinaryOperatorId::DIV:
-            opcode = "pop rax\n"
-                     "pop rbx\n"
-                     "cqo\n"
-                     "idiv rbx\n"
-                     "push rax\n";
+            opcode->opcodeContent += "cqo\n"
+                                     "idiv rbx\n"
+                                     "push rax\n";
             break;
 
         case BinaryOperatorId::AND:
@@ -86,15 +94,19 @@ Opcode *x86Opcodes::ProcessBinaryOperator (Instruction *instruction) {
             return nullptr;
     }
 
-    return InsertOpcode (strlen (opcode), opcode);
+    return opcode;
 }
 
 Opcode *x86Opcodes::ProcessReturnOperator (Instruction *instruction) {
-    char *opcode = "pop rax\n"
-                   "leave\n"
-                   "ret\n";
+    assert (instruction);
 
-    return InsertOpcode (strlen (opcode), opcode);
+    Opcode *opcode = CreateOpcode ();
+    PrintOperandLoad (instruction, 0, opcode, 0);
+
+    opcode->opcodeContent += "leave\n"
+                             "ret\n";
+
+    return opcode;
 }
 
 Opcode *x86Opcodes::ProcessCmpOperator (Instruction *instruction) {
@@ -124,14 +136,14 @@ Opcode *x86Opcodes::ProcessStoreInstruction (Instruction *instruction) {
 
     const AllocaInstruction *variable = (const AllocaInstruction *) instruction->GetOperand (0);
 
-    char *storeOpcode = (char *) calloc (MAX_INSTRUCTION_LENGTH, sizeof (char));
+    Opcode *opcode = CreateOpcode ();
+    PrintOperandLoad (instruction, 1, opcode, 0);
+
+    opcode->opcodeContent += "mov qword ptr [rbp - " + std::to_string (variable->GetStackAddress ()) + "], rax\n";
 
     //TODO types
-    snprintf (storeOpcode, MAX_INSTRUCTION_LENGTH,  "pop rdx\n"
-                                                    "mov qword ptr [rbp - %lu], rdx\n",
-                                                    variable->GetStackAddress ());
-
-    return InsertOpcode (strlen (storeOpcode), storeOpcode);
+    //TODO use std::format?
+    return opcode;
 }
 
 Opcode *x86Opcodes::ProcessLoadInstruction (Instruction *instruction) {
@@ -139,13 +151,28 @@ Opcode *x86Opcodes::ProcessLoadInstruction (Instruction *instruction) {
 
     const AllocaInstruction *variable = (const AllocaInstruction *) instruction->GetOperand (0);
 
-    char *loadOpcode = (char *) calloc (MAX_INSTRUCTION_LENGTH, sizeof (char));
+    return CreateOpcode ("mov qword ptr rax, [rbp - " + std::to_string (variable->GetStackAddress ()) + "]\n"
+                         "push rax\n");
+}
 
-    snprintf (loadOpcode, MAX_INSTRUCTION_LENGTH, "mov qword ptr rdx, [rbp - %lu]\n"
-                                                  "push rdx\n",
-                                                  variable->GetStackAddress ());
-    
-    return InsertOpcode (strlen (loadOpcode), loadOpcode);
+void x86Opcodes::PrintOperandLoad (Instruction *instruction, size_t operandIndex, Opcode *opcode, size_t dataRegisterIndex) {
+    assert (instruction);
+    assert (opcode);
+
+    const Value *operand = instruction->GetOperand (operandIndex);
+    if (!operand)
+        return;
+
+    ValueId valueId = operand->GetValueId ();
+
+    if (valueId == ValueId::CONSTANT) {
+        //TODO fix fucking alignment (maybe write string in hex?)
+        const int64_t *constValue = (const int64_t *) ((const ConstantData *) operand)->GetBytes ();
+
+        opcode->opcodeContent += "mov " + INTEGER_DATA_REGISTERS [dataRegisterIndex] + ", " + std::to_string (*constValue) + "\n";
+    } else {
+        opcode->opcodeContent += "pop " + INTEGER_DATA_REGISTERS [dataRegisterIndex] + "\n";
+    }
 }
 
 bool x86Opcodes::IsConstantOperand (Instruction *instruction, size_t operandIndex) {

@@ -60,8 +60,10 @@ BasicBlock *BasicBlock::Create (char *name, Function *function) {
     if (!name || !function)
         return nullptr;
 
-    function->basicBlocks.emplace_back (name, function);
+    BasicBlock *newBlock = new BasicBlock (name, function);
 
-    return &function->basicBlocks [function->basicBlocks.size () - 1];
+    function->basicBlocks.push_back (newBlock);
+
+    return newBlock;
 }
 

@@ -40,8 +40,10 @@ ConstantData *ConstantData::GetConstant (IRContext *context, const Type *type, v
     if (!context)
         return nullptr;
 
-    context->constants.emplace_back (type, data);
+    ConstantData *newConstant = new ConstantData (type, data);
 
-    return &context->constants [context->constants.size () - 1];
+    context->constants.push_back (newConstant);
+
+    return context->constants [context->constants.size () - 1];
 }
 

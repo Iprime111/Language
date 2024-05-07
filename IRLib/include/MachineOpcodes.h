@@ -1,47 +1,51 @@
 #ifndef MACHINE_OPCODES_H_
 #define MACHINE_OPCODES_H_
 
-#include <unordered_map>
+#include <string>
 
+#include "Function.h"
 #include "Instruction.h"
 
-//TODO destructor?
-struct Opcode {
-    size_t opcodeLength  = 0;
-    char  *opcode        = nullptr;
+class MachineOpcodes;
 
-    Opcode  (size_t opcodeLength, char *opcode);
-    ~Opcode () = default;
+class Opcode {
+    friend class MachineOpcodes;
+
+    public:
+        std::string opcodeContent = {};
+        
+         Opcode (const Opcode &opcode);
+        ~Opcode () = default;
+    
+    private:
+        Opcode ();
+        Opcode (const char *opcodeContent);
+        Opcode (const std::string &opcodeContent);
 };
-
-template <typename KeyType>
-using OpcodeUnorderedMap = std::unordered_map <KeyType, Opcode>;
 
 class MachineOpcodes {
     public:
-        virtual ~MachineOpcodes () = default;
+        virtual ~MachineOpcodes ();
 
         Opcode *GetOpcodeByInstruction (Instruction *instruction);
+        virtual Opcode *ProcessFunctionEnter (Function *function) = 0;
 
     protected:
         MachineOpcodes () = default;
 
-        Opcode *InsertOpcode (size_t opcodeLength, char *opcode);
-
-        OpcodeUnorderedMap <StateChangerId>          stateChangers          = {};
-        OpcodeUnorderedMap <UnaryOperatorId>         unaryOperators         = {};
-        OpcodeUnorderedMap <BinaryOperatorId>        binaryOperators        = {};
-        OpcodeUnorderedMap <CmpOperatorId>           cmpOperators           = {};
+        Opcode *CreateOpcode ();
+        Opcode *CreateOpcode (const char *opcodeContent);
+        Opcode *CreateOpcode (const std::string &opcodeContent);
 
     private:
-        std::vector <Opcode> opcodes = {};
+        std::vector <Opcode *> opcodes = {};
 
         virtual Opcode *ProcessStateChanger          (Instruction *instruction) = 0;
         virtual Opcode *ProcessUnaryOperator         (Instruction *instruction) = 0;
         virtual Opcode *ProcessBinaryOperator        (Instruction *instruction) = 0;
         virtual Opcode *ProcessReturnOperator        (Instruction *instruction) = 0;
         virtual Opcode *ProcessCmpOperator           (Instruction *instruction) = 0;
-        virtual Opcode *ProcessAllocaInstruction (Instruction *instruction) = 0;
+        virtual Opcode *ProcessAllocaInstruction     (Instruction *instruction) = 0;
         virtual Opcode *ProcessStoreInstruction      (Instruction *instruction) = 0;
         virtual Opcode *ProcessLoadInstruction       (Instruction *instruction) = 0;
 };

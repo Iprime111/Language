@@ -9,9 +9,9 @@
 #include "Value.h"
 
 struct IRContext final {
-    std::vector <Function *>   functions = {};
-    std::vector <ConstantData> constants = {};
-    TypesImplementation        types     = {};
+    std::vector <Function *>     functions = {};
+    std::vector <ConstantData *> constants = {};
+    TypesImplementation          types     = {};
 
     IRContext  () = default;
     ~IRContext ();

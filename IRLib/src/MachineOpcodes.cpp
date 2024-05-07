@@ -1,11 +1,38 @@
 #include "MachineOpcodes.h"
 
-Opcode::Opcode (size_t opcodeLength, char *opcode) : opcodeLength (opcodeLength), opcode (opcode) {}
+Opcode::Opcode (const Opcode &opcode)             : opcodeContent (opcode.opcodeContent) {}
+Opcode::Opcode (const char *opcodeContent)        : opcodeContent (opcodeContent) {}
+Opcode::Opcode (const std::string &opcodeContent) : opcodeContent (opcodeContent) {}
+Opcode::Opcode ()                                 : opcodeContent ("") {}
 
-Opcode *MachineOpcodes::InsertOpcode (size_t opcodeLength, char *opcode) {
-    opcodes.push_back (Opcode (opcodeLength, opcode));
-    
-    return &opcodes [opcodes.size () - 1];
+MachineOpcodes::~MachineOpcodes () {
+    for (size_t opcodeIndex = 0; opcodeIndex < opcodes.size (); opcodeIndex++) {
+        delete opcodes [opcodeIndex];
+    }
+}
+
+Opcode *MachineOpcodes::CreateOpcode () {
+    Opcode *newOpcode = new Opcode ();
+
+    opcodes.push_back (newOpcode);
+
+    return newOpcode;
+}
+
+Opcode *MachineOpcodes::CreateOpcode (const char *opcodeContent) {
+    Opcode *newOpcode = new Opcode (opcodeContent);
+
+    opcodes.push_back (newOpcode);
+
+    return newOpcode;
+}
+
+Opcode *MachineOpcodes::CreateOpcode (const std::string &opcodeContent) {
+    Opcode *newOpcode = new Opcode (opcodeContent);
+
+    opcodes.push_back (newOpcode);
+
+    return newOpcode;
 }
 
 #define ProcessInstructionType(type, callback)  \

@@ -225,7 +225,7 @@ static Value *WriteKeyword (IRBuilder *builder, TranslationContext *context, Tre
         AssemblyOperator (NOT,                UnaryOperation  (NOT))
         AssemblyOperator (ABORT,              StateChange     (HLT))
         AssemblyOperator (RETURN_OPERATOR,    ReturnOperation ())
-        //AssemblyOperator (BREAK_OPERATOR,     ) //FIXME: inner breaks
+        //AssemblyOperator (BREAK_OPERATOR,     )
         //AssemblyOperator (CONTINUE_OPERATOR,  )
         //AssemblyOperator (IN,                 )
         //AssemblyOperator (OUT,                )

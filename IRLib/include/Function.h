@@ -14,10 +14,10 @@ class Function final : public Value {
     friend class IRBuilder;
 
     public:
-        std::vector <BasicBlock> basicBlocks = {};
+        std::vector <BasicBlock *> basicBlocks = {};
 
         Function  () = delete;
-        ~Function () = default;
+        ~Function ();
 
               char         *GetName         () const;
         const FunctionType *GetFunctionType () const;
