@@ -5,7 +5,7 @@
 
 BasicBlock::BasicBlock (char *name, Value *blockParent) : User (ValueId::BASIC_BLOCK, nullptr), name (name), blockLength (0), 
                                                           head (nullptr), tail (nullptr) {
-    parent = blockParent;
+    parent = blockParent; // TODO why don't you use initializer list for that?
 }
 
 BasicBlock::~BasicBlock () {
@@ -62,7 +62,8 @@ BasicBlock *BasicBlock::Create (char *name, Function *function) {
 
     BasicBlock *newBlock = new BasicBlock (name, function);
 
-    function->basicBlocks.push_back (newBlock);
+    function->basicBlocks.push_back (newBlock); //TODO: It's better to use std::list rather than std::vector 
+                                                // because in optimization pipeline `insert in the middle` operation is usual to meet
 
     return newBlock;
 }

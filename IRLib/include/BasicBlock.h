@@ -11,7 +11,8 @@ class Function;
 class BasicBlock final : public User {
     public:
         //TODO make this private and use push_back + copy constructor instead of emplace?
-        BasicBlock (char *name, Value *blockParent);
+        BasicBlock (char *name, Value *blockParent); // TODO: Why parent is Value and not BasicBlock? 
+                                                     // Are you allowing to insert basic block after particular instruction?
         BasicBlock () = delete;
         ~BasicBlock ();
 

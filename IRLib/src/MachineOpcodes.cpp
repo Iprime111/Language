@@ -11,6 +11,7 @@ MachineOpcodes::~MachineOpcodes () {
     }
 }
 
+// TODO what is opcode without content??
 Opcode *MachineOpcodes::CreateOpcode () {
     Opcode *newOpcode = new Opcode ();
 
@@ -35,10 +36,14 @@ Opcode *MachineOpcodes::CreateOpcode (const std::string &opcodeContent) {
     return newOpcode;
 }
 
+// TODO undef
 #define ProcessInstructionType(type, callback)  \
     case InstructionId::type:                   \
         return callback (instruction);
 
+// TODO I would suggest you to create a map
+// switch has complexity of O(log(n)) in best case and O(n) in worst (probably your one)
+// while map has complexity of O(1) always
 Opcode *MachineOpcodes::GetOpcodeByInstruction (Instruction *instruction) {
     switch (instruction->GetInstructionId ()) {
 
