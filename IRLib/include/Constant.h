@@ -3,7 +3,7 @@
 
 #include <cstdint>
 
-#include "FunctionType.h"
+#include "FunctionType.h" // TODO: unknown type size_t. Did you mean std::size_t?
 #include "User.h"
 
 //TODO Think whether I really need this...
@@ -19,10 +19,11 @@ class Constant : public User {
 //TODO improve a way to set constant value
 class ConstantData : public Constant {
     public:
-        ConstantData (const ConstantData &data);
+        ConstantData (const ConstantData &data); // TODO: do you really need copy ctor? 
+                                                 // Read about "Rule of 0" and "Rule of 5"
 
         ConstantData (const Type *type);
-        ConstantData (const Type *type, void *data);
+        ConstantData (const Type *type, void *data); // TODO: you usually doesn't want to use void* in C++.
         ~ConstantData ();
 
         const uint8_t *GetBytes () const;

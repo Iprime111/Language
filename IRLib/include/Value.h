@@ -5,6 +5,9 @@
 
 struct IRContext;
 
+// TODO just saying for you not to told me I never said this
+// I'd probably put that and other developer-only enums in namespace details
+// there's a convention that user should not acess anything from namespace details
 enum class ValueId {
     VALUE        = 1 << 0,
     INSTRUCTION  = 1 << 1,

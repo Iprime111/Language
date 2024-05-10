@@ -1,9 +1,19 @@
 #include "Instruction.h"
 #include "User.h"
 
-Instruction::Instruction (InstructionId instructionId, const Type *instructionType) : User (ValueId::INSTRUCTION, instructionType), instructionId (instructionId) {}
-Instruction::Instruction (InstructionId instructionId, const Type *instructionType, size_t operandsCount) : 
-    User (ValueId::INSTRUCTION, instructionType, operandsCount), instructionId (instructionId) {}
+// TODO formatting. Please, limit your lines len with, for example, 128 chars.
+// TODO: exaple of code format for initialiser list:
+Instruction::Instruction (InstructionId instructionId, const Type *instructionType) : 
+    User (ValueId::INSTRUCTION, instructionType), 
+    instructionId (instructionId) 
+    
+    {}
+
+// TODO: another example of code format for initializer list: gnu style (cringe one in my opinion)
+Instruction::Instruction (InstructionId instructionId, const Type *instructionType, size_t operandsCount) 
+    : User (ValueId::INSTRUCTION, instructionType, operandsCount)
+    , instructionId (instructionId) 
+    {}
 
 InstructionId Instruction::GetInstructionId () const { return instructionId; }
 

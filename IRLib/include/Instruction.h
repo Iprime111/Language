@@ -17,11 +17,12 @@ enum class InstructionId {
 
 class Instruction : public User {
     public:
-        ~Instruction () = default;
-        InstructionId GetInstructionId () const;
+      ~Instruction() = default; // TODO there's no need to manually set dtor to
+                                // default. You may just delete this line
+      InstructionId GetInstructionId() const;
 
-        Instruction *next = nullptr;
-        Instruction *prev = nullptr;
+      Instruction *next = nullptr;
+      Instruction *prev = nullptr;
 
     protected:
         Instruction (InstructionId instructionId, const Type *instructionType);
@@ -31,6 +32,7 @@ class Instruction : public User {
         InstructionId instructionId = {};
 };
 
+// TODO move enums to the begin of the file or split files
 enum class StateChangerId {
     HLT = 0,
 };
@@ -108,6 +110,9 @@ class CmpOperator final : public Instruction {
 
 class AllocaInstruction final : public Instruction {
     public:
+        // TODO why stack adress?
+        // there's no such primitives as 'stack' in IR
+        // just pointers to ~somewhere in RAM~
         AllocaInstruction (const Type *type, size_t stackAddress);
 
         size_t GetStackAddress () const;
@@ -118,11 +123,13 @@ class AllocaInstruction final : public Instruction {
 
 class StoreInstruction final : public Instruction {
     public:
+        // TODO it's possible to create store not only to Alloca but also to global variable instruction
         StoreInstruction (AllocaInstruction *variable, Value *operand);
 };
 
 class LoadInstruction final : public Instruction {
     public:
+        // TODO same as todo in `StoreInstruction`
         LoadInstruction (AllocaInstruction *variable);
 };
 

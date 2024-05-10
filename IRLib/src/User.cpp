@@ -6,6 +6,7 @@ User::User (ValueId valueId, const Type *valueType, size_t operandsCount) : Valu
     operands = new Use [operandsCount];
 }
 
+// TODO copy/move-ctor
 User::~User () {
     delete [] operands;
 }

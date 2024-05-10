@@ -6,6 +6,9 @@
 #include "IRContext.h"
 #include "Value.h"
 
+// TODO: you haven't allocated `bytes` array.
+//       this means your class have invalid state after creation
+
 Constant::Constant (const Type *type) : User (ValueId::CONSTANT, type) {}
 
 ConstantData::ConstantData (const ConstantData &data) : Constant (data.GetType ()) {
@@ -36,6 +39,8 @@ ConstantData::~ConstantData () {
 
 const uint8_t *ConstantData::GetBytes () const { return bytes; }
 
+// TODO it's probably not 'GetConstant' but 'CreateConstant'
+//      it's also probably should be method of 'class Constant'
 ConstantData *ConstantData::GetConstant (IRContext *context, const Type *type, void *data) {
     if (!context)
         return nullptr;
@@ -44,6 +49,6 @@ ConstantData *ConstantData::GetConstant (IRContext *context, const Type *type, v
 
     context->constants.push_back (newConstant);
 
-    return context->constants [context->constants.size () - 1];
+    return context->constants [context->constants.size () - 1]; // TODO use .back method of std::vector
 }
 

@@ -15,7 +15,7 @@ class Opcode {
         std::string opcodeContent = {};
         
          Opcode (const Opcode &opcode);
-        ~Opcode () = default;
+        ~Opcode () = default; // TODO virtual!
     
     private:
         Opcode ();

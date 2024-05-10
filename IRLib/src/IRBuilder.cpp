@@ -47,7 +47,7 @@ Instruction *IRBuilder::CreateAllocaInstruction (const Type *type) {
     ValueId insertPointType = insertPoint->GetValueId ();
 
     if (insertPointType == ValueId::INSTRUCTION)
-        parentFunction = (Function *) insertPoint->parent->parent;
+        parentFunction = (Function *) insertPoint->parent->parent; // TODO: Since you're using C++, please NEVER use c-style casts. Use static_cast instead
     else if (insertPointType == ValueId::BASIC_BLOCK)
         parentFunction = (Function *) insertPoint->parent;
     else
@@ -68,6 +68,7 @@ Instruction *IRBuilder::InsertInstruction (Instruction *newInstruction) {
     
     Instruction *insertedInstruction = nullptr;
 
+    // TODO maybe use switch (InsertPointType)
     if (insertPointType == ValueId::BASIC_BLOCK) {
         return ((BasicBlock *) insertPoint)->InsertTail (newInstruction);
 
@@ -76,7 +77,7 @@ Instruction *IRBuilder::InsertInstruction (Instruction *newInstruction) {
 
         return basicBlock->InsertAfterPoint (newInstruction, (Instruction *) insertPoint);
 
-    } else {
+    } else { // TODO I don't like `return` followed by `else` statements
         return nullptr;
     }
 }
