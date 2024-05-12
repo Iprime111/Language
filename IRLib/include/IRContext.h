@@ -8,13 +8,15 @@
 #include "FunctionType.h"
 #include "Value.h"
 
-struct IRContext final {
-    std::vector <Function *>     functions = {};
-    std::vector <ConstantData *> constants = {};
-    TypesImplementation          types     = {};
-
-    IRContext  () = default;
-    ~IRContext ();
-};
-
+namespace IR {
+    struct IRContext final {
+        std::list   <Function *>     functions;
+        std::vector <ConstantData *> constants;
+    
+        size_t currentLabelIndex = 0;
+    
+        IRContext  () = default;
+        ~IRContext ();
+    };
+}
 #endif

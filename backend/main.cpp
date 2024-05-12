@@ -1,14 +1,12 @@
 #include <cassert>
 
+#include "AST/TranslationContext.h"
 #include "ConsoleParser.h"
-#include "AssemblyGenerator.h"
-#include "BackendCore.h"
 #include "IRBuilder.h"
 #include "IRContext.h"
 #include "IRPrinter.h"
 #include "Opcodes.h"
 #include "TreeReader.h"
-#include "Dump.h"
 
 static char *TreeFile     = nullptr;
 static char *NamesFile    = nullptr;
@@ -38,7 +36,7 @@ int main (int argc, char **argv) {
         return 0;
     }
 
-    TranslationContext context = {};
+    Ast::TranslationContext context = Ast::TranslationContext ();
 
     ReadSyntaxTree (&context.abstractSyntaxTree, &context.entryPoint, treeData);
     ReadNameTables (&context.nameTable, &context.localTables, nameTableData);
@@ -46,26 +44,24 @@ int main (int argc, char **argv) {
     free (treeData);
     free (nameTableData);
 
-    if (TreeDumpFile)
-        DumpSyntaxTree (&context, TreeDumpFile);
+    //if (TreeDumpFile)
+    //    DumpSyntaxTree (&context, TreeDumpFile);
     
     FILE *assemblyStream = fopen (AssemblyFile, "w");
 
     if (assemblyStream) {
-        IRContext irContext = {};
-        IRBuilder builder   = IRBuilder (&irContext);
+        IR::IRContext irContext = {};
+        IR::IRBuilder builder   = IR::IRBuilder (&irContext);
 
-        GenerateAssembly (&builder, &context);
 
         x86Opcodes opcodes = x86Opcodes ();
-        IRPrinter  printer = IRPrinter (&irContext, &opcodes);
+        IR::IRPrinter  printer = IR::IRPrinter (&irContext, &opcodes);
         
         printer.PrintIR ();
 
         fclose (assemblyStream);
     }
 
-    DestroyTranslationContext (&context);
 }
 
 static void SetTreeFilename (char **name) {

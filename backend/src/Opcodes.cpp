@@ -10,18 +10,31 @@
 #include "Instruction.h"
 #include "Value.h"
 
-const std::string INTEGER_DATA_REGISTERS [] = {"rax", "rbx"};
+static const std::string INTEGER_DATA_REGISTERS [] = {"rax", "rbx"};
+static const size_t      REQUIRED_STACK_ALIGNMENT  = 16;
+
+Opcode *x86Opcodes::ProcessProgramEnter () {
+    return CreateOpcode ("section .text\n"
+                         "global _start\n");
+}
 
 Opcode *x86Opcodes::ProcessFunctionEnter (Function *function) {
+    assert (function);
 
     size_t allocaSize = function->GetAllocaSize ();
-    size_t stackFrameSize = allocaSize + (16 - allocaSize % 16);
+    size_t stackFrameSize = allocaSize + (REQUIRED_STACK_ALIGNMENT - allocaSize % REQUIRED_STACK_ALIGNMENT);
 
     return CreateOpcode (std::string (function->GetName ()) + ":\n" +
                          "push rbp\n"
                          "mov rbp, rsp\n"
                          "sub rsp, " + std::to_string (stackFrameSize) + "\n");
-} 
+}
+
+Opcode *x86Opcodes::ProcessBlockEnter (BasicBlock *basicBlock) {
+    assert (basicBlock);
+
+    return CreateOpcode ("BLOCK_" + std::to_string (basicBlock->GetLabelIndex ()) + ":\n");
+}
 
 Opcode *x86Opcodes::ProcessStateChanger (Instruction *instruction) {
     assert (instruction);
@@ -43,10 +56,7 @@ Opcode *x86Opcodes::ProcessUnaryOperator (Instruction *instruction) {
         case UnaryOperatorId::SIN:
         case UnaryOperatorId::COS:
             //TODO fuck...
-            return nullptr;
-
-        case UnaryOperatorId::NOT:
-            //TODO logic value type
+            break;
 
         case UnaryOperatorId::FLOOR:
         case UnaryOperatorId::SQRT:
@@ -89,9 +99,10 @@ Opcode *x86Opcodes::ProcessBinaryOperator (Instruction *instruction) {
             break;
 
         case BinaryOperatorId::AND:
+            break;//TODO
+
         case BinaryOperatorId::OR:
-            //TODO logic value type
-            return nullptr;
+            break;//TODO
     }
 
     return opcode;
@@ -110,21 +121,14 @@ Opcode *x86Opcodes::ProcessReturnOperator (Instruction *instruction) {
 }
 
 Opcode *x86Opcodes::ProcessCmpOperator (Instruction *instruction) {
-    CmpOperator *cmpOperator = (CmpOperator *) instruction;
+    Opcode *opcode = CreateOpcode (); 
 
-    //TODO logic type
-    switch (cmpOperator->GetCmpOperatorId ()) {
+    PrintOperandLoad (instruction, 0, opcode, 0);
+    PrintOperandLoad (instruction, 1, opcode, 1);
 
-        case CmpOperatorId::CMP_L:
-        case CmpOperatorId::CMP_G:
-        case CmpOperatorId::CMP_E:
-        case CmpOperatorId::CMP_LE:
-        case CmpOperatorId::CMP_GE:
-        case CmpOperatorId::CMP_NE:
-          break;
-    };
+    opcode->opcodeContent += "cmp rax, rbx\n";
 
-    return nullptr;
+    return opcode;
 }
 
 Opcode *x86Opcodes::ProcessAllocaInstruction (Instruction *instruction) {
@@ -151,8 +155,60 @@ Opcode *x86Opcodes::ProcessLoadInstruction (Instruction *instruction) {
 
     const AllocaInstruction *variable = (const AllocaInstruction *) instruction->GetOperand (0);
 
+    if (instruction->prev && instruction->prev->GetInstructionId () == InstructionId::STORE_INSTRUCTION &&
+        instruction->prev->GetOperand (0) == instruction->GetOperand (0))
+            return CreateOpcode ("push rax\n"); //value is already in rax
+
     return CreateOpcode ("mov qword ptr rax, [rbp - " + std::to_string (variable->GetStackAddress ()) + "]\n"
                          "push rax\n");
+}
+
+Opcode *x86Opcodes::ProcessBranchInstruction (Instruction *instruction) {
+    assert (instruction);
+
+    if (!((BranchInstruction *) instruction)->IsConditional ()) {
+        return CreateOpcode ("jmp " + std::to_string (((const BasicBlock *) instruction->GetOperand (0))->GetLabelIndex ()) + "\n");
+    }
+
+    const Instruction *condition = (const Instruction *) instruction->GetOperand (0);
+    
+    Opcode *opcode = CreateOpcode ();
+
+    if (condition->GetInstructionId () == InstructionId::CMP_OPERATOR) {
+        switch (((const CmpOperator *) condition)->GetCmpOperatorId ()) {
+            case CmpOperatorId::CMP_L:
+                opcode->opcodeContent += "jl";
+                break;
+
+            case CmpOperatorId::CMP_G:
+                opcode->opcodeContent += "jg";
+                break;
+
+            case CmpOperatorId::CMP_E:
+                opcode->opcodeContent += "je";
+                break;
+
+            case CmpOperatorId::CMP_LE:
+                opcode->opcodeContent += "jle";
+                break;
+
+            case CmpOperatorId::CMP_GE:
+                opcode->opcodeContent += "jge";
+                break;
+
+            case CmpOperatorId::CMP_NE:
+                opcode->opcodeContent += "jne";
+              break;
+        }
+
+        //TODO optimize jumps
+        opcode->opcodeContent += " BLOCK_"    + std::to_string (((const BasicBlock *) instruction->GetOperand (1))->GetLabelIndex ()) + "\n";
+        opcode->opcodeContent += "jmp BLOCK_" + std::to_string (((const BasicBlock *) instruction->GetOperand (2))->GetLabelIndex ()) + "\n";
+    } else {
+        //TODO
+    }
+
+    return opcode;
 }
 
 void x86Opcodes::PrintOperandLoad (Instruction *instruction, size_t operandIndex, Opcode *opcode, size_t dataRegisterIndex) {
@@ -166,25 +222,11 @@ void x86Opcodes::PrintOperandLoad (Instruction *instruction, size_t operandIndex
     ValueId valueId = operand->GetValueId ();
 
     if (valueId == ValueId::CONSTANT) {
-        //TODO fix fucking alignment (maybe write string in hex?)
-        const int64_t *constValue = (const int64_t *) ((const ConstantData *) operand)->GetBytes ();
+        int64_t constValue = 0;
+        memcpy (&constValue, ((const ConstantData *) operand)->GetBytes (), operand->GetType ()->GetSize ());
 
-        opcode->opcodeContent += "mov " + INTEGER_DATA_REGISTERS [dataRegisterIndex] + ", " + std::to_string (*constValue) + "\n";
+        opcode->opcodeContent += "mov " + INTEGER_DATA_REGISTERS [dataRegisterIndex] + ", " + std::to_string (constValue) + "\n";
     } else {
         opcode->opcodeContent += "pop " + INTEGER_DATA_REGISTERS [dataRegisterIndex] + "\n";
     }
-}
-
-bool x86Opcodes::IsConstantOperand (Instruction *instruction, size_t operandIndex) {
-    assert (instruction);
-
-    const Value *operand = instruction->GetOperand (operandIndex);
-
-    if (!operand)
-        return false;
-
-    if (operand->GetValueId () == ValueId::CONSTANT)
-        return true;
-    else
-        return false;
 }

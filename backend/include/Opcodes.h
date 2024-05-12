@@ -4,22 +4,26 @@
 #include "Instruction.h"
 #include "MachineOpcodes.h"
 
-class x86Opcodes : public MachineOpcodes {
+class x86Opcodes final : public IR::MachineOpcodes {
     public:
-        Opcode *ProcessFunctionEnter (Function *function) override;
+        IR::Opcode *ProcessProgramEnter  ()                       override;
+        IR::Opcode *ProcessFunctionEnter (IR::Function   *function)   override;
+        IR::Opcode *ProcessBlockEnter    (IR::BasicBlock *basicBlock) override;
 
     private:
-        Opcode *ProcessStateChanger      (Instruction *instruction) override;
-        Opcode *ProcessUnaryOperator     (Instruction *instruction) override;
-        Opcode *ProcessBinaryOperator    (Instruction *instruction) override;
-        Opcode *ProcessReturnOperator    (Instruction *instruction) override;
-        Opcode *ProcessCmpOperator       (Instruction *instruction) override;
-        Opcode *ProcessAllocaInstruction (Instruction *instruction) override;
-        Opcode *ProcessStoreInstruction  (Instruction *instruction) override;
-        Opcode *ProcessLoadInstruction   (Instruction *instruction) override;
+        IR::Opcode *ProcessStateChanger      (IR::Instruction *instruction) override;
+        IR::Opcode *ProcessUnaryOperator     (IR::Instruction *instruction) override;
+        IR::Opcode *ProcessBinaryOperator    (IR::Instruction *instruction) override;
+        IR::Opcode *ProcessReturnOperator    (IR::Instruction *instruction) override;
+        IR::Opcode *ProcessCmpOperator       (IR::Instruction *instruction) override;
+        IR::Opcode *ProcessAllocaInstruction (IR::Instruction *instruction) override;
+        IR::Opcode *ProcessStoreInstruction  (IR::Instruction *instruction) override;
+        IR::Opcode *ProcessLoadInstruction   (IR::Instruction *instruction) override;
+        IR::Opcode *ProcessBranchInstruction (IR::Instruction *instruction) override;
+        IR::Opcode *ProcessCastInstruction   (IR::Instruction *instruction) override;
+        IR::Opcode *ProcessCallInstruction   (IR::Instruction *instruction) override;
 
-        void PrintOperandLoad  (Instruction *instruction, size_t operandIndex, Opcode *opcode, size_t dataRegisterIndex);
-        bool IsConstantOperand (Instruction *instruction, size_t operandIndex);
+        void PrintOperandLoad (IR::Instruction *instruction, size_t operandIndex, IR::Opcode *opcode, size_t dataRegisterIndex);
 };
 
 #endif

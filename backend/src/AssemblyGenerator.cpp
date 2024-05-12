@@ -29,6 +29,9 @@ static Value *WriteFunctionCall (IRBuilder *builder, TranslationContext *context
 static Value *WriteKeyword      (IRBuilder *builder, TranslationContext *context, Tree::Node <AstNode> *node, int currentNameTableIndex);
 
 static TranslationError ConstructFunctionArguments (FunctionType *functionType, IRBuilder *builder, Tree::Node <AstNode> *node);
+static Value *NodeToComparison (IRBuilder *builder, TranslationContext *context, Tree::Node <AstNode> *node, int currentNameTableIndex);
+static bool   IsComparisonNode (Tree::Node <AstNode> *node);
+
 
 TranslationError GenerateAssembly (IRBuilder *builder, TranslationContext *context) {
     assert (builder);
@@ -99,8 +102,7 @@ static Value *WriteConstant (IRBuilder *builder, double constant) {
 
     int64_t intConstant = (int64_t) constant;
 
-    IRContext *irContext = builder->GetContext ();
-    return ConstantData::GetConstant (irContext, Type::GetInt64Ty (irContext), &intConstant);
+    return ConstantData::CreateConstant (builder->GetContext (), builder->GetInt64Ty (), &intConstant);
 }
 
 static Value *NewFunction (IRBuilder *builder, TranslationContext *context, Tree::Node <AstNode> *node, int currentNameTableIndex) {
@@ -113,7 +115,7 @@ static Value *NewFunction (IRBuilder *builder, TranslationContext *context, Tree
         return nullptr;
 
     FunctionType type = {
-        .returnValue = Type::GetInt64Ty (builder->GetContext ()),
+        .returnValue = builder->GetInt64Ty (),
         .params      = {},
     };
 
@@ -121,8 +123,8 @@ static Value *NewFunction (IRBuilder *builder, TranslationContext *context, Tree
     if (node->right && node->right->left) // node->right is "Parameters" node and node->right->left is first argument
        ConstructFunctionArguments (&type, builder, node->right->left);
 
-    Function *function = Function::Create   (&type, context->nameTable.data [node->nodeData.content.nameTableIndex].name, builder->GetContext ());
-    BasicBlock *block  = BasicBlock::Create ("Function begin", function);
+    Function *function = Function::Create   (builder->GetContext (), &type, context->nameTable.data [node->nodeData.content.nameTableIndex].name);
+    BasicBlock *block  = BasicBlock::Create ("Function begin", function, builder->GetContext ());
 
     builder->SetInsertPoint (block);
 
@@ -151,7 +153,7 @@ static TranslationError ConstructFunctionArguments (FunctionType *functionType, 
     }
 
     if (node->nodeData.type == NodeType::VARIABLE_DECLARATION) {
-            functionType->params.push_back (Type::GetInt64Ty (builder->GetContext ()));
+            functionType->params.push_back (builder->GetInt64Ty ());
 
             return TranslationError::NO_ERRORS;
     }
@@ -165,7 +167,7 @@ static Value *NewVariable (IRBuilder *builder, TranslationContext *context, Tree
 
     //TODO: node -> IR type
     AllocaInstruction *newVariable = (AllocaInstruction *) 
-        builder->CreateAllocaInstruction (Type::GetInt64Ty (builder->GetContext()));
+        builder->CreateAllocaInstruction (builder->GetInt64Ty ());
 
     context->localVariables [node->nodeData.content.nameTableIndex] = newVariable;
 
@@ -182,8 +184,35 @@ static Value *WriteFunctionCall (IRBuilder *builder, TranslationContext *context
     return nullptr;
 }
 
+static bool IsComparisonNode (Tree::Node <AstNode> *node) {
+    if (node->nodeData.type != NodeType::KEYWORD)
+        return false;
+
+    Keyword keyword = node->nodeData.content.keyword;
+
+    if (keyword == Keyword::LESS       || keyword == Keyword::GREATER       || keyword == Keyword::EQUAL || 
+        keyword == Keyword::LESS_EQUAL || keyword == Keyword::GREATER_EQUAL || keyword == Keyword::NOT_EQUAL)
+            return true;
+
+    return false;
+}
+
+static Value *NodeToComparison (IRBuilder *builder, TranslationContext *context, Tree::Node <AstNode> *node, int currentNameTableIndex) {
+    assert (node);
+    assert (builder);
+    assert (context);
+
+    if (!IsComparisonNode (node)) {
+        return builder->CreateCmpOperator (CmpOperatorId::CMP_NE, TreeTraversal (builder, context, node, currentNameTableIndex), 
+                                           ConstantData::CreateZeroConstant (builder->GetContext (), builder->GetInt64Ty ()));
+    }
+    
+    return TreeTraversal (builder, context, node, currentNameTableIndex);
+}
+
 static Value *WriteKeyword (IRBuilder *builder, TranslationContext *context, Tree::Node <AstNode> *node, int currentNameTableIndex) {
     assert (builder);
+    assert (context);
     assert (node);
 
     #define AssemblyOperator(opcode, ...)   \
@@ -191,9 +220,35 @@ static Value *WriteKeyword (IRBuilder *builder, TranslationContext *context, Tre
             return __VA_ARGS__              \
         }
 
+
+    //TODO switch cases in separate functions
     switch (node->nodeData.content.keyword) {
-        //AssemblyOperator (IF,                 )
-        //AssemblyOperator (WHILE,              )
+        //TODO while and or not
+
+        case Keyword::AND: {
+            Value *leftComparison = NodeToComparison (builder, context, node, currentNameTableIndex);
+
+        }
+
+        case Keyword::IF: {
+            Function *currentFunction = (Function *) builder->GetInsertBlock ()->parent;
+
+            Value *condition = Traversal (left);
+            IRContext *irContext = builder->GetContext ();
+
+            BasicBlock *thenBlock  = BasicBlock::Create ("Then block (\"if\")", currentFunction, irContext);
+            BasicBlock *mergeBlock = BasicBlock::Create ("Merge after \"if\"",  currentFunction, irContext);
+
+            //TODO else branch
+            builder->CreateBranchInstruction (condition, thenBlock, mergeBlock);
+
+            //TODO special function for 'or', 'not' and 'and' 
+            builder->SetInsertPoint (thenBlock);
+            Traversal (right);
+
+            builder->SetInsertPoint (mergeBlock);
+            break;
+        }
 
         case Keyword::ASSIGNMENT: {
             AllocaInstruction *localVariable = context->localVariables [node->right->nodeData.content.nameTableIndex];
@@ -220,9 +275,6 @@ static Value *WriteKeyword (IRBuilder *builder, TranslationContext *context, Tre
         AssemblyOperator (LESS_EQUAL,         CmpOperation    (CMP_LE))
         AssemblyOperator (GREATER_EQUAL,      CmpOperation    (CMP_GE))
         AssemblyOperator (NOT_EQUAL,          CmpOperation    (CMP_NE))
-        AssemblyOperator (AND,                BinaryOperation (AND))
-        AssemblyOperator (OR,                 BinaryOperation (OR))
-        AssemblyOperator (NOT,                UnaryOperation  (NOT))
         AssemblyOperator (ABORT,              StateChange     (HLT))
         AssemblyOperator (RETURN_OPERATOR,    ReturnOperation ())
         //AssemblyOperator (BREAK_OPERATOR,     )

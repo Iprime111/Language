@@ -1,56 +1,71 @@
 #include "MachineOpcodes.h"
+#include "InstructionId.h"
 
-Opcode::Opcode (const Opcode &opcode)             : opcodeContent (opcode.opcodeContent) {}
-Opcode::Opcode (const char *opcodeContent)        : opcodeContent (opcodeContent) {}
-Opcode::Opcode (const std::string &opcodeContent) : opcodeContent (opcodeContent) {}
-Opcode::Opcode ()                                 : opcodeContent ("") {}
-
-MachineOpcodes::~MachineOpcodes () {
-    for (size_t opcodeIndex = 0; opcodeIndex < opcodes.size (); opcodeIndex++) {
-        delete opcodes [opcodeIndex];
+namespace IR {
+    Opcode::Opcode (const Opcode &opcode)             : opcodeContent (opcode.opcodeContent) {}
+    Opcode::Opcode (const char *opcodeContent)        : opcodeContent (opcodeContent) {}
+    Opcode::Opcode (const std::string &opcodeContent) : opcodeContent (opcodeContent) {}
+    Opcode::Opcode ()                                 : opcodeContent ("") {}
+    
+    #define StoreCallback(type, function) instructionCallbacks [InstructionId::type] = &MachineOpcodes::function;
+    
+    MachineOpcodes::MachineOpcodes () {
+        StoreCallback (STATE_CHANGER,      ProcessStateChanger)
+        StoreCallback (UNARY_OPERATOR,     ProcessUnaryOperator)
+        StoreCallback (BINARY_OPERATOR,    ProcessBinaryOperator)
+        StoreCallback (RETURN_OPERATOR,    ProcessReturnOperator)
+        StoreCallback (CMP_OPERATOR,       ProcessCmpOperator)
+        StoreCallback (ALLOCA_INSTRUCTION, ProcessAllocaInstruction)
+        StoreCallback (STORE_INSTRUCTION,  ProcessStoreInstruction)
+        StoreCallback (LOAD_INSTRUCTION,   ProcessLoadInstruction)
+        StoreCallback (BRANCH_INSTRUCTION, ProcessBranchInstruction)
+        StoreCallback (CAST_INSTRUCTION,   ProcessCastInstruction)
+        StoreCallback (CALL_INSTRUCTION,   ProcessCallInstruction)
     }
-}
-
-Opcode *MachineOpcodes::CreateOpcode () {
-    Opcode *newOpcode = new Opcode ();
-
-    opcodes.push_back (newOpcode);
-
-    return newOpcode;
-}
-
-Opcode *MachineOpcodes::CreateOpcode (const char *opcodeContent) {
-    Opcode *newOpcode = new Opcode (opcodeContent);
-
-    opcodes.push_back (newOpcode);
-
-    return newOpcode;
-}
-
-Opcode *MachineOpcodes::CreateOpcode (const std::string &opcodeContent) {
-    Opcode *newOpcode = new Opcode (opcodeContent);
-
-    opcodes.push_back (newOpcode);
-
-    return newOpcode;
-}
-
-#define ProcessInstructionType(type, callback)  \
-    case InstructionId::type:                   \
-        return callback (instruction);
-
-Opcode *MachineOpcodes::GetOpcodeByInstruction (Instruction *instruction) {
-    switch (instruction->GetInstructionId ()) {
-
-        ProcessInstructionType (STATE_CHANGER,          ProcessStateChanger)
-        ProcessInstructionType (UNARY_OPERATOR,         ProcessUnaryOperator)
-        ProcessInstructionType (BINARY_OPERATOR,        ProcessBinaryOperator)
-        ProcessInstructionType (RETURN_OPERATOR,        ProcessReturnOperator)
-        ProcessInstructionType (CMP_OPERATOR,           ProcessCmpOperator)
-        ProcessInstructionType (ALLOCA_INSTRUCTION,     ProcessAllocaInstruction)
-        ProcessInstructionType (STORE_INSTRUCTION,      ProcessStoreInstruction)
-        ProcessInstructionType (LOAD_INSTRUCTION,       ProcessLoadInstruction)
+    
+    #undef StoreCallback
+    
+    MachineOpcodes::~MachineOpcodes () {
+        for (size_t opcodeIndex = 0; opcodeIndex < opcodes.size (); opcodeIndex++) {
+            delete opcodes [opcodeIndex];
+        }
     }
-
-    return nullptr;
+    
+    Opcode *MachineOpcodes::CreateOpcode () {
+        Opcode *newOpcode = new Opcode ();
+    
+        opcodes.push_back (newOpcode);
+    
+        return newOpcode;
+    }
+    
+    Opcode *MachineOpcodes::CreateOpcode (const char *opcodeContent) {
+        Opcode *newOpcode = new Opcode (opcodeContent);
+    
+        opcodes.push_back (newOpcode);
+    
+        return newOpcode;
+    }
+    
+    Opcode *MachineOpcodes::CreateOpcode (const std::string &opcodeContent) {
+        Opcode *newOpcode = new Opcode (opcodeContent);
+    
+        opcodes.push_back (newOpcode);
+    
+        return newOpcode;
+    }
+    
+    #define ProcessInstructionType(type, callback)  \
+        case InstructionId::type:                   \
+            return callback (instruction);
+    
+    Opcode *MachineOpcodes::GetOpcodeByInstruction (Instruction *instruction) {
+    
+        InstructionCallback callback = instructionCallbacks [instruction->GetInstructionId ()];
+        
+        if (callback)
+            return (this->*callback) (instruction);
+    
+        return nullptr;
+    }
 }

@@ -17,13 +17,13 @@ struct CreationData {
 
 #define Traversal(direction)         TreeTraversal (builder, context, node->direction, currentNameTableIndex)
 
-#define UnaryOperation(operation)    builder->CreateUnaryOperator    (UnaryOperatorId::operation, Traversal (right));
-#define BinaryOperation(operation)   builder->CreateBinaryOperator   (BinaryOperatorId::operation, Traversal (left), Traversal (right));
-#define StateChange(operation)       builder->CreateStateChanger     (StateChangerId::operation);
-#define ReturnOperation(returnValue) builder->CreateReturnOperator   (Traversal (right));
-#define CmpOperation(operation)      builder->CreateCmpOperator      (CmpOperatorId::operation, Traversal (left), Traversal (right));
-#define Load(variable)               builder->CreateLoadInstruction  (variable)
-#define Store(variable, expression)  builder->CreateStoreInstruction (variable, expression)
+#define UnaryOperation(operation)           builder->CreateUnaryOperator     (UnaryOperatorId::operation, Traversal (right));
+#define BinaryOperation(operation)          builder->CreateBinaryOperator    (BinaryOperatorId::operation, Traversal (left), Traversal (right));
+#define StateChange(operation)              builder->CreateStateChanger      (StateChangerId::operation);
+#define ReturnOperation(returnValue)        builder->CreateReturnOperator    (Traversal (right));
+#define CmpOperation(operation)             builder->CreateCmpOperator       (CmpOperatorId::operation, Traversal (left), Traversal (right));
+#define Load(variable)                      builder->CreateLoadInstruction   (variable)
+#define Store(variable, expression)         builder->CreateStoreInstruction  (variable, expression)
 
 TranslationError GenerateAssembly (IRBuilder *builder, TranslationContext *context);
 
