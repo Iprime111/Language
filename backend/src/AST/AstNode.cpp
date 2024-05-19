@@ -1,8 +1,27 @@
-#include "FunctionType.h"
+#include "Type.h"
 #include "AST/AstNode.h"
+#include "AST/TranslationContext.h"
+
+#define SetParent(node)             \
+    do {                            \
+        if (node) {                 \
+            node->parent = this;    \
+        }                           \
+    } while (0)
 
 namespace Ast {
+    //--------------------------------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------AstNode-------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------------------------------------------
+
+    AstNode::AstNode (AstTypeId astTypeId) : parent (nullptr), trueBranch (nullptr), falseBranch (nullptr), typeId (astTypeId) {}
+
+    AstTypeId AstNode::GetAstTypeId () const { return typeId; }
+
     void AstNode::ConstructCallArgumentsForChild (TranslationContext *context, std::vector <IR::Value *> *args, AstNode *child) {
+        if (!child)
+            return;
+
         IR::Value *childCodegen = child->Codegen (context);
 
         if (!childCodegen)
@@ -11,42 +30,192 @@ namespace Ast {
         args->push_back (childCodegen);
     }
 
-    ConstantAst::ConstantAst (int64_t constantValue) : constantValue (constantValue) {}
+    //--------------------------------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------ConstantAst---------------------------------------------------------
+    //--------------------------------------------------------------------------------------------------------------------------------
 
-    VariableAst::VariableAst (size_t identifierIndex) : identifierIndex (identifierIndex) {}
+    ConstantAst::ConstantAst (int64_t constant) : AstNode (AstTypeId::CONSTANT), constantValue (constant) {}
+
+    //--------------------------------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------VariableAst---------------------------------------------------------
+    //--------------------------------------------------------------------------------------------------------------------------------
+
+    VariableAst::VariableAst (size_t identifier) : AstNode (AstTypeId::VARIABLE), identifierIndex (identifier) {}
     size_t VariableAst::GetIdentifierIndex () const { return identifierIndex; }
 
-    IdentifierAst::IdentifierAst (size_t identifierIndex) : identifierIndex (identifierIndex) {}
+    //--------------------------------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------IdentifierAst-------------------------------------------------------
+    //--------------------------------------------------------------------------------------------------------------------------------
+
+    IdentifierAst::IdentifierAst (size_t identifier) : AstNode(AstTypeId::IDENTIFIER), identifierIndex (identifier) {}
     size_t IdentifierAst::GetIdentifierIndex () const { return identifierIndex; }
     
-    OperatorAst::OperatorAst (AstNode *left, AstNode *right, AstOperatorId operatorId) : 
-        left (left), right (right), operatorId (operatorId) {}
+    //--------------------------------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------OperatorAst---------------------------------------------------------
+    //--------------------------------------------------------------------------------------------------------------------------------
 
-    TypeAst::TypeAst (const IR::Type *type) : nodeType (type) {}
+    OperatorAst::OperatorAst (AstNode *leftNode, AstNode *rightNode, AstOperatorId astOperatorId) : 
+        AstNode(AstTypeId::OPERATOR), left (leftNode), right (rightNode), operatorId (astOperatorId) {
+
+        SetParent (right);
+        SetParent (left);
+    }
+
+    OperatorAst::OperatorAst (AstNode *leftNode, AstNode *rightNode, AstOperatorId astOperatorId, AstTypeId type) : 
+        AstNode (type), left (leftNode), right (rightNode), operatorId (astOperatorId) {
+
+        SetParent (right);
+        SetParent (left);
+    }
+
+    AstOperatorId OperatorAst::GetOperatorId () const { return operatorId; }
+    AstNode *OperatorAst::GetLeft  () const { return left; }
+    AstNode *OperatorAst::GetRight () const { return right; }
+
+    OperatorFunction OperatorAst::GetOperatorFunction (TranslationContext *context, const IR::Type *type, AstOperatorId operatorId) {
+        if (!context || !type)
+            return nullptr;
+
+        std::unordered_map <const IR::Type *, TypeOperators>::iterator foundTypeOperators = 
+            context->operators.find (type);
+
+        if (foundTypeOperators == context->operators.end ())
+            return nullptr;
+
+        return foundTypeOperators->second.GetOperatorCallback (operatorId);
+    }
+
+    //--------------------------------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------LogicOperatorAst----------------------------------------------------
+    //--------------------------------------------------------------------------------------------------------------------------------
+
+    LogicOperatorAst::LogicOperatorAst (AstNode *leftNode, AstNode *rightNode, AstOperatorId astOperatorId) : 
+        OperatorAst (leftNode, rightNode, astOperatorId, AstTypeId::LOGIC_OPERATOR) {}
+
+    //--------------------------------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------TypeAst-------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------------------------------------------
+
+    TypeAst::TypeAst (const IR::Type *type) : AstNode (AstTypeId::TYPE), nodeType (type) {}
 
     const IR::Type *TypeAst::GetType () const { return nodeType; }
 
-    FunctionParametersAst::FunctionParametersAst (AstNode *functionContent) : 
-        functionContent (functionContent) {}
+    //--------------------------------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------FunctionParametersAst-----------------------------------------------
+    //--------------------------------------------------------------------------------------------------------------------------------
 
-    FunctionDefinitionAst::FunctionDefinitionAst (size_t identifierIndex, FunctionParametersAst *parameters, TypeAst *returnType) :
-        parameters (parameters), returnType (returnType), identifierIndex (identifierIndex) {}
+    FunctionParametersAst::FunctionParametersAst (AstNode *functionParameters, AstNode *functionBody) : 
+        AstNode (AstTypeId::FUNCTION_PARAMETERS), parameters (functionParameters), functionContent (functionBody) {
 
-    OperatorSeparatorAst::OperatorSeparatorAst (AstNode *left, AstNode *right) : 
-        left (left), right (right) {}
+        SetParent (parameters);
+        SetParent (functionContent);
+    }
 
-    ParameterSeparatorAst::ParameterSeparatorAst (AstNode *left, AstNode *right) :
-        left (left), right (right) {}
+    //--------------------------------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------FunctionDefinitionAst-----------------------------------------------
+    //--------------------------------------------------------------------------------------------------------------------------------
 
-    VariableDeclarationAst::VariableDeclarationAst (VariableAst *assignmentExpression, TypeAst *type) : 
-        assignment (assignmentExpression), nodeType (type) {}
+    FunctionDefinitionAst::FunctionDefinitionAst (size_t identifier, FunctionParametersAst *parametersNode, TypeAst *returnValueType) :
+        AstNode (AstTypeId::FUNCTION_DEFINITION), parameters (parametersNode), returnType (returnValueType), identifierIndex (identifier) {
 
-    CallAst::CallAst (IdentifierAst *functionIdentifier, AstNode *arguments) : 
-        arguments (arguments), functionIdentifier (functionIdentifier) {}
+        SetParent (parameters);
+        SetParent (returnType);
+    }
 
-    IfAst::IfAst (AstNode *condition, AstNode *body) : 
-        condition (condition), body (body) {}
+    //--------------------------------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------OperatorSeparatorAst------------------------------------------------
+    //--------------------------------------------------------------------------------------------------------------------------------
 
-    ReturnAst::ReturnAst (AstNode *returnStatement) :
-        returnStatement (returnStatement) {}
+    OperatorSeparatorAst::OperatorSeparatorAst (AstNode *leftNode, AstNode *rightNode) : 
+        AstNode (AstTypeId::OPERATOR_SEPARATOR), left (leftNode), right (rightNode) {
+     
+        SetParent (left);
+        SetParent (right);
+    }
+
+    //--------------------------------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------ParameterSeparatorAst-----------------------------------------------
+    //--------------------------------------------------------------------------------------------------------------------------------
+
+    ParameterSeparatorAst::ParameterSeparatorAst (AstNode *leftNode, AstNode *rightNode) :
+        AstNode (AstTypeId::PARAMETER_SEPARATOR), left (leftNode), right (rightNode) {
+
+        SetParent (left);
+        SetParent (right);
+    }
+
+    //--------------------------------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------VariableDeclarationAst----------------------------------------------
+    //--------------------------------------------------------------------------------------------------------------------------------
+
+    VariableDeclarationAst::VariableDeclarationAst (size_t identifier, AstNode *assignmentExpression, TypeAst *type) : 
+        AstNode (AstTypeId::VARIABLE_DECLARATION), identifierIndex (identifier), assignment (assignmentExpression), nodeType (type) {
+
+        SetParent (assignmentExpression);
+        SetParent (type);
+    }
+
+    //--------------------------------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------CallAst-------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------------------------------------------
+
+    CallAst::CallAst (IdentifierAst *identifier, AstNode *functionArguments) : 
+        AstNode (AstTypeId::CALL), arguments (functionArguments), functionIdentifier (identifier) {
+
+        SetParent (functionIdentifier);
+        SetParent (arguments);
+    }
+
+    //--------------------------------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------IfAst---------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------------------------------------------
+
+    IfAst::IfAst (AstNode *ifCondition, AstNode *ifBody) :
+        AstNode (AstTypeId::IF), condition (ifCondition), body (ifBody) {
+
+        SetParent (condition);
+        SetParent (body);
+    }
+
+    //--------------------------------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------WhileAst------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------------------------------------------
+    
+    WhileAst::WhileAst (AstNode *whileCondition, AstNode *loopBody) :
+        AstNode (AstTypeId::WHILE), condition (whileCondition), body (loopBody) {
+
+        SetParent (condition);
+        SetParent (body);
+    }
+
+    //--------------------------------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------ReturnAst-----------------------------------------------------------
+    //--------------------------------------------------------------------------------------------------------------------------------
+
+    ReturnAst::ReturnAst (AstNode *statement) :
+        AstNode (AstTypeId::RETURN), returnStatement (statement) {}
+
+    //--------------------------------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------AssignmentAst-------------------------------------------------------
+    //--------------------------------------------------------------------------------------------------------------------------------
+
+    AssignmentAst::AssignmentAst (VariableAst *variableNode, AstNode *expression) :
+        AstNode (AstTypeId::ASSIGNMENT), variable (variableNode), assignmentExpression (expression) {
+
+        SetParent (variableNode);
+        SetParent (expression);
+    }
+
+    //--------------------------------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------InAst---------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------------------------------------------
+
+    InAst::InAst () : AstNode (AstTypeId::IN) {}
+
+    //--------------------------------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------OutAst--------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------------------------------------------
+
+    OutAst::OutAst (AstNode *expression) : AstNode (AstTypeId::OUT), outExpression (expression) {}
+
 }

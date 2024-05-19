@@ -2,7 +2,8 @@
 
 #include "IRBuilder.h"
 #include "BasicBlock.h"
-#include "FunctionType.h"
+#include "InstructionId.h"
+#include "Type.h"
 #include "Instruction.h"
 #include "Value.h"
 
@@ -11,8 +12,9 @@ namespace IR {
     
     IRContext *IRBuilder::GetContext () { return context; }
     
-    void IRBuilder::SetInsertPoint (BasicBlock  *newInsertPoint) { insertPoint = newInsertPoint; }
-    void IRBuilder::SetInsertPoint (Instruction *newInsertPoint) { insertPoint = newInsertPoint; }
+    void IRBuilder::SetInsertPoint (BasicBlock  *newInsertPoint) { insertPoint = newInsertPoint;     }
+    void IRBuilder::SetInsertPoint (Instruction *newInsertPoint) { insertPoint = newInsertPoint;     }
+    void IRBuilder::SetEntryPoint  (Function    *entryPoint)     { context->entryPoint = entryPoint; }
     
     Value *IRBuilder::GetInsertPoint () const { return insertPoint; }
     
@@ -46,13 +48,25 @@ namespace IR {
     Instruction *IRBuilder::CreateReturnOperator (Value *operand) {
         return InsertInstruction (new ReturnOperator (operand));
     }
-    
-    Instruction *IRBuilder::CreateStoreInstruction (AllocaInstruction *variable, Value *operand) {
-        return InsertInstruction (new StoreInstruction (variable, operand));
+
+    Instruction *IRBuilder::CreateStoreInstruction (Value *variable, Value *operand) {
+        ValueId variableId = variable->GetValueId ();
+
+        if (variableId == ValueId::ARGUMENT || (variableId == ValueId::INSTRUCTION && 
+            static_cast <Instruction *> (variable)->GetInstructionId () == InstructionId::ALLOCA_INSTRUCTION))
+                return InsertInstruction (new StoreInstruction (variable, operand));
+
+        return nullptr;
     }
-    
-    Instruction *IRBuilder::CreateLoadInstruction (AllocaInstruction *variable) {
-        return InsertInstruction (new LoadInstruction (variable));
+
+    Instruction *IRBuilder::CreateLoadInstruction (Value *variable) {
+        ValueId variableId = variable->GetValueId ();
+
+        if (variableId == ValueId::ARGUMENT || (variableId == ValueId::INSTRUCTION && 
+            static_cast <Instruction *> (variable)->GetInstructionId () == InstructionId::ALLOCA_INSTRUCTION))
+                return InsertInstruction (new LoadInstruction (variable));
+
+        return nullptr;
     }
     
     Instruction *IRBuilder::CreateAllocaInstruction (const Type *type) {
@@ -71,7 +85,6 @@ namespace IR {
         //TODO alignment
         parentFunction->allocaSize += type->GetSize ();
     
-        //TODO maybe save stack address before increment?
         return InsertInstruction (new AllocaInstruction (type, parentFunction->allocaSize));
     }
     
@@ -83,15 +96,20 @@ namespace IR {
         return InsertInstruction (new BranchInstruction (nextBlock));
     }
     
-    Instruction *IRBuilder::CreateTruncCast (Value *castValue, const IntegerType *targetType) {
-        return InsertInstruction (new TruncCast (castValue, targetType));
+    Instruction *IRBuilder::CreateCall (Function *calleeFunction, std::vector <Value *> *arguments) {
+
+        if (calleeFunction->GetArgs ().size () == arguments->size ())
+            return InsertInstruction (new CallInstruction (calleeFunction, arguments));
+        
+        return nullptr;
     }
 
-    Instruction *IRBuilder::CreateCall (Function *calleeFunction, std::vector <Value *> *arguments) {
-        if (calleeFunction->GetFunctionType ()->params.size () == arguments->size ())
-            return InsertInstruction (new CallInstruction (calleeFunction, arguments));
-        else
-            return nullptr;
+    Instruction *IRBuilder::CreateOutInstruction (Value *outExpression) {
+        return InsertInstruction (new OutInstruction (outExpression));
+    }
+
+    Instruction *IRBuilder::CreateInInstruction () {
+        return InsertInstruction (new InInstruction ());
     }
     
     Instruction *IRBuilder::InsertInstruction (Instruction *newInstruction) {

@@ -2,7 +2,7 @@
 #include <cstring>
 
 #include "Constant.h"
-#include "FunctionType.h"
+#include "Type.h"
 #include "IRContext.h"
 #include "Value.h"
 
@@ -55,7 +55,6 @@ namespace IR {
     }
     
     ConstantData *ConstantData::CreateZeroConstant (IRContext *context, const Type *type) {
-        //TODO type check
         if (!context || !type)
             return nullptr;
     

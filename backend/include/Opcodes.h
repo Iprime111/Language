@@ -1,12 +1,15 @@
 #ifndef OPCODES_H_
 #define OPCODES_H_
 
+#include "IRContext.h"
 #include "Instruction.h"
 #include "MachineOpcodes.h"
 
 class x86Opcodes final : public IR::MachineOpcodes {
     public:
-        IR::Opcode *ProcessProgramEnter  ()                       override;
+        x86Opcodes (IR::IRContext *irContext);
+
+        IR::Opcode *ProcessProgramEnter  ()                           override;
         IR::Opcode *ProcessFunctionEnter (IR::Function   *function)   override;
         IR::Opcode *ProcessBlockEnter    (IR::BasicBlock *basicBlock) override;
 
@@ -22,8 +25,10 @@ class x86Opcodes final : public IR::MachineOpcodes {
         IR::Opcode *ProcessBranchInstruction (IR::Instruction *instruction) override;
         IR::Opcode *ProcessCastInstruction   (IR::Instruction *instruction) override;
         IR::Opcode *ProcessCallInstruction   (IR::Instruction *instruction) override;
+        IR::Opcode *ProcessOutInstruction    (IR::Instruction *instruction) override;
+        IR::Opcode *ProcessInInstruction     (IR::Instruction *instruction) override;
 
-        void PrintOperandLoad (IR::Instruction *instruction, size_t operandIndex, IR::Opcode *opcode, size_t dataRegisterIndex);
+        bool PrintOperandLoad (IR::Instruction *instruction, size_t operandIndex, IR::Opcode *opcode, size_t dataRegisterIndex);
 };
 
 #endif

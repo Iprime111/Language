@@ -2,14 +2,17 @@
 #define FUNCTION_H_
 
 #include <list>
+#include <vector>
 
+#include "Argument.h"
 #include "BasicBlock.h"
-#include "FunctionType.h"
+#include "Type.h"
 #include "Value.h"
 
 namespace IR {
     class IRBuilder;
     
+    //TODO move/copy constructors
     //TODO maybe derive from the Constant class
     class Function final : public Value {
         friend class IRBuilder;
@@ -20,20 +23,20 @@ namespace IR {
             Function  () = delete;
             ~Function ();
     
-            const char         *GetName         () const;
-            const FunctionType *GetFunctionType () const;
+            const std::string              &GetName () const;
+            const std::vector <Argument *> &GetArgs () const;
     
             size_t GetAllocaSize () const;
     
-            static Function *Create (IRContext *context, FunctionType *type, const char *name);
+            static Function *Create (IRContext *context, const Type *type, std::vector <const Type *> *argumentTypes, const char *name);
     
         private:
-            const char   *name;
-            FunctionType  functionType;
-    
+            std::string              name;
+            std::vector <Argument *> args;
+
             size_t allocaSize  = 0;
     
-            Function (const char *name, FunctionType *type);
+            explicit Function (const char *name, const Type *type, std::vector <Argument *> &&arguments);
     };
 }
 #endif

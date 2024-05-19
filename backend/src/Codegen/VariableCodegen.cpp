@@ -8,13 +8,13 @@
 namespace Ast {
     IR::Value *VariableAst::Codegen (TranslationContext *context) {
         //TODO global vars
-        std::unordered_map <size_t, IR::AllocaInstruction *>::iterator foundVariable = 
+        std::unordered_map <size_t, IR::Value *>::iterator foundVariable = 
             context->localVariables.find (identifierIndex);
 
         if (foundVariable == context->localVariables.end ())
             return nullptr;
 
-        IR::AllocaInstruction *allocaInstruction = foundVariable->second;
+        IR::Value *allocaInstruction = foundVariable->second;
 
         return context->builder.CreateLoadInstruction (allocaInstruction);
     }
@@ -23,7 +23,7 @@ namespace Ast {
         IR::AllocaInstruction *newVariable = 
             static_cast <IR::AllocaInstruction *> (context->builder.CreateAllocaInstruction (nodeType->GetType ()));
 
-        context->localVariables [assignment->GetIdentifierIndex ()] = newVariable;
+        context->localVariables [identifierIndex] = newVariable;
 
         assignment->Codegen (context);
 

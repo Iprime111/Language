@@ -3,17 +3,16 @@
 
 #include <cstdint>
 
-#include "FunctionType.h"
+#include "Type.h"
 #include "User.h"
 
 namespace IR {
-    //TODO Think whether I really need this...
     class Constant : public User {
         public:
             virtual ~Constant () = default;
     
         protected:
-            Constant (const Type *type);
+            explicit Constant (const Type *type);
     };
     
     //TODO improve a way to set constant value
@@ -21,8 +20,8 @@ namespace IR {
         public:
             ConstantData (const ConstantData &data);
     
-            ConstantData (const Type *type);
-            ConstantData (const Type *type, void *data);
+            explicit ConstantData (const Type *type);
+            explicit ConstantData (const Type *type, void *data);
             ~ConstantData ();
     
             const uint8_t *GetBytes () const;

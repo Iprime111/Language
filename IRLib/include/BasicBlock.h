@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <list>
+#include <string>
 
 #include "User.h"
 #include "Instruction.h"
@@ -15,23 +16,22 @@ namespace IR {
         public:
             std::list <Instruction *> instructions = {};
     
-            BasicBlock (char *name, Value *blockParent, size_t labelIndex);
-            BasicBlock () = delete;
+            BasicBlock  () = delete;
+            ~BasicBlock ();
     
-            char  *GetName       () const;
-            size_t GetLength     () const;
-            size_t GetLabelIndex () const;
+            const std::string &GetName   () const;
+            size_t       GetLength () const;
     
             Instruction *InsertTail       (Instruction *newInstruction);
             Instruction *InsertAfterPoint (Instruction *newInstruction, Instruction *insertPoint);
     
-            static BasicBlock *Create (char *name, Function *function, IRContext *context);
+            static BasicBlock *Create (const char *name, Function *function, IRContext *context);
     
         private:
-            char   *name         = nullptr;
-            size_t  blockLength  = 0;
+            std::string name;
+            size_t      blockLength;
     
-            size_t blockIndex = 0;//TODO change to name postfix?
+            explicit BasicBlock (std::string &name, Value *blockParent);
     };
 }
 #endif

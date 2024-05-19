@@ -7,8 +7,8 @@ namespace IR {
     
     class Use final {
         public:
-            Use ();
-            Use (Value *operand);
+            explicit Use ();
+            explicit Use (Value *operand);
     
             Value *GetOperand () const;
     

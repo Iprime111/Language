@@ -26,7 +26,7 @@ namespace IR {
             TypeId GetTypeId () const;
     
         protected:
-            Type (size_t bitsCount, TypeId typeId);
+            explicit Type (size_t bitsCount, TypeId typeId);
         
         private:
             size_t bitsCount = 0;
@@ -45,12 +45,7 @@ namespace IR {
         private:
             bool isUnsigned = false;
     
-            IntegerType (size_t bitsCount, bool isUnsigned);
-    };
-    
-    struct FunctionType {
-        const Type                *returnValue = {};
-        std::vector <const Type *> params      = {}; 
+            explicit IntegerType (size_t bitsCount, bool isUnsigned);
     };
     
     class TypesImplementation {

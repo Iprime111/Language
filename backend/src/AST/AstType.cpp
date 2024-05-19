@@ -4,12 +4,16 @@
 #include "AST/AstNode.h"
 
 namespace Ast {
-    OperatorFunction TypeOperators::GetOperatorFunction (AstOperatorId id) {
+    OperatorFunction TypeOperators::GetOperatorCallback (AstOperatorId id) {
         std::unordered_map <AstOperatorId, OperatorFunction>::iterator foundFunction = operators.find (id);
 
         if (foundFunction == operators.end ())
             return nullptr;
 
         return foundFunction->second;
+    }
+
+    void TypeOperators::AddOperatorCallback (AstOperatorId id, OperatorFunction function) {
+        operators [id] = function;
     }
 }

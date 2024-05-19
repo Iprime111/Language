@@ -2,7 +2,6 @@
 #define IR_PRINTER_H_
 
 #include "BasicBlock.h"
-#include "Buffer.h"
 #include "Function.h"
 #include "IRContext.h"
 #include "MachineOpcodes.h"
@@ -10,18 +9,17 @@
 namespace IR {
     class IRPrinter final {
         public:
-            IRPrinter  (IRContext *context, MachineOpcodes *opcodes);
-            ~IRPrinter ();
+            explicit IRPrinter (IRContext *context, MachineOpcodes *opcodes);
     
             void PrintIR ();
     
-            const Buffer <char> *GetBuffer  ();
+            const std::string *GetBuffer  ();
         
         private:
             IRContext      *context = nullptr;
             MachineOpcodes *opcodes = nullptr;
     
-            Buffer <char> buffer = {};
+            std::string buffer = {};
     
             void PrintFunction (Function   *function);
             void PrintBlock    (BasicBlock *basicBlock);

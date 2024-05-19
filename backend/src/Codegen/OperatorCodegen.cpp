@@ -1,30 +1,37 @@
-#include <unordered_map>
+#include <cassert>
 
 #include "AST/AstNode.h"
-#include "AST/AstType.h"
 #include "AST/TranslationContext.h"
 #include "Value.h"
 
 namespace Ast {
     IR::Value *OperatorAst::Codegen (TranslationContext *context) {
+        assert (context);
+
         IR::Value *lhs = left->Codegen  (context);
         IR::Value *rhs = right->Codegen (context);
 
+        if (!rhs)
+            return nullptr;
+
         //TODO errors logging
-        if (lhs->GetType () != rhs->GetType ())
+        if (lhs)
+            if (lhs->GetType () != rhs->GetType ())
+                return nullptr;
+
+        OperatorFunction operatorFunction = GetOperatorFunction (context, rhs->GetType (), operatorId);
+        
+        if (!operatorFunction)
             return nullptr;
 
-        std::unordered_map <const IR::Type *, TypeOperators>::iterator foundTypeOperators = 
-            context->operators.find (lhs->GetType ());
+        return operatorFunction (context, this, lhs, rhs);
+    }
 
-        if (foundTypeOperators == context->operators.end ())
-            return nullptr;
+    IR::Value *LogicOperatorAst::Codegen (TranslationContext *context) {
+        assert (context);
 
-        OperatorFunction operatorFunction = foundTypeOperators->second.GetOperatorFunction (operatorId);
-
-        if (operatorFunction == nullptr)
-            return nullptr;
-
-        return (this->*operatorFunction) (lhs, rhs);
+        OperatorFunction operatorFunction = GetOperatorFunction (context, context->builder.GetInt1Ty (), GetOperatorId ());
+        
+        return operatorFunction (context, this, nullptr, nullptr);
     }
 }

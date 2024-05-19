@@ -3,9 +3,10 @@
 
 #include "AST/AstNode.h"
 #include "AST/TranslationContext.h"
+#include "Argument.h"
 #include "BasicBlock.h"
 #include "Function.h"
-#include "FunctionType.h"
+#include "Type.h"
 #include "IRContext.h"
 #include "Value.h"
 
@@ -30,79 +31,114 @@ namespace Ast {
 
     IR::Value *FunctionDefinitionAst::Codegen (TranslationContext *context) {
         
-        IR::FunctionType type = {
-            .returnValue = returnType->GetType (),
-            .params      = {},
-        };
+        std::vector <const IR::Type *> argumentsTypes = {};
+        std::vector <size_t>           names          = {};
 
-        parameters->ConstructFunctionParameters (context, &type.params);
+        parameters->ConstructFunctionParameters (&argumentsTypes, &names);
 
         IR::IRContext *irContext = context->builder.GetContext ();
 
-        IR::Function *function = IR::Function::Create   (irContext, &type, context->nameTable [identifierIndex].c_str ());
-        IR::BasicBlock *block  = IR::BasicBlock::Create ("function begin", function, irContext);
+        IR::Function *function = IR::Function::Create (irContext, returnType->GetType (), 
+                &argumentsTypes, context->nameTable [identifierIndex].c_str ());
+
+        const std::vector <IR::Argument *> &functionArguments = function->GetArgs ();
+        size_t argumentsCount = functionArguments.size ();
+
+        context->localVariables.clear ();
+
+        for (size_t argumentIndex = 0; argumentIndex < argumentsCount; argumentIndex++)
+            context->localVariables [names [argumentIndex]] = functionArguments [argumentIndex];
+
+        IR::BasicBlock *block  = IR::BasicBlock::Create ("entry", function, irContext);
+
+        context->functions [identifierIndex] = function;
 
         context->builder.SetInsertPoint (block);
 
         context->isParsingCallArguments = false;
         parameters->Codegen (context);
 
-        context->localVariables.clear ();
-
         return function;
+    }
+
+    IR::Value *FunctionParametersAst::Codegen (TranslationContext *context) {
+        return functionContent->Codegen (context);
     }
 
     IR::Value *ParameterSeparatorAst::Codegen (TranslationContext *context) {
         if (context->isParsingCallArguments) {
-            left->Codegen  (context);
-            right->Codegen (context);
+            if (left)
+                left->Codegen  (context);
+            
+            if (right)
+                right->Codegen (context);
         } else {
-            right->Codegen (context);
-            left->Codegen  (context);
+            if (right)
+                right->Codegen (context);
+            
+            if (left)
+                left->Codegen  (context);
         }
 
         return nullptr;
     }
 
-    void OperatorAst::ConstructCallArguments (TranslationContext *context, std::vector <IR::Value *> *args) {
-        ConstructCallArgumentsForChild (context, args, left);
-        ConstructCallArgumentsForChild (context, args, right);
-    }
-
     void ParameterSeparatorAst::ConstructCallArguments (TranslationContext *context, std::vector <IR::Value *> *args) {
-        ConstructCallArgumentsForChild (context, args, left);
-        ConstructCallArgumentsForChild (context, args, right);
+        if (left && left->GetAstTypeId () == AstTypeId::PARAMETER_SEPARATOR)
+            left->ConstructCallArguments (context, args);
+        else
+            ConstructCallArgumentsForChild (context, args, left);
+
+        if (right && right->GetAstTypeId () == AstTypeId::PARAMETER_SEPARATOR)
+            right->ConstructCallArguments (context, args);
+        else
+            ConstructCallArgumentsForChild (context, args, right);
     }
 
     void CallAst::ConstructCallArguments (TranslationContext *context, std::vector <IR::Value *> *args) {
-        ConstructCallArgumentsForChild (context, args, arguments);
+        arguments->ConstructCallArguments (context, args);
     }
 
-    void FunctionParametersAst::ConstructFunctionParameters (TranslationContext *context, std::vector <const IR::Type *> *params) {
+    void FunctionParametersAst::ConstructFunctionParameters (std::vector <const IR::Type *> *params, std::vector <size_t> *argumentNames) {
         if (!parameters)
             return;
 
-        parameters->ConstructFunctionParameters (context, params);
+        AstTypeId parametersNodeType = parameters->GetAstTypeId ();
+
+        if (parametersNodeType == AstTypeId::PARAMETER_SEPARATOR)
+            static_cast <ParameterSeparatorAst *> (parameters)->ConstructFunctionParameters (params, argumentNames);
+
+        if (parametersNodeType == AstTypeId::VARIABLE_DECLARATION)
+            static_cast <VariableDeclarationAst *> (parameters)->ConstructFunctionParameters (params, argumentNames);
     }
 
-    void ParameterSeparatorAst::ConstructFunctionParameters (TranslationContext *context, std::vector <const IR::Type *> *params) {
+    void ParameterSeparatorAst::ConstructFunctionParameters (std::vector <const IR::Type *> *params, std::vector <size_t> *argumentNames) {
+        #define ConstructParameters(node)                                                                               \
+            if (node) {                                                                                                 \
+                AstTypeId nodeTypeId = node->GetAstTypeId ();                                                           \
+                if (nodeTypeId == AstTypeId::PARAMETER_SEPARATOR) {                                                     \
+                    static_cast <ParameterSeparatorAst *> (node)->ConstructFunctionParameters (params, argumentNames);  \
+                }                                                                                                       \
+                if (nodeTypeId == AstTypeId::VARIABLE_DECLARATION) {                                                    \
+                    static_cast <VariableDeclarationAst *> (node)->ConstructFunctionParameters (params, argumentNames); \
+                }                                                                                                       \
+            }
 
-        if (left)
-            left->ConstructFunctionParameters  (context, params);
+        ConstructParameters (left);
+        ConstructParameters (right);
 
-        if (right)
-            right->ConstructFunctionParameters (context, params);
+        #undef ConstructParameters
     }
 
-    void VariableDeclarationAst::ConstructFunctionParameters (TranslationContext *context, std::vector <const IR::Type *> *params) {
+    void VariableDeclarationAst::ConstructFunctionParameters (std::vector <const IR::Type *> *params, std::vector <size_t> *argumentNames) {
         if (!nodeType)
             return;
 
-        nodeType->ConstructFunctionParameters (context, params);
+        argumentNames->push_back (identifierIndex);
+        nodeType->ConstructFunctionParameters (params);
     }
 
-    void TypeAst::ConstructFunctionParameters (TranslationContext *context, std::vector <const IR::Type *> *params) {
-        assert (context);
+    void TypeAst::ConstructFunctionParameters (std::vector <const IR::Type *> *params) {
         assert (params);
 
         params->push_back (nodeType);

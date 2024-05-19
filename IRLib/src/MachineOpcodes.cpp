@@ -1,4 +1,5 @@
 #include "MachineOpcodes.h"
+#include "IRContext.h"
 #include "InstructionId.h"
 
 namespace IR {
@@ -9,7 +10,8 @@ namespace IR {
     
     #define StoreCallback(type, function) instructionCallbacks [InstructionId::type] = &MachineOpcodes::function;
     
-    MachineOpcodes::MachineOpcodes () {
+    MachineOpcodes::MachineOpcodes (IRContext *context) : context (context) {
+
         StoreCallback (STATE_CHANGER,      ProcessStateChanger)
         StoreCallback (UNARY_OPERATOR,     ProcessUnaryOperator)
         StoreCallback (BINARY_OPERATOR,    ProcessBinaryOperator)
@@ -21,6 +23,8 @@ namespace IR {
         StoreCallback (BRANCH_INSTRUCTION, ProcessBranchInstruction)
         StoreCallback (CAST_INSTRUCTION,   ProcessCastInstruction)
         StoreCallback (CALL_INSTRUCTION,   ProcessCallInstruction)
+        StoreCallback (IN_INSTRUCTION,     ProcessInInstruction)
+        StoreCallback (OUT_INSTRUCTION,    ProcessOutInstruction)
     }
     
     #undef StoreCallback

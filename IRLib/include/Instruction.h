@@ -1,7 +1,7 @@
 #ifndef INSTRUCTION_H_
 #define INSTRUCTION_H_
 
-#include "FunctionType.h"
+#include "Type.h"
 #include "User.h"
 #include "InstructionId.h"
 
@@ -10,12 +10,9 @@ namespace IR {
         public:
             InstructionId GetInstructionId () const;
     
-            Instruction *next = nullptr;
-            Instruction *prev = nullptr;
-    
         protected:
-            Instruction (InstructionId instructionId, const Type *instructionType);
-            Instruction (InstructionId instructionId, const Type *instructionType, size_t operandsCount);
+            explicit Instruction (InstructionId instructionId, const Type *instructionType);
+            explicit Instruction (InstructionId instructionId, const Type *instructionType, size_t operandsCount);
         
         private:
             InstructionId instructionId;
@@ -23,7 +20,7 @@ namespace IR {
     
     class StateChanger final : public Instruction {
         public:
-            StateChanger (StateChangerId id);
+            explicit StateChanger (StateChangerId id);
     
             StateChangerId GetStateChangerId () const;
     
@@ -33,7 +30,7 @@ namespace IR {
     
     class UnaryOperator final : public Instruction {
         public:
-            UnaryOperator (UnaryOperatorId id, Value *operand);
+            explicit UnaryOperator (UnaryOperatorId id, Value *operand);
     
             UnaryOperatorId GetUnaryOperatorId () const;
     
@@ -43,7 +40,7 @@ namespace IR {
     
     class BinaryOperator final : public Instruction {
         public:
-            BinaryOperator (BinaryOperatorId id, Value *firstOperand, Value *secondOperand);
+            explicit BinaryOperator (BinaryOperatorId id, Value *firstOperand, Value *secondOperand);
     
             BinaryOperatorId GetBinaryOperatorId () const;
     
@@ -53,12 +50,12 @@ namespace IR {
     
     class ReturnOperator final : public Instruction {
         public:
-            ReturnOperator (Value *operand);
+            explicit ReturnOperator (Value *operand);
     };
     
     class CmpOperator final : public Instruction {
         public:
-            CmpOperator (CmpOperatorId id, Value *firstOperand, Value *secondOperand);
+            explicit CmpOperator (CmpOperatorId id, Value *firstOperand, Value *secondOperand);
     
             CmpOperatorId GetCmpOperatorId () const;
     
@@ -68,7 +65,7 @@ namespace IR {
     
     class AllocaInstruction final : public Instruction {
         public:
-            AllocaInstruction (const Type *type, size_t stackAddress);
+            explicit AllocaInstruction (const Type *type, size_t stackAddress);
     
             size_t GetStackAddress () const;
     
@@ -78,22 +75,25 @@ namespace IR {
     
     class StoreInstruction final : public Instruction {
         public:
-            StoreInstruction (AllocaInstruction *variable, Value *operand);//TODO use pointer type?
+            explicit StoreInstruction (Value *variable, Value *operand);//TODO use pointer type?
     };
     
     class LoadInstruction final : public Instruction {
         public:
-            LoadInstruction (AllocaInstruction *variable);
+            explicit LoadInstruction (Value *variable);
     };
     
     class BasicBlock;
     
     class BranchInstruction final : public Instruction {
         public:
-            BranchInstruction (BasicBlock *nextBlock);
-            BranchInstruction (Value *condition, BasicBlock *ifTrue, BasicBlock *ifFalse);
+            explicit BranchInstruction (BasicBlock *nextBlock);
+            explicit BranchInstruction (Value *condition, BasicBlock *ifTrue, BasicBlock *ifFalse);
     
-            bool IsConditional ();
+            void SetTrueBlock  (BasicBlock *block);
+            void SetFalseBlock (BasicBlock *block);
+
+            bool IsConditional () const;
     
         private:
             bool isConditional;
@@ -104,22 +104,27 @@ namespace IR {
             virtual ~CastInstruction () = default;
     
         protected:
-            CastInstruction (Value *castValue, const Type *targetType, CastId castId);
+            explicit CastInstruction (Value *castValue, const Type *targetType, CastId castId);
     
         private:
             CastId id;
     };
     
-    class TruncCast final : public CastInstruction {
-        public:
-            TruncCast (Value *castValue, const IntegerType *targetType);
-    };
-
     class Function;
 
     class CallInstruction final : public Instruction {
         public:
-            CallInstruction (Function *calleeFunction, std::vector <Value *> *arguments);
+            explicit CallInstruction (Function *calleeFunction, std::vector <Value *> *arguments);
+    };
+
+    class InInstruction final : public Instruction {
+        public:
+            explicit InInstruction ();
+    };
+
+    class OutInstruction final : public Instruction {
+        public:
+            explicit OutInstruction (Value *outValue);
     };
 }
 #endif

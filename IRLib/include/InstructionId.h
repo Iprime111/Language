@@ -14,6 +14,8 @@ namespace IR {
         BRANCH_INSTRUCTION = 9,
         CAST_INSTRUCTION   = 10,
         CALL_INSTRUCTION   = 11,
+        IN_INSTRUCTION     = 12,
+        OUT_INSTRUCTION    = 13,
     };
     
     enum class StateChangerId {
@@ -32,8 +34,6 @@ namespace IR {
         SUB = 1,
         MUL = 2,
         DIV = 3,
-        AND = 4,
-        OR  = 5,
     };
     
     enum class CmpOperatorId {
@@ -46,7 +46,6 @@ namespace IR {
     };
     
     enum class CastId {
-        TRUNC = 0,
     };
 }
 #endif

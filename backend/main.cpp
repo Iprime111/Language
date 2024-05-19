@@ -1,12 +1,12 @@
 #include <cassert>
 
 #include "AST/TranslationContext.h"
+#include "Codegen/BoolOperations.h"
 #include "ConsoleParser.h"
-#include "IRBuilder.h"
-#include "IRContext.h"
 #include "IRPrinter.h"
 #include "Opcodes.h"
-#include "TreeReader.h"
+#include "TreeReader/TreeReader.h"
+#include "Codegen/IntegerOperators.h"
 
 static char *TreeFile     = nullptr;
 static char *NamesFile    = nullptr;
@@ -37,12 +37,16 @@ int main (int argc, char **argv) {
     }
 
     Ast::TranslationContext context = Ast::TranslationContext ();
+    Ast::TreeReader         reader  = Ast::TreeReader (&context);
 
-    ReadSyntaxTree (&context.abstractSyntaxTree, &context.entryPoint, treeData);
-    ReadNameTables (&context.nameTable, &context.localTables, nameTableData);
+    reader.ReadNameTables (nameTableData);
+    reader.ReadTree       (treeData);
 
     free (treeData);
     free (nameTableData);
+
+    RegisterIntegerOperations (&context);
+    RegisterBoolOperations    (&context);
 
     //if (TreeDumpFile)
     //    DumpSyntaxTree (&context, TreeDumpFile);
@@ -50,13 +54,13 @@ int main (int argc, char **argv) {
     FILE *assemblyStream = fopen (AssemblyFile, "w");
 
     if (assemblyStream) {
-        IR::IRContext irContext = {};
-        IR::IRBuilder builder   = IR::IRBuilder (&irContext);
+        context.root->Codegen (&context);
 
+        context.builder.SetEntryPoint (context.functions [context.entryPoint]);
 
-        x86Opcodes opcodes = x86Opcodes ();
-        IR::IRPrinter  printer = IR::IRPrinter (&irContext, &opcodes);
-        
+        x86Opcodes     opcodes = x86Opcodes (&context.irContext);
+        IR::IRPrinter  printer = IR::IRPrinter (&context.irContext, &opcodes);
+
         printer.PrintIR ();
 
         fclose (assemblyStream);

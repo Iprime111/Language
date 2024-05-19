@@ -2,7 +2,7 @@
 #define IR_BUILDER_H_
 
 #include "BasicBlock.h"
-#include "FunctionType.h"
+#include "Type.h"
 #include "IRContext.h"
 #include "Instruction.h"
 #include "Value.h"
@@ -10,12 +10,13 @@
 namespace IR {
     class IRBuilder final {
         public:
-            IRBuilder (IRContext *context);
+            explicit IRBuilder (IRContext *context);
     
             IRContext *GetContext ();
     
             void SetInsertPoint (BasicBlock  *insertPoint);
             void SetInsertPoint (Instruction *insertPoint);
+            void SetEntryPoint  (Function    *entryPoint);
     
             Value      *GetInsertPoint () const;
             BasicBlock *GetInsertBlock () const;
@@ -28,13 +29,15 @@ namespace IR {
             Instruction *CreateUnaryOperator     (UnaryOperatorId  id, Value *operand);
             Instruction *CreateStateChanger      (StateChangerId   id);
             Instruction *CreateReturnOperator    (Value *operand);
-            Instruction *CreateStoreInstruction  (AllocaInstruction *variable, Value *operand);
-            Instruction *CreateLoadInstruction   (AllocaInstruction *variable);
+            Instruction *CreateStoreInstruction  (Value *variable, Value *operand);
+            Instruction *CreateLoadInstruction   (Value *variable);
             Instruction *CreateAllocaInstruction (const Type *type);
             Instruction *CreateBranchInstruction (Value *condition, BasicBlock *ifTrue, BasicBlock *ifFalse);
             Instruction *CreateBranchInstruction (BasicBlock *nextBlock);
             Instruction *CreateTruncCast         (Value *castValue, const IntegerType *targetType);
             Instruction *CreateCall              (Function *calleeFunction, std::vector <Value *> *arguments);
+            Instruction *CreateOutInstruction    (Value *outExpression);
+            Instruction *CreateInInstruction     ();
     
         private:
             Instruction *InsertInstruction (Instruction *newInstruction);

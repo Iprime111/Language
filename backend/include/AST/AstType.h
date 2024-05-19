@@ -7,13 +7,13 @@
 #include "Value.h"
 
 namespace Ast {
-    using OperatorFunction = IR::Value *(AstNode::*) (IR::Value *lhs, IR::Value *rhs);
 
     class TypeOperators final {
         public:
             TypeOperators () = default;
 
-            OperatorFunction GetOperatorFunction (AstOperatorId id);
+            OperatorFunction GetOperatorCallback (AstOperatorId id);
+            void             AddOperatorCallback (AstOperatorId id, OperatorFunction function);
 
         private:
             std::unordered_map <AstOperatorId, OperatorFunction> operators;

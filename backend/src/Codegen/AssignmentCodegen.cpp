@@ -2,15 +2,15 @@
 
 #include "AST/AstNode.h"
 #include "AST/TranslationContext.h"
-#include "Instruction.h"
+#include "Value.h"
 
 namespace Ast {
     IR::Value *AssignmentAst::Codegen (TranslationContext *context) {
-        std::unordered_map <size_t, IR::AllocaInstruction *>::iterator foundLocalVariable  = 
+        std::unordered_map <size_t, IR::Value *>::iterator foundLocalVariable  = 
             context->localVariables.find (variable->GetIdentifierIndex ());
 
         if (foundLocalVariable != context->localVariables.end ()) {
-            IR::AllocaInstruction *allocaInstruction = foundLocalVariable->second;
+            IR::Value *allocaInstruction = foundLocalVariable->second;
 
             context->builder.CreateStoreInstruction (allocaInstruction, assignmentExpression->Codegen (context));
         } else {

@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cstddef>
+#include <string>
 
 #include "BasicBlock.h"
 #include "IRContext.h"
@@ -9,14 +10,22 @@
 #include "Value.h"
 
 namespace IR {
-    BasicBlock::BasicBlock (char *name, Value *blockParent, size_t labelIndex) : User (ValueId::BASIC_BLOCK, nullptr), name (name), blockLength (0), 
-                                                                                blockIndex (labelIndex) {
+    BasicBlock::BasicBlock (std::string &name, Value *blockParent) : 
+        User (ValueId::BASIC_BLOCK, nullptr), name (name), blockLength (0) {
+
         parent = blockParent;
     }
+
+    BasicBlock::~BasicBlock () {
+        for (std::list <Instruction *>::iterator instructionsIterator = instructions.begin (); 
+                instructionsIterator != instructions.end (); instructionsIterator++) {
+
+            delete *instructionsIterator;
+        }
+    }
     
-    char  *BasicBlock::GetName       () const { return name; }
-    size_t BasicBlock::GetLength     () const { return blockLength; }
-    size_t BasicBlock::GetLabelIndex () const { return blockIndex; }
+    const std::string &BasicBlock::GetName       () const { return name; }
+    size_t             BasicBlock::GetLength     () const { return blockLength; }
     
     Instruction *BasicBlock::InsertTail (Instruction *newInstruction) {
         if (!newInstruction)
@@ -43,11 +52,20 @@ namespace IR {
         return nullptr;
     }
     
-    BasicBlock *BasicBlock::Create (char *name, Function *function, IRContext *context) {
+    BasicBlock *BasicBlock::Create (const char *name, Function *function, IRContext *context) {
         if (!name || !function)
             return nullptr;
+
+        std::string blockName = name;
+
+        size_t blockIndex = context->blockNames [blockName];
+
+        if (blockIndex > 0)
+            blockName += "_" + std::to_string (blockIndex);
+
+        context->blockNames [blockName]++;
     
-        BasicBlock *newBlock = new BasicBlock (name, function, context->currentLabelIndex++);
+        BasicBlock *newBlock = new BasicBlock (blockName, function);
     
         function->basicBlocks.push_back (newBlock);
     

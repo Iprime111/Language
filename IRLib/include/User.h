@@ -9,11 +9,11 @@
 namespace IR {
     class User : public Value {
         public:
-            User (const User &user);
-            User (User &&user);
+            User (const User &user) = delete;
+            User (User &&user)      = delete;
     
-            User &operator= (const User &user);
-            User &operator= (User &&user);
+            User &operator= (const User &user) = delete;
+            User &operator= (User &&user)      = delete;
     
             virtual ~User ();
     

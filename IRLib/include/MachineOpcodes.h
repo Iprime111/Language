@@ -5,6 +5,7 @@
 #include <unordered_map>
 
 #include "Function.h"
+#include "IRContext.h"
 #include "Instruction.h"
 
 namespace IR {
@@ -16,13 +17,13 @@ namespace IR {
         public:
             std::string opcodeContent = {};
             
-             Opcode (const Opcode &opcode);
+            explicit Opcode (const Opcode &opcode);
             ~Opcode () = default;
         
         private:
-            Opcode ();
-            Opcode (const char *opcodeContent);
-            Opcode (const std::string &opcodeContent);
+            explicit Opcode ();
+            explicit Opcode (const char *opcodeContent);
+            explicit Opcode (const std::string &opcodeContent);
     };
     
     using InstructionCallback = Opcode *(MachineOpcodes::*) (Instruction *instruction);
@@ -38,7 +39,9 @@ namespace IR {
             virtual Opcode *ProcessBlockEnter    (BasicBlock *basicBlock) = 0;
     
         protected:
-            MachineOpcodes ();
+            IRContext *context;
+
+            explicit MachineOpcodes (IRContext *context);
     
             Opcode *CreateOpcode ();
             Opcode *CreateOpcode (const char *opcodeContent);
@@ -59,6 +62,8 @@ namespace IR {
             virtual Opcode *ProcessBranchInstruction (Instruction *instruction) = 0;
             virtual Opcode *ProcessCastInstruction   (Instruction *instruction) = 0;
             virtual Opcode *ProcessCallInstruction   (Instruction *instruction) = 0;
+            virtual Opcode *ProcessOutInstruction    (Instruction *instruction) = 0;
+            virtual Opcode *ProcessInInstruction     (Instruction *instruction) = 0;
     };
 }
 #endif
