@@ -1,5 +1,6 @@
 #ifndef INSTRUCTION_H_
 #define INSTRUCTION_H_
+#include <vector>
 
 #include "Type.h"
 #include "User.h"
@@ -75,7 +76,7 @@ namespace IR {
     
     class StoreInstruction final : public Instruction {
         public:
-            explicit StoreInstruction (Value *variable, Value *operand);//TODO use pointer type?
+            explicit StoreInstruction (Value *variable, Value *operand);
     };
     
     class LoadInstruction final : public Instruction {

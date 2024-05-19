@@ -15,7 +15,7 @@ namespace Ast {
         std::unordered_map <size_t, IR::Function *>::iterator foundFunction = 
             context->functions.find (functionIdentifier->GetIdentifierIndex ());
 
-        //TODO be able call a function defined anywhere
+        //TODO be able to call a function defined anywhere (or implement function prototypes)
         if (foundFunction == context->functions.end ())
             return nullptr;
 
@@ -85,18 +85,30 @@ namespace Ast {
 
     void ParameterSeparatorAst::ConstructCallArguments (TranslationContext *context, std::vector <IR::Value *> *args) {
         if (left && left->GetAstTypeId () == AstTypeId::PARAMETER_SEPARATOR)
-            left->ConstructCallArguments (context, args);
+            static_cast <ParameterSeparatorAst *> (left)->ConstructCallArguments (context, args);
         else
             ConstructCallArgumentsForChild (context, args, left);
 
         if (right && right->GetAstTypeId () == AstTypeId::PARAMETER_SEPARATOR)
-            right->ConstructCallArguments (context, args);
+            static_cast <ParameterSeparatorAst *> (right)->ConstructCallArguments (context, args);
         else
             ConstructCallArgumentsForChild (context, args, right);
     }
 
     void CallAst::ConstructCallArguments (TranslationContext *context, std::vector <IR::Value *> *args) {
-        arguments->ConstructCallArguments (context, args);
+
+        if (!arguments)
+            return;
+
+        if (arguments->GetAstTypeId () == AstTypeId::PARAMETER_SEPARATOR) {
+            static_cast <ParameterSeparatorAst *> (arguments)->ConstructCallArguments (context, args);
+        } else {
+            IR::Value *childCodegen = arguments->Codegen (context);
+            
+            if (childCodegen)
+                args->push_back (childCodegen);
+        }
+
     }
 
     void FunctionParametersAst::ConstructFunctionParameters (std::vector <const IR::Type *> *params, std::vector <size_t> *argumentNames) {

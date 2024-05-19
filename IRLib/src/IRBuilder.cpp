@@ -30,10 +30,16 @@ namespace IR {
     
     //TODO type checks
     Instruction *IRBuilder::CreateBinaryOperator (BinaryOperatorId id, Value *leftOperand, Value *rightOperand) {
+        if (!rightOperand || !leftOperand)
+            return nullptr;
+
         return InsertInstruction (new BinaryOperator (id, leftOperand, rightOperand));
     }
     
     Instruction *IRBuilder::CreateUnaryOperator (UnaryOperatorId id, Value *operand) {
+        if (!operand)
+            return nullptr;
+
         return InsertInstruction (new UnaryOperator (id, operand));
     }
     
@@ -42,6 +48,9 @@ namespace IR {
     }
     
     Instruction *IRBuilder::CreateCmpOperator (CmpOperatorId id, Value *leftOperand, Value *rightOperand) {
+        if (!leftOperand || !rightOperand)
+            return nullptr;
+
         return InsertInstruction (new CmpOperator (id, leftOperand, rightOperand));
     }
     

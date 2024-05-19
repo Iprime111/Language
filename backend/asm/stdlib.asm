@@ -4,12 +4,97 @@ global _start
 section .text
 
 ;_start:
-;    push 123123
+;    call _Scan
+;    push rax
 ;    call _Print
 ;
 ;    mov rax, 0x3c
 ;    mov rsi, 0x00
 ;    syscall
+
+_Scan:
+    mov rax, 0x00
+    mov rdi, 0
+    mov rsi, ScanBuffer
+    mov rdx, ScanBufferSize
+    syscall ; read syscall
+
+    cmp rax, 1
+    jbe .ReturnZero
+
+    cmp rax, 2
+    je .SingleSymbol
+
+    lea rcx, [ScanBuffer + rax - 2]
+    mov rax, 0
+    mov r8,  1
+
+.ReadDigit:
+    mov rdx, 0
+    mov byte dl, [rcx]
+    
+    cmp dl, '0'
+    jb .ReturnZero  ; return zero if symbol < '0'
+
+    cmp dl, '9'
+    ja .ReturnZero  ; return zero if symbol > '9'
+
+    sub dl, '0'
+    imul rdx, r8 ; next digit = (symbol - '0') * 10 ^ number
+
+    add rax, rdx
+
+    cmp rcx, ScanBuffer + 1 ; check all symbols except the first
+    je .CheckFirstSymbol
+
+    imul r8, 10 ; rdx *= 10
+    dec rcx      ; rcx--;
+    jmp .ReadDigit
+
+.CheckFirstSymbol:
+    imul r8, 10
+    dec rcx
+
+    mov rdx, 0
+    mov byte dl, [rcx]
+
+    cmp dl, '-'
+    je .ApplyNeg
+
+    cmp dl, '0'
+    jb .ReturnZero
+
+    cmp dl, '9'
+    ja .ReturnZero
+
+    sub dl, '0'
+    imul rdx, r8
+
+    add rax, rdx
+    ret
+
+.ApplyNeg:
+    neg rax
+    ret
+
+.ReturnZero:
+    mov rax, 0
+
+    ret
+
+.SingleSymbol:
+    mov rax, 0
+    mov al, [ScanBuffer]
+
+    cmp al, '0'
+    jb .ReturnZero
+
+    cmp al, '9'
+    ja .ReturnZero
+
+    sub al, '0'
+    ret
+
 
 _Print:
     mov rax, [rsp + 8]
@@ -24,8 +109,6 @@ _Print:
 ; | Destroys:   rdx, rdi, [PrintBuffer]
 ; -------------------------------------------------------------------------------------------------
 FnPrintUnsignedToBuffer:
-    push rbx
-
     mov rbx, 10
     lea rdi, [PrintBuffer + PrintBufferSize - 2]        ; set buffer end
 
@@ -42,8 +125,6 @@ FnPrintUnsignedToBuffer:
     cmp rax, 0
     jne .PrintDigit                                 ; check if there's no next digit
 
-.return:
-    pop rbx
     ret
 
 ; -------------------------------------------------------------------------------------------------
@@ -119,19 +200,18 @@ FnWriteSyscall:
 ; |             rsi - next symbol position
 ; | Destroys:   Nothing
 ; -------------------------------------------------------------------------------------------------
-FnStrlen:              ; TODO: could be vectorized
-    
+FnStrlen:
     mov rdx, 0
 
 .CountLoop:        
     
     cmp byte [rsi+rdx], 0x0
-    je .return                  ; check if '\0'
+    je .Return                  ; check if '\0'
 
     inc rdx
     jmp .CountLoop
 
-.return:
+.Return:
     ret
 
 section .data
@@ -142,5 +222,8 @@ SavedRet dq 0
 PrintedSymbols dq 0
 Digits db "0123456789abcdef"
 
-PrintBufferSize equ 64
+PrintBufferSize equ 32
 PrintBuffer times PrintBufferSize db 0
+
+ScanBufferSize equ 32
+ScanBuffer times ScanBufferSize db 0

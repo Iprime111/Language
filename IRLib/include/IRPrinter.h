@@ -11,7 +11,7 @@ namespace IR {
         public:
             explicit IRPrinter (IRContext *context, MachineOpcodes *opcodes);
     
-            void PrintIR ();
+            size_t PrintIR (FILE *stream);
     
             const std::string *GetBuffer  ();
         
@@ -23,7 +23,6 @@ namespace IR {
     
             void PrintFunction (Function   *function);
             void PrintBlock    (BasicBlock *basicBlock);
-            void PrintOpcode   (Opcode     *opcode);
     };
 }
 #endif

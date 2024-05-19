@@ -37,6 +37,8 @@ namespace IR {
             virtual Opcode *ProcessProgramEnter  ()                       = 0;
             virtual Opcode *ProcessFunctionEnter (Function   *function)   = 0;
             virtual Opcode *ProcessBlockEnter    (BasicBlock *basicBlock) = 0;
+
+            const std::vector <Opcode *> &GetOpcodes () const;
     
         protected:
             IRContext *context;

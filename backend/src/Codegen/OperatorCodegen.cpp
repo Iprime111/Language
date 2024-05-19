@@ -8,8 +8,14 @@ namespace Ast {
     IR::Value *OperatorAst::Codegen (TranslationContext *context) {
         assert (context);
 
-        IR::Value *lhs = left->Codegen  (context);
-        IR::Value *rhs = right->Codegen (context);
+        IR::Value *lhs = nullptr;
+        IR::Value *rhs = nullptr;
+
+        if (left)
+            lhs = left->Codegen  (context);
+
+        if (right)
+            rhs = right->Codegen (context);
 
         if (!rhs)
             return nullptr;

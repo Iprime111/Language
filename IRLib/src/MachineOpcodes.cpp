@@ -59,10 +59,6 @@ namespace IR {
         return newOpcode;
     }
     
-    #define ProcessInstructionType(type, callback)  \
-        case InstructionId::type:                   \
-            return callback (instruction);
-    
     Opcode *MachineOpcodes::GetOpcodeByInstruction (Instruction *instruction) {
     
         InstructionCallback callback = instructionCallbacks [instruction->GetInstructionId ()];
@@ -72,4 +68,6 @@ namespace IR {
     
         return nullptr;
     }
+
+    const std::vector <Opcode *> &MachineOpcodes::GetOpcodes () const { return opcodes; }
 }

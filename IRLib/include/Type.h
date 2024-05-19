@@ -1,19 +1,16 @@
 #ifndef FUNCTION_TYPE_H_
 #define FUNCTION_TYPE_H_
 
-#include <vector>
 #include <cstddef>
 
 namespace IR {
-    class IntegerType;
     struct IRContext;
     class TypesImplementation;
-    
-    //TODO split to different files
     
     enum class TypeId {
         NO_TYPE      = 0,
         INTEGER_TYPE = 1,
+        FLOAT_TYPE   = 2,
     };
     
     class Type {
@@ -38,8 +35,6 @@ namespace IR {
         friend class TypesImplementation;
     
         public:
-            ~IntegerType () = default;    
-    
             bool IsUnsigned () const;
     
         private:
@@ -47,15 +42,24 @@ namespace IR {
     
             explicit IntegerType (size_t bitsCount, bool isUnsigned);
     };
+
+    class FloatType : public Type {
+        friend class TypesImplementation;
+
+        private:
+            explicit FloatType (size_t bitsCount);
+    };
     
     class TypesImplementation {
         public:
-             const IntegerType *GetInt64Ty () const;
-             const IntegerType *GetInt1Ty  () const;
+             const IntegerType *GetInt64Ty  () const;
+             const IntegerType *GetInt1Ty   () const;
+             const FloatType   *GetDoubleTy () const;
     
         private:
-            IntegerType int64Type = IntegerType (64, false);
-            IntegerType int1Type  = IntegerType (1,  false);
+            IntegerType int64Type  = IntegerType (64, false);
+            IntegerType int1Type   = IntegerType (1,  false);
+            FloatType   doubleType = FloatType   (64);
     };
     
     const TypesImplementation IR_TYPES_ = {};

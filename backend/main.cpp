@@ -48,9 +48,6 @@ int main (int argc, char **argv) {
     RegisterIntegerOperations (&context);
     RegisterBoolOperations    (&context);
 
-    //if (TreeDumpFile)
-    //    DumpSyntaxTree (&context, TreeDumpFile);
-    
     FILE *assemblyStream = fopen (AssemblyFile, "w");
 
     if (assemblyStream) {
@@ -61,7 +58,7 @@ int main (int argc, char **argv) {
         x86Opcodes     opcodes = x86Opcodes (&context.irContext);
         IR::IRPrinter  printer = IR::IRPrinter (&context.irContext, &opcodes);
 
-        printer.PrintIR ();
+        printer.PrintIR (stdout);
 
         fclose (assemblyStream);
     }

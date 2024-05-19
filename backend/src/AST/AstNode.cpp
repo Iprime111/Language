@@ -18,7 +18,7 @@ namespace Ast {
 
     AstTypeId AstNode::GetAstTypeId () const { return typeId; }
 
-    void AstNode::ConstructCallArgumentsForChild (TranslationContext *context, std::vector <IR::Value *> *args, AstNode *child) {
+    void ParameterSeparatorAst::ConstructCallArgumentsForChild (TranslationContext *context, std::vector <IR::Value *> *args, AstNode *child) {
         if (!child)
             return;
 

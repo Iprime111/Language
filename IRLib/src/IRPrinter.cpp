@@ -12,21 +12,29 @@ namespace IR {
     const std::string *IRPrinter::GetBuffer  () { return &buffer; }
     
     //TODO print to buffer
-    //TODO comments in listing
     //TODO: change to Constant to process global variables
-    void IRPrinter::PrintIR () {
-        PrintOpcode (opcodes->ProcessProgramEnter ());
-        printf ("\n");
+    size_t IRPrinter::PrintIR (FILE *stream) {
+        opcodes->ProcessProgramEnter ();
     
         for (std::list <Function *>::iterator functionIterator = context->functions.begin (); 
              functionIterator != context->functions.end (); functionIterator++)
                 PrintFunction (*functionIterator);
+
+        const std::vector <Opcode *> &opcodesVector = opcodes->GetOpcodes ();
+        std::string opcodesContent = {};
+
+        for (size_t opcodeIndex = 0; opcodeIndex < opcodesVector.size (); opcodeIndex++)
+            opcodesContent += opcodesVector [opcodeIndex]->opcodeContent;
+
+        fprintf (stream, "%s", opcodesContent.c_str ());
+
+        return opcodesContent.size ();
     }
     
     void IRPrinter::PrintFunction (Function *function) {
         assert (function);
     
-        PrintOpcode (opcodes->ProcessFunctionEnter (function));
+        opcodes->ProcessFunctionEnter (function);
     
         for (std::list <BasicBlock *>::iterator blockIterator = function->basicBlocks.begin (); 
              blockIterator != function->basicBlocks.end (); blockIterator++)
@@ -36,16 +44,10 @@ namespace IR {
     void IRPrinter::PrintBlock (BasicBlock *basicBlock) {
         assert (basicBlock);
     
-        PrintOpcode (opcodes->ProcessBlockEnter (basicBlock));
+        opcodes->ProcessBlockEnter (basicBlock);
     
         for (std::list <Instruction *>::iterator instructionIterator = basicBlock->instructions.begin ();
              instructionIterator != basicBlock->instructions.end (); instructionIterator++)
-                PrintOpcode (opcodes->GetOpcodeByInstruction (*instructionIterator));
-    }
-    
-    void IRPrinter::PrintOpcode (Opcode *opcode) {
-
-        if (opcode)
-            printf ("%s", opcode->opcodeContent.c_str ());
+                opcodes->GetOpcodeByInstruction (*instructionIterator);
     }
 }

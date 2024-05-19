@@ -64,13 +64,11 @@ namespace Ast {
 
             AstTypeId GetAstTypeId () const;
 
-            virtual IR::Value *Codegen                (TranslationContext *context)                                  = 0;
-            virtual void       ConstructCallArguments (TranslationContext *context, std::vector <IR::Value *> *args) = 0;
+            virtual IR::Value *Codegen (TranslationContext *context) = 0;
 
         protected:
             AstNode (AstTypeId typeId);
 
-            void ConstructCallArgumentsForChild (TranslationContext *context, std::vector <IR::Value *> *args, AstNode *child);
 
         private:
             AstTypeId typeId;
@@ -80,8 +78,7 @@ namespace Ast {
         public:
             ConstantAst (int64_t constant);
     
-            IR::Value *Codegen                (TranslationContext *context)                                  override;
-            void       ConstructCallArguments (TranslationContext *context, std::vector <IR::Value *> *args) override {};
+            IR::Value *Codegen (TranslationContext *context) override;
     
         private:
             int64_t constantValue;
@@ -91,8 +88,7 @@ namespace Ast {
         public:
             VariableAst (size_t identifier);
 
-            IR::Value *Codegen                (TranslationContext *context)                                  override;
-            void       ConstructCallArguments (TranslationContext *context, std::vector <IR::Value *> *args) override {};
+            IR::Value *Codegen (TranslationContext *context) override;
 
             size_t GetIdentifierIndex () const;
 
@@ -104,8 +100,7 @@ namespace Ast {
         public:
             IdentifierAst (size_t identifier);
 
-            IR::Value *Codegen                (TranslationContext *context)                                  override { return nullptr; };
-            void       ConstructCallArguments (TranslationContext *context, std::vector <IR::Value *> *args) override {};
+            IR::Value *Codegen (TranslationContext *context) override { return nullptr; };
 
             size_t GetIdentifierIndex () const;
 
@@ -123,8 +118,7 @@ namespace Ast {
             AstNode      *GetLeft       () const;
             AstNode      *GetRight      () const;
     
-            IR::Value *Codegen                (TranslationContext *context)                                  override;
-            void       ConstructCallArguments (TranslationContext *context, std::vector <IR::Value *> *args) override {};
+            IR::Value *Codegen (TranslationContext *context) override;
 
         protected:
             OperatorAst (AstNode *leftNode, AstNode *rightNode, AstOperatorId operatorId, AstTypeId type);
@@ -148,9 +142,8 @@ namespace Ast {
         public:
             TypeAst (const IR::Type *type);
 
-            IR::Value *Codegen                     (TranslationContext *context)                                         override { return nullptr; };
+            IR::Value *Codegen (TranslationContext *context) override { return nullptr; };
             void ConstructFunctionParameters (std::vector <const IR::Type *> *params);
-            void ConstructCallArguments      (TranslationContext *context, std::vector <IR::Value *>      *args)   override {};
 
             const IR::Type *GetType () const;
 
@@ -162,9 +155,8 @@ namespace Ast {
         public:
             FunctionParametersAst (AstNode *functionParameters, AstNode *functionBody);
 
-            IR::Value *Codegen                     (TranslationContext *context)                                         override;
+            IR::Value *Codegen (TranslationContext *context) override;
             void ConstructFunctionParameters (std::vector <const IR::Type *> *params, std::vector <size_t> *argumentNames);
-            void ConstructCallArguments      (TranslationContext *context, std::vector <IR::Value *>      *args)   override {};
             
         private:
             AstNode *parameters;
@@ -175,8 +167,7 @@ namespace Ast {
         public:
             FunctionDefinitionAst (size_t identifier, FunctionParametersAst *parametersNode, TypeAst *returnValueType);
 
-            IR::Value *Codegen                     (TranslationContext *context)                                         override;
-            void       ConstructCallArguments      (TranslationContext *context, std::vector <IR::Value *>      *args)   override {};
+            IR::Value *Codegen (TranslationContext *context) override;
         
         private:
             FunctionParametersAst *parameters;
@@ -189,8 +180,7 @@ namespace Ast {
         public:
             OperatorSeparatorAst (AstNode *leftNode, AstNode *rightNode);
 
-            IR::Value *Codegen                     (TranslationContext *context)                                         override;
-            void       ConstructCallArguments      (TranslationContext *context, std::vector <IR::Value *>      *args)   override {};
+            IR::Value *Codegen (TranslationContext *context) override;
 
         private:
             AstNode *left, *right;
@@ -200,21 +190,22 @@ namespace Ast {
         public:
             ParameterSeparatorAst (AstNode *leftNode, AstNode *rightNode);
 
-            IR::Value *Codegen                     (TranslationContext *context)                                         override;
+            IR::Value *Codegen                     (TranslationContext *context) override;
             void       ConstructFunctionParameters (std::vector <const IR::Type *> *params, std::vector <size_t> *argumentNames);
-            void       ConstructCallArguments      (TranslationContext *context, std::vector <IR::Value *>      *args)   override;
+            void       ConstructCallArguments      (TranslationContext *context, std::vector <IR::Value *> *args);
 
         private:
             AstNode *left, *right;
+
+            void ConstructCallArgumentsForChild (TranslationContext *context, std::vector <IR::Value *> *args, AstNode *child);
     };
 
     class VariableDeclarationAst final : public AstNode {
         public:
             VariableDeclarationAst (size_t identifier, AstNode *assignmentExpression, TypeAst *type);
 
-            IR::Value *Codegen                     (TranslationContext *context)                                         override;
+            IR::Value *Codegen (TranslationContext *context) override;
             void       ConstructFunctionParameters (std::vector <const IR::Type *> *params, std::vector <size_t> *argumentNames);
-            void       ConstructCallArguments      (TranslationContext *context, std::vector <IR::Value *>      *args)   override {};
 
         private:
             size_t identifierIndex;
@@ -227,20 +218,20 @@ namespace Ast {
         public:
             CallAst (IdentifierAst *identifier, AstNode *functionArguments);
 
-            IR::Value *Codegen                     (TranslationContext *context)                                         override;
-            void       ConstructCallArguments      (TranslationContext *context, std::vector <IR::Value *>      *args)   override;
+            IR::Value *Codegen (TranslationContext *context) override;
 
         private:
             AstNode       *arguments;
             IdentifierAst *functionIdentifier;
+
+            void ConstructCallArguments (TranslationContext *context, std::vector <IR::Value *> *args);
     };
 
     class IfAst final : public AstNode {
         public:
             IfAst (AstNode *ifCondition, AstNode *ifBody);
 
-            IR::Value *Codegen                     (TranslationContext *context)                                         override;
-            void       ConstructCallArguments      (TranslationContext *context, std::vector <IR::Value *>      *args)   override {};
+            IR::Value *Codegen (TranslationContext *context) override;
 
         private:
             AstNode *condition;
@@ -251,8 +242,7 @@ namespace Ast {
         public:
             WhileAst (AstNode *whileCondition, AstNode *whileBody);
             
-            IR::Value *Codegen                     (TranslationContext *context)                                         override;
-            void       ConstructCallArguments      (TranslationContext *context, std::vector <IR::Value *>      *args)   override {};
+            IR::Value *Codegen (TranslationContext *context) override;
 
         private:
             AstNode *condition;
@@ -263,8 +253,7 @@ namespace Ast {
         public:
             ReturnAst (AstNode *statement);
 
-            IR::Value *Codegen                     (TranslationContext *context)                                         override;
-            void       ConstructCallArguments      (TranslationContext *context, std::vector <IR::Value *>      *args)   override {};
+            IR::Value *Codegen (TranslationContext *context) override;
 
         private:
             AstNode *returnStatement;
@@ -274,8 +263,7 @@ namespace Ast {
         public:
             AssignmentAst (VariableAst *variableNode, AstNode *expression);
 
-            IR::Value *Codegen                     (TranslationContext *context)                                         override;
-            void       ConstructCallArguments      (TranslationContext *context, std::vector <IR::Value *>      *args)   override {};
+            IR::Value *Codegen (TranslationContext *context) override;
         private:
             VariableAst *variable;
             AstNode     *assignmentExpression;
@@ -285,16 +273,14 @@ namespace Ast {
         public:
             InAst ();
 
-            IR::Value *Codegen                     (TranslationContext *context)                                         override;
-            void       ConstructCallArguments      (TranslationContext *context, std::vector <IR::Value *>      *args)   override {};
+            IR::Value *Codegen (TranslationContext *context) override;
     };
 
     class OutAst final : public AstNode {
         public:
             OutAst (AstNode *expression);
         
-            IR::Value *Codegen                     (TranslationContext *context)                                         override;
-            void       ConstructCallArguments      (TranslationContext *context, std::vector <IR::Value *>      *args)   override {};
+            IR::Value *Codegen (TranslationContext *context) override;
 
         private:
             AstNode *outExpression;

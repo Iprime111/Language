@@ -19,7 +19,19 @@ namespace IR {
     IntegerType::IntegerType (size_t size, bool isUnsigned) : Type (size, TypeId::INTEGER_TYPE), isUnsigned (isUnsigned) {}
     
     bool IntegerType::IsUnsigned () const { return isUnsigned; }
+
+    //------------------------------------------------------------------------------------------------------------------------------
+    //-------------------------------------------------FloatType--------------------------------------------------------------------
+    //------------------------------------------------------------------------------------------------------------------------------
+
+    FloatType::FloatType (size_t size) : Type (size, TypeId::FLOAT_TYPE) {}
     
-    const IntegerType *TypesImplementation::GetInt64Ty () const { return &int64Type; }
-    const IntegerType *TypesImplementation::GetInt1Ty  () const { return &int1Type;  }
+    //------------------------------------------------------------------------------------------------------------------------------
+    //-------------------------------------------------TypesImplementation----------------------------------------------------------
+    //------------------------------------------------------------------------------------------------------------------------------
+    //
+    const IntegerType *TypesImplementation::GetInt64Ty  () const { return &int64Type; }
+    const IntegerType *TypesImplementation::GetInt1Ty   () const { return &int1Type;  }
+    const FloatType   *TypesImplementation::GetDoubleTy () const { return &doubleType;}
+
 }
