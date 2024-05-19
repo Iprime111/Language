@@ -23,7 +23,7 @@ enum class Keyword {
 #undef KEYWORD
 
 struct NameTableRecord {
-    const char *name    = nullptr;
+    char       *name    = nullptr;
     NameType    type    = NameType::IDENTIFIER;
     Keyword     keyword = Keyword::NOT_KEYWORD;
 };
@@ -46,7 +46,7 @@ struct LocalNameTable {
 };
 
 BufferErrorCode InitNameTable (Buffer <NameTableRecord> *nameTable, bool isGlobal);
-BufferErrorCode AddIdentifier (Buffer <NameTableRecord> *nameTable, const char *identifier);
+BufferErrorCode AddIdentifier (Buffer <NameTableRecord> *nameTable, char *identifier);
 
 BufferErrorCode AddLocalIdentifier      (int nameTableIndex, Buffer <LocalNameTable> *localTables, LocalNameTableRecord newItem, size_t identifierSize);
 int             AddLocalNameTable       (int nameTableId,    Buffer <LocalNameTable> *localTables);

@@ -182,6 +182,7 @@ static CompilationError WriteNodeContent (CompilationContext *context, Tree::Nod
         snprintf    (numberBuffer, MAX_NUMBER_LENGTH, "%lg", node->nodeData.content.number);
         WriteString (numberBuffer);
 
+        WriteString (" ");
     } else if (node->nodeData.type == NodeType::FUNCTION_DEFINITION || node->nodeData.type == NodeType::VARIABLE_DECLARATION) {
 
         snprintf (numberBuffer, MAX_NUMBER_LENGTH, "%lu", node->nodeData.content.nameTableIndex - keywordsCount);
@@ -190,7 +191,6 @@ static CompilationError WriteNodeContent (CompilationContext *context, Tree::Nod
 
     }
 
-    WriteString (" ");
 
     return CompilationError::NO_ERRORS;
 }
