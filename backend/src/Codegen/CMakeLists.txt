@@ -3,7 +3,7 @@ target_sources (${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/AssignmentCo
                                         ${CMAKE_CURRENT_SOURCE_DIR}/ConstantCodegen.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/FunctionCodegen.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/ConditionsCodegen.cpp
-                                        ${CMAKE_CURRENT_SOURCE_DIR}/IntegerOperators.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/DoubleOperators.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/IOCodegen.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/OperatorCodegen.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/OperatorSeparatorCodegen.cpp

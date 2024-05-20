@@ -46,8 +46,11 @@ namespace Ast {
 
         context->localVariables.clear ();
 
-        for (size_t argumentIndex = 0; argumentIndex < argumentsCount; argumentIndex++)
+        for (size_t argumentIndex = 0; argumentIndex < argumentsCount; argumentIndex++) {
             context->localVariables [names [argumentIndex]] = functionArguments [argumentIndex];
+            
+            functionArguments [argumentIndex]->SetName (context->nameTable [names [argumentIndex]].c_str ());
+        }   
 
         IR::BasicBlock *block  = IR::BasicBlock::Create ("entry", function, irContext);
 
@@ -84,15 +87,15 @@ namespace Ast {
     }
 
     void ParameterSeparatorAst::ConstructCallArguments (TranslationContext *context, std::vector <IR::Value *> *args) {
-        if (left && left->GetAstTypeId () == AstTypeId::PARAMETER_SEPARATOR)
-            static_cast <ParameterSeparatorAst *> (left)->ConstructCallArguments (context, args);
-        else
-            ConstructCallArgumentsForChild (context, args, left);
-
         if (right && right->GetAstTypeId () == AstTypeId::PARAMETER_SEPARATOR)
             static_cast <ParameterSeparatorAst *> (right)->ConstructCallArguments (context, args);
         else
             ConstructCallArgumentsForChild (context, args, right);
+
+        if (left && left->GetAstTypeId () == AstTypeId::PARAMETER_SEPARATOR)
+            static_cast <ParameterSeparatorAst *> (left)->ConstructCallArguments (context, args);
+        else
+            ConstructCallArgumentsForChild (context, args, left);
     }
 
     void CallAst::ConstructCallArguments (TranslationContext *context, std::vector <IR::Value *> *args) {

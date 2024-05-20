@@ -1,6 +1,5 @@
 #include <cassert>
 #include <cmath>
-#include <cstdint>
 
 #include "TreeReader/TreeReader.h"
 #include "AST/AstNode.h"
@@ -121,7 +120,7 @@ namespace Ast {
         ReadTreeInternal (fileContent);
         ReadTreeInternal (fileContent); //skipping blank subtrees
 
-        return new ConstantAst (static_cast <int64_t> (constant));
+        return new ConstantAst (constant);
     }
 
     AstNode *TreeReader::ReadIdentifier (char **fileContent) {
@@ -196,7 +195,7 @@ namespace Ast {
                 return new ParameterSeparatorAst (leftSubtree, rightSubtree);
 
             case ReaderKeyword::NUMBER_TYPE:
-                return new TypeAst (context->builder.GetInt64Ty ());
+                return new TypeAst (context->builder.GetDoubleTy ());
 
             case ReaderKeyword::IN:
                 return new InAst ();

@@ -21,7 +21,8 @@ namespace Ast {
 
     IR::Value *VariableDeclarationAst::Codegen (TranslationContext *context) {
         IR::AllocaInstruction *newVariable = 
-            static_cast <IR::AllocaInstruction *> (context->builder.CreateAllocaInstruction (nodeType->GetType ()));
+            static_cast <IR::AllocaInstruction *> (context->builder.CreateAllocaInstruction (nodeType->GetType (), 
+                                                   context->nameTable [identifierIndex].c_str ()));
 
         context->localVariables [identifierIndex] = newVariable;
 

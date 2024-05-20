@@ -76,10 +76,11 @@ namespace IR {
     //------------------------------------------------------------AllocaInstruction---------------------------------------------------
     //--------------------------------------------------------------------------------------------------------------------------------
     
-    AllocaInstruction::AllocaInstruction (const Type *type, size_t stackAddress) : 
-        Instruction (InstructionId::ALLOCA_INSTRUCTION, type), stackAddress (stackAddress) {}
+    AllocaInstruction::AllocaInstruction (const Type *type, size_t stackAddress, const char *name) : 
+        Instruction (InstructionId::ALLOCA_INSTRUCTION, type), stackAddress (stackAddress), name (name) {}
     
-    size_t AllocaInstruction::GetStackAddress () const { return stackAddress; }
+    const std::string &AllocaInstruction::GetName         () const { return name; }
+    size_t             AllocaInstruction::GetStackAddress () const { return stackAddress; }
     
     //--------------------------------------------------------------------------------------------------------------------------------
     //------------------------------------------------------------StoreInstruction----------------------------------------------------

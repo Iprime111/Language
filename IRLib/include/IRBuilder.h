@@ -21,8 +21,9 @@ namespace IR {
             Value      *GetInsertPoint () const;
             BasicBlock *GetInsertBlock () const;
     
-            const IntegerType *GetInt64Ty () const;
-            const IntegerType *GetInt1Ty  () const;
+            const IntegerType *GetInt64Ty  () const;
+            const IntegerType *GetInt1Ty   () const;
+            const FloatType   *GetDoubleTy () const;
     
             Instruction *CreateCmpOperator       (CmpOperatorId    id, Value *leftOperand, Value *rightOperand);
             Instruction *CreateBinaryOperator    (BinaryOperatorId id, Value *leftOperand, Value *rightOperand);
@@ -31,7 +32,7 @@ namespace IR {
             Instruction *CreateReturnOperator    (Value *operand);
             Instruction *CreateStoreInstruction  (Value *variable, Value *operand);
             Instruction *CreateLoadInstruction   (Value *variable);
-            Instruction *CreateAllocaInstruction (const Type *type);
+            Instruction *CreateAllocaInstruction (const Type *type, const char *name);
             Instruction *CreateBranchInstruction (Value *condition, BasicBlock *ifTrue, BasicBlock *ifFalse);
             Instruction *CreateBranchInstruction (BasicBlock *nextBlock);
             Instruction *CreateTruncCast         (Value *castValue, const IntegerType *targetType);

@@ -25,8 +25,10 @@ namespace IR {
             return static_cast <BasicBlock *> (insertPoint->parent);
     }
     
-    const IntegerType *IRBuilder::GetInt64Ty () const {return IR_TYPES_.GetInt64Ty (); }
-    const IntegerType *IRBuilder::GetInt1Ty  () const {return IR_TYPES_.GetInt1Ty  (); }
+    const IntegerType *IRBuilder::GetInt64Ty  () const { return IR_TYPES_.GetInt64Ty  (); }
+    const IntegerType *IRBuilder::GetInt1Ty   () const { return IR_TYPES_.GetInt1Ty   (); }
+    const FloatType   *IRBuilder::GetDoubleTy () const { return IR_TYPES_.GetDoubleTy (); }
+
     
     //TODO type checks
     Instruction *IRBuilder::CreateBinaryOperator (BinaryOperatorId id, Value *leftOperand, Value *rightOperand) {
@@ -78,7 +80,7 @@ namespace IR {
         return nullptr;
     }
     
-    Instruction *IRBuilder::CreateAllocaInstruction (const Type *type) {
+    Instruction *IRBuilder::CreateAllocaInstruction (const Type *type, const char *name) {
         
         Function *parentFunction = nullptr;
         
@@ -94,7 +96,7 @@ namespace IR {
         //TODO alignment
         parentFunction->allocaSize += type->GetSize ();
     
-        return InsertInstruction (new AllocaInstruction (type, parentFunction->allocaSize));
+        return InsertInstruction (new AllocaInstruction (type, parentFunction->allocaSize, name));
     }
     
     Instruction *IRBuilder::CreateBranchInstruction (Value *condition, BasicBlock *ifTrue, BasicBlock *ifFalse) {

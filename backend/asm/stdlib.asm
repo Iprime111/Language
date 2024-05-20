@@ -5,7 +5,8 @@ section .text
 
 ;_start:
 ;    call _Scan
-;    push rax
+;    sub rsp, 8
+;    movsd [rsp], xmm0
 ;    call _Print
 ;
 ;    mov rax, 0x3c
@@ -22,69 +23,74 @@ _Scan:
     cmp rax, 1
     jbe .ReturnZero
 
-    cmp rax, 2
-    je .SingleSymbol
+    call FnFindDot
 
-    lea rcx, [ScanBuffer + rax - 2]
-    mov rax, 0
-    mov r8,  1
+    cmp byte [ScanBuffer], '-'
+    je .Negative
 
-.ReadDigit:
-    mov rdx, 0
-    mov byte dl, [rcx]
-    
-    cmp dl, '0'
-    jb .ReturnZero  ; return zero if symbol < '0'
+    mov rdi, ScanBuffer
+    call FnScanInteger
 
-    cmp dl, '9'
-    ja .ReturnZero  ; return zero if symbol > '9'
+    jmp .ScanFraction
 
-    sub dl, '0'
-    imul rdx, r8 ; next digit = (symbol - '0') * 10 ^ number
+.Negative:
+    mov rdi, ScanBuffer + 1
+    call FnScanInteger
+    neg rsi
 
-    add rax, rdx
+.ScanFraction:
+    cvtsi2sd xmm0, rsi
 
-    cmp rcx, ScanBuffer + 1 ; check all symbols except the first
-    je .CheckFirstSymbol
+    lea rdi, [rcx + 1]
 
-    imul r8, 10 ; rdx *= 10
-    dec rcx      ; rcx--;
-    jmp .ReadDigit
+    lea rbx, [rcx + 1]
+    sub rbx, ScanBuffer
+    sub rax, rbx
 
-.CheckFirstSymbol:
-    imul r8, 10
-    dec rcx
+    cmp rax, 5
+    jbe .ScanCall
 
-    mov rdx, 0
-    mov byte dl, [rcx]
+    mov rax, 5
 
-    cmp dl, '-'
-    je .ApplyNeg
+.ScanCall:
+    add rax, rbx
 
-    cmp dl, '0'
-    jb .ReturnZero
+    lea rcx, [ScanBuffer + rax - 1]
+    call FnScanInteger
 
-    cmp dl, '9'
-    ja .ReturnZero
+    cvtsi2sd xmm1, rsi
+    movsd xmm2, [TenThousandConstant]
+    divsd xmm1, xmm2
 
-    sub dl, '0'
-    imul rdx, r8
-
-    add rax, rdx
-    ret
-
-.ApplyNeg:
-    neg rax
+    addsd xmm0, xmm1
     ret
 
 .ReturnZero:
-    mov rax, 0
-
+    xorps xmm0, xmm0
     ret
+; -------------------------------------------------------------------------------------------------
+; | FnScanInteger
+; | Args:   rcx - buffer end
+; |         rdi - buffer begin
+; | Assumes:    Nothing
+; | Returns:    rsi - scanned integer
+; | Destroys:   r8
+; -------------------------------------------------------------------------------------------------
+FnScanInteger:
+    push rax
+    push rcx
 
-.SingleSymbol:
+    mov r8,  1
+    mov rsi, 0
+
+    dec rcx
+
+.CheckCondition:
+    cmp rcx, rdi
+    jb .Return
+
     mov rax, 0
-    mov al, [ScanBuffer]
+    mov al, [rcx]
 
     cmp al, '0'
     jb .ReturnZero
@@ -93,24 +99,96 @@ _Scan:
     ja .ReturnZero
 
     sub al, '0'
+
+    imul rax, r8
+    add rsi, rax
+    
+    imul r8, 10
+    dec rcx
+    jmp .CheckCondition
+
+.Return:
+    pop rcx
+    pop rax
     ret
 
+.ReturnZero:
+    pop rcx
+    pop rax
+    ret
 
+; -------------------------------------------------------------------------------------------------
+; | FnFindDot
+; | Args:   rax - symbols in buffer
+; | Assumes:    rax > 1
+; | Returns:    rcx - dot address (or last symbol if no dot)
+; | Destroys:   Nothing
+; -------------------------------------------------------------------------------------------------
+FnFindDot:
+    push rax
+    mov rcx, ScanBuffer
+    add rax, ScanBuffer - 1 ; last symbol address
+
+.CheckCurrentAddress:
+    cmp rcx, rax
+    je .Return
+
+    cmp byte [rcx], '.'
+    je .Return
+
+    inc rcx
+    jmp .CheckCurrentAddress
+    
+.Return:
+    pop rax
+    ret
+
+;TODO use buffers for printing
 _Print:
-    mov rax, [rsp + 8]
+    movsd xmm0, [rsp + 8]
+
+    xorps xmm1, xmm1
+    comisd xmm0, xmm1
+    jae .PrintNumber
+
+    mov rsi, Minus
+    mov rdx, 1
+    call FnWriteSyscall
+
+.PrintNumber:
+    cvttsd2si r9, xmm0
+    mov rax, r9
     call FnPrintSigned
 
+    imul r9, 10000
+
+    mov rsi, Dot
+    mov rdx, 1
+    call FnWriteSyscall
+
+    movsd xmm1, [TenThousandConstant]
+    mulsd xmm0, xmm1
+    cvttsd2si rax, xmm0
+
+    sub rax, r9
+    call FnPrintSigned
+
+    mov rsi, NewLine
+    mov rdx, 1
+    call FnWriteSyscall
     ret
+    
+
 ; -------------------------------------------------------------------------------------------------
 ; | FnPrintUnsignedToBuffer
 ; | Args:   rax - Number
 ; | Assumes:    Number is unsigned
 ; | Returns:    Nothing
-; | Destroys:   rdx, rdi, [PrintBuffer]
+; | Destroys:   rbx, rdx, rdi, [PrintBuffer]
 ; -------------------------------------------------------------------------------------------------
 FnPrintUnsignedToBuffer:
     mov rbx, 10
-    lea rdi, [PrintBuffer + PrintBufferSize - 2]        ; set buffer end
+    lea rdi, [PrintBuffer + PrintBufferSize - 1]        ; set buffer end
 
 .PrintDigit:
     xor rdx, rdx
@@ -132,25 +210,17 @@ FnPrintUnsignedToBuffer:
 ; | Args:   rax - Number
 ; | Assumes:    Nothing
 ; | Returns:    rsi - next string character
-; | Destroys:   rdx, rdi, r8, [PrintBuffer]
+; | Destroys:   rbx, rdx, rdi, r8, [PrintBuffer]
 ; -------------------------------------------------------------------------------------------------
 FnPrintSigned:
 
-    xor r8, r8
     test rax, rax
     jns .BufferPrintCall                        ; check if negative
 
-    mov r8, 1
     neg rax                                     ; do rax = -rax if negative
 
 .BufferPrintCall:
     call FnPrintUnsignedToBuffer                ; print value (unsigned)
-
-    cmp r8, 0
-    je .WriteNumber                             ; check if negative
-    
-    mov byte [rdi], '-'
-    dec rdi                                     ; place minus if negative
 
 .WriteNumber:
     push rsi
@@ -158,7 +228,6 @@ FnPrintSigned:
     lea rsi, [rdi + 1]
     mov rdx, PrintBuffer + PrintBufferSize - 1
     sub rdx, rdi
-    mov byte [PrintBuffer + PrintBufferSize - 1], 0x0a
 
     call FnWriteSyscall
 
@@ -220,10 +289,15 @@ SavedRbp dq 0
 SavedRet dq 0
 
 PrintedSymbols dq 0
-Digits db "0123456789abcdef"
+Digits  db "0123456789abcdef"
+Dot     db "."
+Minus   db "-"
+NewLine db 0x0a
 
 PrintBufferSize equ 32
 PrintBuffer times PrintBufferSize db 0
 
 ScanBufferSize equ 32
 ScanBuffer times ScanBufferSize db 0
+
+TenThousandConstant dq 0x40c3880000000000

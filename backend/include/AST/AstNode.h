@@ -76,12 +76,12 @@ namespace Ast {
     
     class ConstantAst final : public AstNode {
         public:
-            ConstantAst (int64_t constant);
+            ConstantAst (double constant);
     
             IR::Value *Codegen (TranslationContext *context) override;
     
         private:
-            int64_t constantValue;
+            double constantValue;
     };
 
     class VariableAst final : public AstNode {

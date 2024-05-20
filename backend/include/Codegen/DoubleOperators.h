@@ -3,6 +3,6 @@
 
 #include "AST/TranslationContext.h"
 
-void RegisterIntegerOperations (Ast::TranslationContext *context);
+void RegisterDoubleOperations (Ast::TranslationContext *context);
 
 #endif

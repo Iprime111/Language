@@ -6,7 +6,7 @@
 #include "IRPrinter.h"
 #include "Opcodes.h"
 #include "TreeReader/TreeReader.h"
-#include "Codegen/IntegerOperators.h"
+#include "Codegen/DoubleOperators.h"
 
 static char *TreeFile     = nullptr;
 static char *NamesFile    = nullptr;
@@ -45,8 +45,8 @@ int main (int argc, char **argv) {
     free (treeData);
     free (nameTableData);
 
-    RegisterIntegerOperations (&context);
-    RegisterBoolOperations    (&context);
+    RegisterDoubleOperations (&context);
+    RegisterBoolOperations   (&context);
 
     FILE *assemblyStream = fopen (AssemblyFile, "w");
 
