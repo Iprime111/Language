@@ -60,10 +60,12 @@ namespace IR {
 
         size_t blockIndex = context->blockNames [blockName];
 
+        fprintf (stderr, "%s %lu\n", name, blockIndex);
+
         if (blockIndex > 0)
             blockName += "_" + std::to_string (blockIndex);
 
-        context->blockNames [blockName]++;
+        context->blockNames [blockName] = blockIndex + 1;//TODO fix
     
         BasicBlock *newBlock = new BasicBlock (blockName, function);
     

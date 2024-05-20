@@ -2,7 +2,7 @@
 
 all: compile
 
-FILENAME = factorial.phc
+FILENAME = quadratic.phc
 
 compile:
 	@@../build/bin/frontend -s ${FILENAME} -n ../build/Names.tmp -t ../build/Tree.tmp -d ../build/dump.dot

@@ -21,8 +21,9 @@ namespace IR {
             Value      *GetInsertPoint () const;
             BasicBlock *GetInsertBlock () const;
     
-            const IntegerType *GetInt64Ty () const;
-            const IntegerType *GetInt1Ty  () const;
+            const IntegerType *GetInt64Ty  () const;
+            const IntegerType *GetInt1Ty   () const;
+            const FloatType   *GetDoubleTy () const;
     
             Instruction *CreateCmpOperator       (CmpOperatorId    id, Value *leftOperand, Value *rightOperand);
             Instruction *CreateBinaryOperator    (BinaryOperatorId id, Value *leftOperand, Value *rightOperand);

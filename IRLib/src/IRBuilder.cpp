@@ -25,8 +25,10 @@ namespace IR {
             return static_cast <BasicBlock *> (insertPoint->parent);
     }
     
-    const IntegerType *IRBuilder::GetInt64Ty () const {return IR_TYPES_.GetInt64Ty (); }
-    const IntegerType *IRBuilder::GetInt1Ty  () const {return IR_TYPES_.GetInt1Ty  (); }
+    const IntegerType *IRBuilder::GetInt64Ty  () const { return IR_TYPES_.GetInt64Ty  (); }
+    const IntegerType *IRBuilder::GetInt1Ty   () const { return IR_TYPES_.GetInt1Ty   (); }
+    const FloatType   *IRBuilder::GetDoubleTy () const { return IR_TYPES_.GetDoubleTy (); }
+
     
     //TODO type checks
     Instruction *IRBuilder::CreateBinaryOperator (BinaryOperatorId id, Value *leftOperand, Value *rightOperand) {
