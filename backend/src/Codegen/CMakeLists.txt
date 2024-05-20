@@ -1,5 +1,6 @@
 target_sources (${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/AssignmentCodegen.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/BoolOperators.cpp
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/BreakCodegen.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/ConstantCodegen.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/FunctionCodegen.cpp
                                         ${CMAKE_CURRENT_SOURCE_DIR}/ConditionsCodegen.cpp

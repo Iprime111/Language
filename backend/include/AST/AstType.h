@@ -9,7 +9,7 @@ namespace Ast {
 
     class TypeOperators final {
         public:
-            TypeOperators () = default;
+            explicit TypeOperators () = default;
 
             OperatorFunction GetOperatorCallback (AstOperatorId id);
             void             AddOperatorCallback (AstOperatorId id, OperatorFunction function);

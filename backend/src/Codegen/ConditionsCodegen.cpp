@@ -19,6 +19,9 @@ namespace Ast {
         trueBranch  = thenBlock;
         falseBranch = mergeBlock;
 
+        condition->breakBlock    = body->breakBlock    = breakBlock;
+        condition->continueBlock = body->continueBlock = continueBlock;
+
         IR::Value *ifCondition = condition->Codegen (context);
 
         if (condition->GetAstTypeId () != AstTypeId::LOGIC_OPERATOR) 
@@ -46,6 +49,9 @@ namespace Ast {
 
         trueBranch  = thenBlock;
         falseBranch = endBlock;
+
+        condition->breakBlock    = body->breakBlock    = endBlock;
+        condition->continueBlock = body->continueBlock = conditionBlock;
 
         context->builder.SetInsertPoint (conditionBlock);
         IR::Value *whileCondition = condition->Codegen (context);
