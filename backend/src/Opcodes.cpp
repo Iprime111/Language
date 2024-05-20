@@ -350,5 +350,5 @@ void x86Opcodes::PrintOperandLoad (IR::Instruction *instruction, size_t operandI
 
 void x86Opcodes::PrintOperandStore (IR::Opcode *opcode, size_t dataRegisterIndex) {
     opcode->opcodeContent += "\tsub rsp, 8\n"
-                             "\tmovsd [rsp], " + XMM_DATA_REGISTERS [dataRegisterIndex] + "; store value to stack\n";
+                             "\tmovsd [rsp], " + XMM_DATA_REGISTERS [dataRegisterIndex] + "; store value in stack\n";
 }

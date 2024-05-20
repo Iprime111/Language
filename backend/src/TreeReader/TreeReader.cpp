@@ -207,7 +207,11 @@ namespace Ast {
                 return new ReturnAst (rightSubtree);
 
             case ReaderKeyword::BREAK:
+                return new BreakAst ();
+
             case ReaderKeyword::CONTINUE:
+                return new ContinueAst ();
+
             case ReaderKeyword::ABORT:
               break;
         }

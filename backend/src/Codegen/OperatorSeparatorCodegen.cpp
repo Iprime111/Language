@@ -2,11 +2,19 @@
 namespace Ast {
 
     IR::Value *OperatorSeparatorAst::Codegen (TranslationContext *context) {
-        if (left)
-            left->Codegen (context);
+        if (left) {
+            left->continueBlock = continueBlock;
+            left->breakBlock    = breakBlock;
 
-        if (right)
+            left->Codegen (context);
+        }
+
+        if (right) {
+            right->continueBlock = continueBlock;
+            right->breakBlock    = breakBlock;
+
             right->Codegen (context);
+        }
 
         return nullptr;
     }

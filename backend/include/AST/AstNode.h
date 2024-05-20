@@ -1,7 +1,6 @@
 #ifndef AST_NODE_H_
 #define AST_NODE_H_
 
-#include <cstdint>
 #include <vector>
 
 #include "BasicBlock.h"
@@ -33,6 +32,8 @@ namespace Ast {
         LOGIC_OPERATOR       = 17,
         IN                   = 18, 
         OUT                  = 19,
+        BREAK                = 20,
+        CONTINUE             = 21,
     };
 
     enum class AstOperatorId {
@@ -59,7 +60,8 @@ namespace Ast {
         public:
             AstNode *parent;
             IR::BasicBlock *trueBranch, *falseBranch;
-            
+            IR::BasicBlock *breakBlock, *continueBlock;
+
             virtual ~AstNode () = default;
 
             AstTypeId GetAstTypeId () const;
@@ -67,7 +69,7 @@ namespace Ast {
             virtual IR::Value *Codegen (TranslationContext *context) = 0;
 
         protected:
-            AstNode (AstTypeId typeId);
+            explicit AstNode (AstTypeId typeId);
 
 
         private:
@@ -76,7 +78,7 @@ namespace Ast {
     
     class ConstantAst final : public AstNode {
         public:
-            ConstantAst (double constant);
+            explicit ConstantAst (double constant);
     
             IR::Value *Codegen (TranslationContext *context) override;
     
@@ -86,7 +88,7 @@ namespace Ast {
 
     class VariableAst final : public AstNode {
         public:
-            VariableAst (size_t identifier);
+            explicit VariableAst (size_t identifier);
 
             IR::Value *Codegen (TranslationContext *context) override;
 
@@ -98,7 +100,7 @@ namespace Ast {
     
     class IdentifierAst final : public AstNode {
         public:
-            IdentifierAst (size_t identifier);
+            explicit IdentifierAst (size_t identifier);
 
             IR::Value *Codegen (TranslationContext *context) override { return nullptr; };
 
@@ -110,9 +112,7 @@ namespace Ast {
     
     class OperatorAst : public AstNode {
         public:
-            OperatorAst (AstNode *leftNode, AstNode *rightNode, AstOperatorId astOperatorId);
-            ~OperatorAst () = default;
-
+            explicit OperatorAst (AstNode *leftNode, AstNode *rightNode, AstOperatorId astOperatorId);
 
             AstOperatorId GetOperatorId () const;
             AstNode      *GetLeft       () const;
@@ -121,7 +121,7 @@ namespace Ast {
             IR::Value *Codegen (TranslationContext *context) override;
 
         protected:
-            OperatorAst (AstNode *leftNode, AstNode *rightNode, AstOperatorId operatorId, AstTypeId type);
+            explicit OperatorAst (AstNode *leftNode, AstNode *rightNode, AstOperatorId operatorId, AstTypeId type);
 
             static OperatorFunction GetOperatorFunction (TranslationContext *context, const IR::Type *type, AstOperatorId operatorId);
 
@@ -133,14 +133,14 @@ namespace Ast {
 
     class LogicOperatorAst final : public OperatorAst {
         public:
-            LogicOperatorAst (AstNode *leftNode, AstNode *rightNode, AstOperatorId astOperatorId);
+            explicit LogicOperatorAst (AstNode *leftNode, AstNode *rightNode, AstOperatorId astOperatorId);
 
             IR::Value *Codegen (TranslationContext *context) override;
     };
 
     class TypeAst final : public AstNode {
         public:
-            TypeAst (const IR::Type *type);
+            explicit TypeAst (const IR::Type *type);
 
             IR::Value *Codegen (TranslationContext *context) override { return nullptr; };
             void ConstructFunctionParameters (std::vector <const IR::Type *> *params);
@@ -153,7 +153,7 @@ namespace Ast {
 
     class FunctionParametersAst final : public AstNode {
         public:
-            FunctionParametersAst (AstNode *functionParameters, AstNode *functionBody);
+            explicit FunctionParametersAst (AstNode *functionParameters, AstNode *functionBody);
 
             IR::Value *Codegen (TranslationContext *context) override;
             void ConstructFunctionParameters (std::vector <const IR::Type *> *params, std::vector <size_t> *argumentNames);
@@ -165,7 +165,7 @@ namespace Ast {
 
     class FunctionDefinitionAst final : public AstNode {
         public:
-            FunctionDefinitionAst (size_t identifier, FunctionParametersAst *parametersNode, TypeAst *returnValueType);
+            explicit FunctionDefinitionAst (size_t identifier, FunctionParametersAst *parametersNode, TypeAst *returnValueType);
 
             IR::Value *Codegen (TranslationContext *context) override;
         
@@ -178,7 +178,7 @@ namespace Ast {
 
     class OperatorSeparatorAst final : public AstNode {
         public:
-            OperatorSeparatorAst (AstNode *leftNode, AstNode *rightNode);
+            explicit OperatorSeparatorAst (AstNode *leftNode, AstNode *rightNode);
 
             IR::Value *Codegen (TranslationContext *context) override;
 
@@ -188,7 +188,7 @@ namespace Ast {
 
     class ParameterSeparatorAst final : public AstNode {
         public:
-            ParameterSeparatorAst (AstNode *leftNode, AstNode *rightNode);
+            explicit ParameterSeparatorAst (AstNode *leftNode, AstNode *rightNode);
 
             IR::Value *Codegen                     (TranslationContext *context) override;
             void       ConstructFunctionParameters (std::vector <const IR::Type *> *params, std::vector <size_t> *argumentNames);
@@ -202,7 +202,7 @@ namespace Ast {
 
     class VariableDeclarationAst final : public AstNode {
         public:
-            VariableDeclarationAst (size_t identifier, AstNode *assignmentExpression, TypeAst *type);
+            explicit VariableDeclarationAst (size_t identifier, AstNode *assignmentExpression, TypeAst *type);
 
             IR::Value *Codegen (TranslationContext *context) override;
             void       ConstructFunctionParameters (std::vector <const IR::Type *> *params, std::vector <size_t> *argumentNames);
@@ -216,7 +216,7 @@ namespace Ast {
 
     class CallAst final : public AstNode {
         public:
-            CallAst (IdentifierAst *identifier, AstNode *functionArguments);
+            explicit CallAst (IdentifierAst *identifier, AstNode *functionArguments);
 
             IR::Value *Codegen (TranslationContext *context) override;
 
@@ -229,7 +229,7 @@ namespace Ast {
 
     class IfAst final : public AstNode {
         public:
-            IfAst (AstNode *ifCondition, AstNode *ifBody);
+            explicit IfAst (AstNode *ifCondition, AstNode *ifBody);
 
             IR::Value *Codegen (TranslationContext *context) override;
 
@@ -240,7 +240,7 @@ namespace Ast {
 
     class WhileAst final : public AstNode {
         public:
-            WhileAst (AstNode *whileCondition, AstNode *whileBody);
+            explicit WhileAst (AstNode *whileCondition, AstNode *whileBody);
             
             IR::Value *Codegen (TranslationContext *context) override;
 
@@ -251,7 +251,7 @@ namespace Ast {
 
     class ReturnAst final : public AstNode {
         public:
-            ReturnAst (AstNode *statement);
+            explicit ReturnAst (AstNode *statement);
 
             IR::Value *Codegen (TranslationContext *context) override;
 
@@ -261,7 +261,7 @@ namespace Ast {
 
     class AssignmentAst final : public AstNode {
         public:
-            AssignmentAst (VariableAst *variableNode, AstNode *expression);
+            explicit AssignmentAst (VariableAst *variableNode, AstNode *expression);
 
             IR::Value *Codegen (TranslationContext *context) override;
         private:
@@ -271,19 +271,33 @@ namespace Ast {
 
     class InAst final : public AstNode {
         public:
-            InAst ();
+            explicit InAst ();
 
             IR::Value *Codegen (TranslationContext *context) override;
     };
 
     class OutAst final : public AstNode {
         public:
-            OutAst (AstNode *expression);
+            explicit OutAst (AstNode *expression);
         
             IR::Value *Codegen (TranslationContext *context) override;
 
         private:
             AstNode *outExpression;
+    };
+
+    class BreakAst final : public AstNode {
+        public:
+            explicit BreakAst ();
+
+            IR::Value *Codegen (TranslationContext *context) override;
+    };
+
+    class ContinueAst final : public AstNode {
+        public:
+            explicit ContinueAst ();
+
+            IR::Value *Codegen (TranslationContext *context) override;
     };
 }
 
