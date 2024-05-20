@@ -35,7 +35,6 @@ namespace IR {
             Instruction *CreateAllocaInstruction (const Type *type, const char *name);
             Instruction *CreateBranchInstruction (Value *condition, BasicBlock *ifTrue, BasicBlock *ifFalse);
             Instruction *CreateBranchInstruction (BasicBlock *nextBlock);
-            Instruction *CreateTruncCast         (Value *castValue, const IntegerType *targetType);
             Instruction *CreateCall              (Function *calleeFunction, std::vector <Value *> *arguments);
             Instruction *CreateOutInstruction    (Value *outExpression);
             Instruction *CreateInInstruction     ();

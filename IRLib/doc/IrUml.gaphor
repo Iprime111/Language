@@ -2640,15 +2640,23 @@ existing classes or even new classes with specific responsibilities.</val>
 <ref refid="fc231321-08ba-11ef-ae0d-6479f088c5bb"/>
 <ref refid="3adce505-08bb-11ef-8319-6479f088c5bb"/>
 <ref refid="50b3e312-08bb-11ef-85ea-6479f088c5bb"/>
-<ref refid="5fa7d126-08bb-11ef-9842-6479f088c5bb"/>
-<ref refid="678d7622-08bb-11ef-948e-6479f088c5bb"/>
-<ref refid="6f9cbf6a-08bb-11ef-b196-6479f088c5bb"/>
-<ref refid="76952470-08bb-11ef-aec7-6479f088c5bb"/>
-<ref refid="96a026f6-08bb-11ef-aae5-6479f088c5bb"/>
-<ref refid="aa12c657-0cc5-11ef-b270-00000000050b"/>
-<ref refid="ab8226f2-0cc5-11ef-94fe-00000000050b"/>
-<ref refid="ac76a93e-0cc5-11ef-8975-00000000050b"/>
-<ref refid="ad69406b-0cc5-11ef-99d6-00000000050b"/>
+<ref refid="023e2987-169a-11ef-9789-6479f088c5bb"/>
+<ref refid="168492d3-169a-11ef-905c-6479f088c5bb"/>
+<ref refid="d13eb318-169b-11ef-8272-6479f088c5bb"/>
+<ref refid="ea70ca08-169b-11ef-a6c2-6479f088c5bb"/>
+<ref refid="3c77b45c-169c-11ef-807f-6479f088c5bb"/>
+<ref refid="5157d0b8-169c-11ef-b7c5-6479f088c5bb"/>
+<ref refid="7ded56ce-169c-11ef-957d-6479f088c5bb"/>
+<ref refid="929157fe-169c-11ef-b680-6479f088c5bb"/>
+<ref refid="a3676799-169c-11ef-9e1a-6479f088c5bb"/>
+<ref refid="e04d051b-169c-11ef-8fae-6479f088c5bb"/>
+<ref refid="fb78c6c7-169c-11ef-a03a-6479f088c5bb"/>
+<ref refid="265328ee-169d-11ef-9922-6479f088c5bb"/>
+<ref refid="55b4f002-169d-11ef-8bd1-6479f088c5bb"/>
+<ref refid="735246eb-169d-11ef-ac79-6479f088c5bb"/>
+<ref refid="4f996f8c-169e-11ef-bff4-6479f088c5bb"/>
+<ref refid="7a946ffe-169e-11ef-9b99-6479f088c5bb"/>
+<ref refid="8537ab68-169e-11ef-ac65-6479f088c5bb"/>
 </reflist>
 </ownedOperation>
 <presentation>
@@ -2668,7 +2676,7 @@ existing classes or even new classes with specific responsibilities.</val>
 <val>666.0</val>
 </width>
 <height>
-<val>328.0</val>
+<val>472.0</val>
 </height>
 <diagram>
 <ref refid="05481361-0817-11ef-af56-6479f088c5bb"/>
@@ -3039,6 +3047,7 @@ existing classes or even new classes with specific responsibilities.</val>
 <ref refid="fe76a265-0818-11ef-adf8-6479f088c5bb"/>
 <ref refid="0b35f482-093e-11ef-ac6c-6479f088c5bb"/>
 <ref refid="1aac9812-093e-11ef-b70e-6479f088c5bb"/>
+<ref refid="e5338a95-169e-11ef-84b1-6479f088c5bb"/>
 <ref refid="33cce230-0945-11ef-84c4-6479f088c5bb"/>
 <ref refid="3e704dc1-0945-11ef-9609-6479f088c5bb"/>
 </reflist>
@@ -3068,7 +3077,7 @@ existing classes or even new classes with specific responsibilities.</val>
 <val>554.0</val>
 </width>
 <height>
-<val>184.0</val>
+<val>202.0</val>
 </height>
 <diagram>
 <ref refid="05481361-0817-11ef-af56-6479f088c5bb"/>
@@ -3082,7 +3091,7 @@ existing classes or even new classes with specific responsibilities.</val>
 <ref refid="e29d6050-0818-11ef-b0b1-6479f088c5bb"/>
 </class_>
 <name>
-<val>+ basicBlocks: std::vector &lt;BasicBlock *&gt;</val>
+<val>+ basicBlocks: std::list &lt;BasicBlock *&gt;</val>
 </name>
 </Property>
 <Class id="3f170cb9-08b3-11ef-8f57-6479f088c5bb">
@@ -3493,6 +3502,8 @@ existing classes or even new classes with specific responsibilities.</val>
 <ref refid="30c5c11c-093e-11ef-a5dc-6479f088c5bb"/>
 <ref refid="390231f0-093e-11ef-9c90-6479f088c5bb"/>
 <ref refid="2eb32400-0cc6-11ef-baa9-00000000050b"/>
+<ref refid="b0232a5f-169e-11ef-a335-6479f088c5bb"/>
+<ref refid="b7923578-169e-11ef-aa10-6479f088c5bb"/>
 <ref refid="7310d288-0cc7-11ef-a93f-00000000050b"/>
 <ref refid="78111860-0cc7-11ef-b137-00000000050b"/>
 </reflist>
@@ -3511,7 +3522,7 @@ existing classes or even new classes with specific responsibilities.</val>
 <val>(0.0, 0.0)</val>
 </top-left>
 <width>
-<val>267.0</val>
+<val>350.0</val>
 </width>
 <height>
 <val>158.0</val>
@@ -3595,6 +3606,12 @@ existing classes or even new classes with specific responsibilities.</val>
 <typeValue>
 <val>BasicBlock</val>
 </typeValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+<upperValue>
+<val>*</val>
+</upperValue>
 </Parameter>
 <Operation id="50b3e312-08bb-11ef-85ea-6479f088c5bb">
 <class_>
@@ -3622,82 +3639,13 @@ existing classes or even new classes with specific responsibilities.</val>
 <typeValue>
 <val>Instruction</val>
 </typeValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+<upperValue>
+<val>*</val>
+</upperValue>
 </Parameter>
-<Operation id="5fa7d126-08bb-11ef-9842-6479f088c5bb">
-<class_>
-<ref refid="0922335c-0817-11ef-a37b-6479f088c5bb"/>
-</class_>
-<name>
-<val>CreateCmpOperator</val>
-</name>
-<ownedParameter>
-<reflist>
-<ref refid="62774028-0cc5-11ef-a6d1-00000000050b"/>
-<ref refid="627b0821-0cc5-11ef-8ff0-00000000050b"/>
-<ref refid="627bf70a-0cc5-11ef-bffa-00000000050b"/>
-<ref refid="627d00ed-0cc5-11ef-a6d8-00000000050b"/>
-</reflist>
-</ownedParameter>
-</Operation>
-<Operation id="678d7622-08bb-11ef-948e-6479f088c5bb">
-<class_>
-<ref refid="0922335c-0817-11ef-a37b-6479f088c5bb"/>
-</class_>
-<name>
-<val>CreateBinaryOperator</val>
-</name>
-<ownedParameter>
-<reflist>
-<ref refid="6f5b9150-0cc5-11ef-adb9-00000000050b"/>
-<ref refid="6f5da693-0cc5-11ef-8987-00000000050b"/>
-<ref refid="6f5ea2fc-0cc5-11ef-a3c0-00000000050b"/>
-<ref refid="6f5faac1-0cc5-11ef-98bf-00000000050b"/>
-</reflist>
-</ownedParameter>
-</Operation>
-<Operation id="6f9cbf6a-08bb-11ef-b196-6479f088c5bb">
-<class_>
-<ref refid="0922335c-0817-11ef-a37b-6479f088c5bb"/>
-</class_>
-<name>
-<val>CreateUnaryOperator</val>
-</name>
-<ownedParameter>
-<reflist>
-<ref refid="8ca1726f-0cc5-11ef-b200-00000000050b"/>
-<ref refid="8ca46a00-0cc5-11ef-b943-00000000050b"/>
-<ref refid="a031806b-0cc5-11ef-9ff9-00000000050b"/>
-</reflist>
-</ownedParameter>
-</Operation>
-<Operation id="76952470-08bb-11ef-aec7-6479f088c5bb">
-<class_>
-<ref refid="0922335c-0817-11ef-a37b-6479f088c5bb"/>
-</class_>
-<name>
-<val>CreateStateChanger</val>
-</name>
-<ownedParameter>
-<reflist>
-<ref refid="9b8f75a9-0cc5-11ef-9624-00000000050b"/>
-<ref refid="9b926f08-0cc5-11ef-acb3-00000000050b"/>
-</reflist>
-</ownedParameter>
-</Operation>
-<Operation id="96a026f6-08bb-11ef-aae5-6479f088c5bb">
-<class_>
-<ref refid="0922335c-0817-11ef-a37b-6479f088c5bb"/>
-</class_>
-<name>
-<val>CreateReturnOperator</val>
-</name>
-<ownedParameter>
-<reflist>
-<ref refid="c3fe86e3-0cc5-11ef-9562-00000000050b"/>
-<ref refid="c40187b5-0cc5-11ef-b0e9-00000000050b"/>
-</reflist>
-</ownedParameter>
-</Operation>
 <Operation id="df5b305e-08bb-11ef-b458-6479f088c5bb">
 <class_>
 <ref refid="3f170cb9-08b3-11ef-8f57-6479f088c5bb"/>
@@ -3752,7 +3700,7 @@ existing classes or even new classes with specific responsibilities.</val>
 <ref refid="0922335c-0817-11ef-a37b-6479f088c5bb"/>
 </class_>
 <name>
-<val>+ context : IRContext *</val>
+<val>- context : IRContext *</val>
 </name>
 </Property>
 <Property id="4fc511f3-093d-11ef-a41c-6479f088c5bb">
@@ -3806,7 +3754,7 @@ existing classes or even new classes with specific responsibilities.</val>
 <ref refid="e29d6050-0818-11ef-b0b1-6479f088c5bb"/>
 </class_>
 <name>
-<val>- name : char *</val>
+<val>- name : std::string</val>
 </name>
 </Property>
 <Property id="1aac9812-093e-11ef-b70e-6479f088c5bb">
@@ -3814,14 +3762,8 @@ existing classes or even new classes with specific responsibilities.</val>
 <ref refid="e29d6050-0818-11ef-b0b1-6479f088c5bb"/>
 </class_>
 <name>
-<val>functionType</val>
+<val>- args: std::vector &lt;Argument *&gt;</val>
 </name>
-<typeValue>
-<val>FunctionType</val>
-</typeValue>
-<visibility>
-<val>private</val>
-</visibility>
 </Property>
 <Property id="30c5c11c-093e-11ef-a5dc-6479f088c5bb">
 <class_>
@@ -4061,7 +4003,7 @@ existing classes or even new classes with specific responsibilities.</val>
 <val>(1.0, 0.0, 0.0, 1.0, 2123.3995167597186, 126.77597015027051)</val>
 </matrix>
 <points>
-<val>[(-758.4557500060796, -295.61713890347465), (-750.8896391875764, -789.8411515403573), (-2597.861240581531, -789.8411515403575), (-2597.8612405815315, -324.6464005959331)]</val>
+<val>[(-758.4557500060796, -295.61713890347465), (-750.8896391875764, -789.8411515403573), (-2597.861240581531, -789.8411515403575), (-2559.769806517802, -324.6464005959331)]</val>
 </points>
 <head-connection>
 <ref refid="09229bdf-0817-11ef-a534-6479f088c5bb"/>
@@ -4136,7 +4078,7 @@ existing classes or even new classes with specific responsibilities.</val>
 <val>(1.0, 0.0, 0.0, 1.0, 1169.6274069426815, 197.63757361838233)</val>
 </matrix>
 <points>
-<val>[(130.24755401085213, -268.48598083549746), (-620.6549211079241, -457.6820542645336)]</val>
+<val>[(130.24755401085213, -225.46476845379985), (-620.6549211079241, -457.6820542645336)]</val>
 </points>
 <head-connection>
 <ref refid="09229bdf-0817-11ef-a534-6479f088c5bb"/>
@@ -4511,7 +4453,7 @@ existing classes or even new classes with specific responsibilities.</val>
 <val>(1.0, 0.0, 0.0, 1.0, 143.49846473023274, 454.8251924550702)</val>
 </matrix>
 <points>
-<val>[(-506.09148999898514, 133.73860305211468), (-473.49528367271824, 202.46094346823924)]</val>
+<val>[(-506.09148999898514, 151.73860305211468), (-473.49528367271824, 202.46094346823924)]</val>
 </points>
 <head-connection>
 <ref refid="e29dbcd5-0818-11ef-bf55-6479f088c5bb"/>
@@ -4586,7 +4528,7 @@ existing classes or even new classes with specific responsibilities.</val>
 <val>(1.0, 0.0, 0.0, 1.0, 242.30622804006612, 416.7148412010271)</val>
 </matrix>
 <points>
-<val>[(-493.39925330881846, 71.8156070231567), (38.242394242332125, 71.14794401527178)]</val>
+<val>[(-493.39925330881846, 80.02973609329791), (38.242394242332125, 71.14794401527178)]</val>
 </points>
 <head-connection>
 <ref refid="e29dbcd5-0818-11ef-bf55-6479f088c5bb"/>
@@ -4781,26 +4723,16 @@ existing classes or even new classes with specific responsibilities.</val>
 <ref refid="e29d6050-0818-11ef-b0b1-6479f088c5bb"/>
 </class_>
 <name>
-<val>GetName</val>
+<val>+ GetName(): const std::string &amp;</val>
 </name>
-<ownedParameter>
-<reflist>
-<ref refid="768c4c82-0cc4-11ef-bed8-00000000050b"/>
-</reflist>
-</ownedParameter>
 </Operation>
 <Operation id="43da9c86-094a-11ef-b1d8-6479f088c5bb">
 <class_>
 <ref refid="e29d6050-0818-11ef-b0b1-6479f088c5bb"/>
 </class_>
 <name>
-<val>GetFunctionType</val>
+<val>+ GetArgs(): const std::vector &lt;Argument&gt; &amp;</val>
 </name>
-<ownedParameter>
-<reflist>
-<ref refid="714dfb2b-0cc4-11ef-943f-00000000050b"/>
-</reflist>
-</ownedParameter>
 </Operation>
 <Operation id="60fe1379-094a-11ef-a2ae-6479f088c5bb">
 <class_>
@@ -4817,7 +4749,7 @@ existing classes or even new classes with specific responsibilities.</val>
 <ref refid="6c0e7a9a-0cc4-11ef-b0bb-00000000050b"/>
 <ref refid="6c0f802d-0cc4-11ef-a949-00000000050b"/>
 <ref refid="6c107a4b-0cc4-11ef-981b-00000000050b"/>
-<ref refid="6c117f67-0cc4-11ef-87c3-00000000050b"/>
+<ref refid="7637a570-169f-11ef-ae67-6479f088c5bb"/>
 </reflist>
 </ownedParameter>
 </Operation>
@@ -7778,13 +7710,16 @@ existing classes or even new classes with specific responsibilities.</val>
 </GeneralizationItem>
 <Parameter id="6c0e7a9a-0cc4-11ef-b0bb-00000000050b">
 <direction>
-<val>return</val>
+<val>in</val>
 </direction>
+<name>
+<val>context</val>
+</name>
 <ownerFormalParam>
 <ref refid="60fe1379-094a-11ef-a2ae-6479f088c5bb"/>
 </ownerFormalParam>
 <typeValue>
-<val>Function</val>
+<val>IRContext</val>
 </typeValue>
 <upperValue>
 <val>*</val>
@@ -7804,7 +7739,7 @@ existing classes or even new classes with specific responsibilities.</val>
 <ref refid="60fe1379-094a-11ef-a2ae-6479f088c5bb"/>
 </ownerFormalParam>
 <typeValue>
-<val>FunctionType</val>
+<val>const Type</val>
 </typeValue>
 <upperValue>
 <val>*</val>
@@ -7818,74 +7753,14 @@ existing classes or even new classes with specific responsibilities.</val>
 <val>in</val>
 </direction>
 <name>
-<val>name</val>
+<val>argumentTypes</val>
 </name>
 <ownerFormalParam>
 <ref refid="60fe1379-094a-11ef-a2ae-6479f088c5bb"/>
 </ownerFormalParam>
 <typeValue>
-<val>char</val>
+<val>std</val>
 </typeValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-</Parameter>
-<Parameter id="6c117f67-0cc4-11ef-87c3-00000000050b">
-<direction>
-<val>in</val>
-</direction>
-<name>
-<val>context</val>
-</name>
-<ownerFormalParam>
-<ref refid="60fe1379-094a-11ef-a2ae-6479f088c5bb"/>
-</ownerFormalParam>
-<typeValue>
-<val>IRContext</val>
-</typeValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-</Parameter>
-<Parameter id="714dfb2b-0cc4-11ef-943f-00000000050b">
-<direction>
-<val>return</val>
-</direction>
-<ownerFormalParam>
-<ref refid="43da9c86-094a-11ef-b1d8-6479f088c5bb"/>
-</ownerFormalParam>
-<typeValue>
-<val>FunctionType</val>
-</typeValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-</Parameter>
-<Parameter id="768c4c82-0cc4-11ef-bed8-00000000050b">
-<direction>
-<val>return</val>
-</direction>
-<ownerFormalParam>
-<ref refid="3ad10c25-094a-11ef-a7b9-6479f088c5bb"/>
-</ownerFormalParam>
-<typeValue>
-<val>char</val>
-</typeValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-<upperValue>
-<val>*</val>
-</upperValue>
 </Parameter>
 <Parameter id="81a84e1d-0cc4-11ef-bd46-00000000050b">
 <direction>
@@ -8194,148 +8069,6 @@ existing classes or even new classes with specific responsibilities.</val>
 <val>*</val>
 </upperValue>
 </Parameter>
-<Parameter id="62774028-0cc5-11ef-a6d1-00000000050b">
-<direction>
-<val>return</val>
-</direction>
-<ownerFormalParam>
-<ref refid="5fa7d126-08bb-11ef-9842-6479f088c5bb"/>
-</ownerFormalParam>
-<typeValue>
-<val>Instruction</val>
-</typeValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-</Parameter>
-<Parameter id="627b0821-0cc5-11ef-8ff0-00000000050b">
-<direction>
-<val>in</val>
-</direction>
-<name>
-<val>id</val>
-</name>
-<ownerFormalParam>
-<ref refid="5fa7d126-08bb-11ef-9842-6479f088c5bb"/>
-</ownerFormalParam>
-<typeValue>
-<val>CmpOperatorId</val>
-</typeValue>
-</Parameter>
-<Parameter id="627bf70a-0cc5-11ef-bffa-00000000050b">
-<direction>
-<val>in</val>
-</direction>
-<name>
-<val>leftOperand</val>
-</name>
-<ownerFormalParam>
-<ref refid="5fa7d126-08bb-11ef-9842-6479f088c5bb"/>
-</ownerFormalParam>
-<typeValue>
-<val>Value</val>
-</typeValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-</Parameter>
-<Parameter id="627d00ed-0cc5-11ef-a6d8-00000000050b">
-<direction>
-<val>in</val>
-</direction>
-<name>
-<val>rightOperand</val>
-</name>
-<ownerFormalParam>
-<ref refid="5fa7d126-08bb-11ef-9842-6479f088c5bb"/>
-</ownerFormalParam>
-<typeValue>
-<val>Value</val>
-</typeValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-</Parameter>
-<Parameter id="6f5b9150-0cc5-11ef-adb9-00000000050b">
-<direction>
-<val>return</val>
-</direction>
-<ownerFormalParam>
-<ref refid="678d7622-08bb-11ef-948e-6479f088c5bb"/>
-</ownerFormalParam>
-<typeValue>
-<val>Instruction</val>
-</typeValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-</Parameter>
-<Parameter id="6f5da693-0cc5-11ef-8987-00000000050b">
-<direction>
-<val>in</val>
-</direction>
-<name>
-<val>id</val>
-</name>
-<ownerFormalParam>
-<ref refid="678d7622-08bb-11ef-948e-6479f088c5bb"/>
-</ownerFormalParam>
-<typeValue>
-<val>BinaryOperatorId</val>
-</typeValue>
-</Parameter>
-<Parameter id="6f5ea2fc-0cc5-11ef-a3c0-00000000050b">
-<direction>
-<val>in</val>
-</direction>
-<name>
-<val>leftOperand</val>
-</name>
-<ownerFormalParam>
-<ref refid="678d7622-08bb-11ef-948e-6479f088c5bb"/>
-</ownerFormalParam>
-<typeValue>
-<val>Value</val>
-</typeValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-</Parameter>
-<Parameter id="6f5faac1-0cc5-11ef-98bf-00000000050b">
-<direction>
-<val>in</val>
-</direction>
-<name>
-<val>rightOperand</val>
-</name>
-<ownerFormalParam>
-<ref refid="678d7622-08bb-11ef-948e-6479f088c5bb"/>
-</ownerFormalParam>
-<typeValue>
-<val>Value</val>
-</typeValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-</Parameter>
 <Parameter id="7812f2d6-0cc5-11ef-a6d2-00000000050b">
 <direction>
 <val>return</val>
@@ -8345,353 +8078,6 @@ existing classes or even new classes with specific responsibilities.</val>
 </ownerFormalParam>
 <typeValue>
 <val>IRContext</val>
-</typeValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-</Parameter>
-<Parameter id="8ca1726f-0cc5-11ef-b200-00000000050b">
-<direction>
-<val>in</val>
-</direction>
-<name>
-<val>id</val>
-</name>
-<ownerFormalParam>
-<ref refid="6f9cbf6a-08bb-11ef-b196-6479f088c5bb"/>
-</ownerFormalParam>
-<typeValue>
-<val>UnaryOperatorId</val>
-</typeValue>
-</Parameter>
-<Parameter id="8ca46a00-0cc5-11ef-b943-00000000050b">
-<direction>
-<val>in</val>
-</direction>
-<name>
-<val>operand</val>
-</name>
-<ownerFormalParam>
-<ref refid="6f9cbf6a-08bb-11ef-b196-6479f088c5bb"/>
-</ownerFormalParam>
-<typeValue>
-<val>Value</val>
-</typeValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-</Parameter>
-<Parameter id="9b8f75a9-0cc5-11ef-9624-00000000050b">
-<direction>
-<val>return</val>
-</direction>
-<ownerFormalParam>
-<ref refid="76952470-08bb-11ef-aec7-6479f088c5bb"/>
-</ownerFormalParam>
-<typeValue>
-<val>Instruction</val>
-</typeValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-</Parameter>
-<Parameter id="9b926f08-0cc5-11ef-acb3-00000000050b">
-<direction>
-<val>in</val>
-</direction>
-<name>
-<val>id</val>
-</name>
-<ownerFormalParam>
-<ref refid="76952470-08bb-11ef-aec7-6479f088c5bb"/>
-</ownerFormalParam>
-<typeValue>
-<val>StateChangerId</val>
-</typeValue>
-</Parameter>
-<Parameter id="a031806b-0cc5-11ef-9ff9-00000000050b">
-<direction>
-<val>return</val>
-</direction>
-<ownerFormalParam>
-<ref refid="6f9cbf6a-08bb-11ef-b196-6479f088c5bb"/>
-</ownerFormalParam>
-<typeValue>
-<val>Instruction</val>
-</typeValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-</Parameter>
-<Operation id="aa12c657-0cc5-11ef-b270-00000000050b">
-<class_>
-<ref refid="0922335c-0817-11ef-a37b-6479f088c5bb"/>
-</class_>
-<name>
-<val>CreateStoreInstruction</val>
-</name>
-<ownedParameter>
-<reflist>
-<ref refid="d94de164-0cc5-11ef-8850-00000000050b"/>
-<ref refid="d950e135-0cc5-11ef-ad67-00000000050b"/>
-<ref refid="eeb902df-0cc5-11ef-88d2-00000000050b"/>
-</reflist>
-</ownedParameter>
-</Operation>
-<Operation id="ab8226f2-0cc5-11ef-94fe-00000000050b">
-<class_>
-<ref refid="0922335c-0817-11ef-a37b-6479f088c5bb"/>
-</class_>
-<name>
-<val>CreateLoadInstruction</val>
-</name>
-<ownedParameter>
-<reflist>
-<ref refid="ea1352ef-0cc5-11ef-9d74-00000000050b"/>
-<ref refid="f2e26513-0cc5-11ef-83e5-00000000050b"/>
-</reflist>
-</ownedParameter>
-</Operation>
-<Operation id="ac76a93e-0cc5-11ef-8975-00000000050b">
-<class_>
-<ref refid="0922335c-0817-11ef-a37b-6479f088c5bb"/>
-</class_>
-<name>
-<val>CreateAllocaInstruction</val>
-</name>
-<ownedParameter>
-<reflist>
-<ref refid="02889df2-0cc6-11ef-9626-00000000050b"/>
-<ref refid="028ab930-0cc6-11ef-820d-00000000050b"/>
-</reflist>
-</ownedParameter>
-</Operation>
-<Operation id="ad69406b-0cc5-11ef-99d6-00000000050b">
-<class_>
-<ref refid="0922335c-0817-11ef-a37b-6479f088c5bb"/>
-</class_>
-<name>
-<val>InsertInstruction</val>
-</name>
-<ownedParameter>
-<reflist>
-<ref refid="b5343c71-0cc5-11ef-94b6-00000000050b"/>
-<ref refid="b5373daf-0cc5-11ef-8ae8-00000000050b"/>
-</reflist>
-</ownedParameter>
-<visibility>
-<val>private</val>
-</visibility>
-</Operation>
-<Parameter id="b5343c71-0cc5-11ef-94b6-00000000050b">
-<direction>
-<val>return</val>
-</direction>
-<ownerFormalParam>
-<ref refid="ad69406b-0cc5-11ef-99d6-00000000050b"/>
-</ownerFormalParam>
-<typeValue>
-<val>Instruction</val>
-</typeValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-</Parameter>
-<Parameter id="b5373daf-0cc5-11ef-8ae8-00000000050b">
-<direction>
-<val>in</val>
-</direction>
-<name>
-<val>newInstruction</val>
-</name>
-<ownerFormalParam>
-<ref refid="ad69406b-0cc5-11ef-99d6-00000000050b"/>
-</ownerFormalParam>
-<typeValue>
-<val>Instruction</val>
-</typeValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-</Parameter>
-<Parameter id="c3fe86e3-0cc5-11ef-9562-00000000050b">
-<direction>
-<val>return</val>
-</direction>
-<ownerFormalParam>
-<ref refid="96a026f6-08bb-11ef-aae5-6479f088c5bb"/>
-</ownerFormalParam>
-<typeValue>
-<val>Instruction</val>
-</typeValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-</Parameter>
-<Parameter id="c40187b5-0cc5-11ef-b0e9-00000000050b">
-<direction>
-<val>in</val>
-</direction>
-<name>
-<val>operand</val>
-</name>
-<ownerFormalParam>
-<ref refid="96a026f6-08bb-11ef-aae5-6479f088c5bb"/>
-</ownerFormalParam>
-<typeValue>
-<val>Value</val>
-</typeValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-</Parameter>
-<Parameter id="d94de164-0cc5-11ef-8850-00000000050b">
-<direction>
-<val>in</val>
-</direction>
-<name>
-<val>variable</val>
-</name>
-<ownerFormalParam>
-<ref refid="aa12c657-0cc5-11ef-b270-00000000050b"/>
-</ownerFormalParam>
-<typeValue>
-<val>AllocaInstruction</val>
-</typeValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-</Parameter>
-<Parameter id="d950e135-0cc5-11ef-ad67-00000000050b">
-<direction>
-<val>in</val>
-</direction>
-<name>
-<val>operand</val>
-</name>
-<ownerFormalParam>
-<ref refid="aa12c657-0cc5-11ef-b270-00000000050b"/>
-</ownerFormalParam>
-<typeValue>
-<val>Value</val>
-</typeValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-</Parameter>
-<Parameter id="ea1352ef-0cc5-11ef-9d74-00000000050b">
-<direction>
-<val>in</val>
-</direction>
-<name>
-<val>variable</val>
-</name>
-<ownerFormalParam>
-<ref refid="ab8226f2-0cc5-11ef-94fe-00000000050b"/>
-</ownerFormalParam>
-<typeValue>
-<val>AllocaInstruction</val>
-</typeValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-</Parameter>
-<Parameter id="eeb902df-0cc5-11ef-88d2-00000000050b">
-<direction>
-<val>return</val>
-</direction>
-<ownerFormalParam>
-<ref refid="aa12c657-0cc5-11ef-b270-00000000050b"/>
-</ownerFormalParam>
-<typeValue>
-<val>Instruction</val>
-</typeValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-</Parameter>
-<Parameter id="f2e26513-0cc5-11ef-83e5-00000000050b">
-<direction>
-<val>return</val>
-</direction>
-<ownerFormalParam>
-<ref refid="ab8226f2-0cc5-11ef-94fe-00000000050b"/>
-</ownerFormalParam>
-<typeValue>
-<val>Instruction</val>
-</typeValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-</Parameter>
-<Parameter id="02889df2-0cc6-11ef-9626-00000000050b">
-<direction>
-<val>return</val>
-</direction>
-<ownerFormalParam>
-<ref refid="ac76a93e-0cc5-11ef-8975-00000000050b"/>
-</ownerFormalParam>
-<typeValue>
-<val>Instruction</val>
-</typeValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-<upperValue>
-<val>*</val>
-</upperValue>
-</Parameter>
-<Parameter id="028ab930-0cc6-11ef-820d-00000000050b">
-<direction>
-<val>in</val>
-</direction>
-<name>
-<val>type</val>
-</name>
-<ownerFormalParam>
-<ref refid="ac76a93e-0cc5-11ef-8975-00000000050b"/>
-</ownerFormalParam>
-<typeValue>
-<val>const Type</val>
 </typeValue>
 <upperValue>
 <val>*</val>
@@ -9190,7 +8576,7 @@ existing classes or even new classes with specific responsibilities.</val>
 <val>(1.0, 0.0, 0.0, 1.0, -341.32300409591267, -61.89708260564191)</val>
 </matrix>
 <points>
-<val>[(11.326185153427332, -24.547141341870997), (131.90393272355539, 256.43604945280117)]</val>
+<val>[(94.32618515342733, -24.547141341870997), (131.90393272355539, 256.43604945280117)]</val>
 </points>
 <head-connection>
 <ref refid="8290dbde-08b8-11ef-bf47-6479f088c5bb"/>
@@ -9265,7 +8651,7 @@ existing classes or even new classes with specific responsibilities.</val>
 <val>(1.0, 0.0, 0.0, 1.0, -483.62354210537217, -44.309063714022955)</val>
 </matrix>
 <points>
-<val>[(0.0, 4.438633268360377), (-64.88965612381412, 448.8728592212078)]</val>
+<val>[(35.243378192810496, 4.438633268360377), (-64.88965612381412, 448.8728592212078)]</val>
 </points>
 <head-connection>
 <ref refid="8290dbde-08b8-11ef-bf47-6479f088c5bb"/>
@@ -10048,7 +9434,7 @@ existing classes or even new classes with specific responsibilities.</val>
 <val>(1.0, 0.0, 0.0, 1.0, 2305.235329724981, -478.46653755211855)</val>
 </matrix>
 <points>
-<val>[(43.15103135327399, 299.53836602079343), (43.15103135327399, -280.8021876483213), (-2853.748527954167, -280.8021876483213), (-2853.7485279541675, 280.596107106456)]</val>
+<val>[(43.15103135327399, 299.53836602079343), (43.15103135327399, -280.8021876483213), (-2853.748527954167, -280.8021876483213), (-2838.6768406163255, 280.596107106456)]</val>
 </points>
 <tail-connection>
 <ref refid="8290dbde-08b8-11ef-bf47-6479f088c5bb"/>
@@ -10260,6 +9646,953 @@ existing classes or even new classes with specific responsibilities.</val>
 </name>
 <ownerFormalParam>
 <ref refid="8d92663a-0cc9-11ef-a9ca-00000000050b"/>
+</ownerFormalParam>
+<typeValue>
+<val>Function</val>
+</typeValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+</Parameter>
+<Operation id="023e2987-169a-11ef-9789-6479f088c5bb">
+<class_>
+<ref refid="0922335c-0817-11ef-a37b-6479f088c5bb"/>
+</class_>
+<name>
+<val>SetEntryPoint</val>
+</name>
+<ownedParameter>
+<reflist>
+<ref refid="02437233-169a-11ef-9166-6479f088c5bb"/>
+</reflist>
+</ownedParameter>
+</Operation>
+<Parameter id="02437233-169a-11ef-9166-6479f088c5bb">
+<direction>
+<val>in</val>
+</direction>
+<name>
+<val>entryPoint</val>
+</name>
+<ownerFormalParam>
+<ref refid="023e2987-169a-11ef-9789-6479f088c5bb"/>
+</ownerFormalParam>
+<typeValue>
+<val>Function</val>
+</typeValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+</Parameter>
+<Operation id="168492d3-169a-11ef-905c-6479f088c5bb">
+<class_>
+<ref refid="0922335c-0817-11ef-a37b-6479f088c5bb"/>
+</class_>
+<name>
+<val>GetInt64Ty</val>
+</name>
+<ownedParameter>
+<reflist>
+<ref refid="1685f79d-169a-11ef-9f86-6479f088c5bb"/>
+</reflist>
+</ownedParameter>
+</Operation>
+<Parameter id="1685f79d-169a-11ef-9f86-6479f088c5bb">
+<direction>
+<val>return</val>
+</direction>
+<ownerFormalParam>
+<ref refid="168492d3-169a-11ef-905c-6479f088c5bb"/>
+</ownerFormalParam>
+<typeValue>
+<val>IntegerType</val>
+</typeValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+</Parameter>
+<Operation id="d13eb318-169b-11ef-8272-6479f088c5bb">
+<class_>
+<ref refid="0922335c-0817-11ef-a37b-6479f088c5bb"/>
+</class_>
+<name>
+<val>GetInt1Ty</val>
+</name>
+<ownedParameter>
+<reflist>
+<ref refid="d13fb970-169b-11ef-867b-6479f088c5bb"/>
+</reflist>
+</ownedParameter>
+</Operation>
+<Parameter id="d13fb970-169b-11ef-867b-6479f088c5bb">
+<direction>
+<val>return</val>
+</direction>
+<ownerFormalParam>
+<ref refid="d13eb318-169b-11ef-8272-6479f088c5bb"/>
+</ownerFormalParam>
+<typeValue>
+<val>IntegerType</val>
+</typeValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+</Parameter>
+<Operation id="ea70ca08-169b-11ef-a6c2-6479f088c5bb">
+<class_>
+<ref refid="0922335c-0817-11ef-a37b-6479f088c5bb"/>
+</class_>
+<name>
+<val>GetDoubleTy</val>
+</name>
+<ownedParameter>
+<reflist>
+<ref refid="ea73e136-169b-11ef-9714-6479f088c5bb"/>
+</reflist>
+</ownedParameter>
+</Operation>
+<Parameter id="ea73e136-169b-11ef-9714-6479f088c5bb">
+<direction>
+<val>return</val>
+</direction>
+<ownerFormalParam>
+<ref refid="ea70ca08-169b-11ef-a6c2-6479f088c5bb"/>
+</ownerFormalParam>
+<typeValue>
+<val>FloatType</val>
+</typeValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+</Parameter>
+<Operation id="3c77b45c-169c-11ef-807f-6479f088c5bb">
+<class_>
+<ref refid="0922335c-0817-11ef-a37b-6479f088c5bb"/>
+</class_>
+<name>
+<val>CreateCmpOperator</val>
+</name>
+<ownedParameter>
+<reflist>
+<ref refid="5c6de1cb-169c-11ef-a426-6479f088c5bb"/>
+<ref refid="5c706fd1-169c-11ef-9972-6479f088c5bb"/>
+<ref refid="5c71734c-169c-11ef-b9ef-6479f088c5bb"/>
+<ref refid="9fa4c476-169d-11ef-abc6-6479f088c5bb"/>
+</reflist>
+</ownedParameter>
+</Operation>
+<Operation id="5157d0b8-169c-11ef-b7c5-6479f088c5bb">
+<class_>
+<ref refid="0922335c-0817-11ef-a37b-6479f088c5bb"/>
+</class_>
+<name>
+<val>CreateUnaryOperator</val>
+</name>
+<ownedParameter>
+<reflist>
+<ref refid="5159e305-169c-11ef-a687-6479f088c5bb"/>
+<ref refid="515b1583-169c-11ef-9c6d-6479f088c5bb"/>
+<ref refid="515bcf34-169c-11ef-9f67-6479f088c5bb"/>
+</reflist>
+</ownedParameter>
+</Operation>
+<Parameter id="5159e305-169c-11ef-a687-6479f088c5bb">
+<direction>
+<val>return</val>
+</direction>
+<ownerFormalParam>
+<ref refid="5157d0b8-169c-11ef-b7c5-6479f088c5bb"/>
+</ownerFormalParam>
+<typeValue>
+<val>Instruction</val>
+</typeValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+</Parameter>
+<Parameter id="515b1583-169c-11ef-9c6d-6479f088c5bb">
+<direction>
+<val>in</val>
+</direction>
+<name>
+<val>id</val>
+</name>
+<ownerFormalParam>
+<ref refid="5157d0b8-169c-11ef-b7c5-6479f088c5bb"/>
+</ownerFormalParam>
+<typeValue>
+<val>UnaryOperatorId</val>
+</typeValue>
+</Parameter>
+<Parameter id="515bcf34-169c-11ef-9f67-6479f088c5bb">
+<direction>
+<val>in</val>
+</direction>
+<name>
+<val>operand</val>
+</name>
+<ownerFormalParam>
+<ref refid="5157d0b8-169c-11ef-b7c5-6479f088c5bb"/>
+</ownerFormalParam>
+<typeValue>
+<val>Value</val>
+</typeValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+</Parameter>
+<Parameter id="5c6de1cb-169c-11ef-a426-6479f088c5bb">
+<direction>
+<val>return</val>
+</direction>
+<ownerFormalParam>
+<ref refid="3c77b45c-169c-11ef-807f-6479f088c5bb"/>
+</ownerFormalParam>
+<typeValue>
+<val>Instruction</val>
+</typeValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+</Parameter>
+<Parameter id="5c706fd1-169c-11ef-9972-6479f088c5bb">
+<direction>
+<val>in</val>
+</direction>
+<name>
+<val>id</val>
+</name>
+<ownerFormalParam>
+<ref refid="3c77b45c-169c-11ef-807f-6479f088c5bb"/>
+</ownerFormalParam>
+<typeValue>
+<val>CmpOperatorId</val>
+</typeValue>
+</Parameter>
+<Parameter id="5c71734c-169c-11ef-b9ef-6479f088c5bb">
+<direction>
+<val>in</val>
+</direction>
+<name>
+<val>leftOperand</val>
+</name>
+<ownerFormalParam>
+<ref refid="3c77b45c-169c-11ef-807f-6479f088c5bb"/>
+</ownerFormalParam>
+<typeValue>
+<val>Value</val>
+</typeValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+</Parameter>
+<Operation id="7ded56ce-169c-11ef-957d-6479f088c5bb">
+<class_>
+<ref refid="0922335c-0817-11ef-a37b-6479f088c5bb"/>
+</class_>
+<name>
+<val>CreateBinaryOperator</val>
+</name>
+<ownedParameter>
+<reflist>
+<ref refid="c022f48d-169d-11ef-81c4-6479f088c5bb"/>
+<ref refid="c02596c1-169d-11ef-ad50-6479f088c5bb"/>
+<ref refid="c0268ee3-169d-11ef-9f8f-6479f088c5bb"/>
+<ref refid="c0276939-169d-11ef-a11c-6479f088c5bb"/>
+</reflist>
+</ownedParameter>
+</Operation>
+<Operation id="929157fe-169c-11ef-b680-6479f088c5bb">
+<class_>
+<ref refid="0922335c-0817-11ef-a37b-6479f088c5bb"/>
+</class_>
+<name>
+<val>CreateStateChanger</val>
+</name>
+<ownedParameter>
+<reflist>
+<ref refid="a6c1b7bd-169c-11ef-96ae-6479f088c5bb"/>
+<ref refid="a6c38e36-169c-11ef-a6ed-6479f088c5bb"/>
+</reflist>
+</ownedParameter>
+</Operation>
+<Operation id="a3676799-169c-11ef-9e1a-6479f088c5bb">
+<class_>
+<ref refid="0922335c-0817-11ef-a37b-6479f088c5bb"/>
+</class_>
+<name>
+<val>CreateReturnOperator</val>
+</name>
+<ownedParameter>
+<reflist>
+<ref refid="a36b7b2e-169c-11ef-81f4-6479f088c5bb"/>
+<ref refid="a36ccfe6-169c-11ef-86cb-6479f088c5bb"/>
+</reflist>
+</ownedParameter>
+</Operation>
+<Parameter id="a36b7b2e-169c-11ef-81f4-6479f088c5bb">
+<direction>
+<val>return</val>
+</direction>
+<ownerFormalParam>
+<ref refid="a3676799-169c-11ef-9e1a-6479f088c5bb"/>
+</ownerFormalParam>
+<typeValue>
+<val>Instruction</val>
+</typeValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+</Parameter>
+<Parameter id="a36ccfe6-169c-11ef-86cb-6479f088c5bb">
+<direction>
+<val>in</val>
+</direction>
+<name>
+<val>operand</val>
+</name>
+<ownerFormalParam>
+<ref refid="a3676799-169c-11ef-9e1a-6479f088c5bb"/>
+</ownerFormalParam>
+<typeValue>
+<val>Value</val>
+</typeValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+</Parameter>
+<Parameter id="a6c1b7bd-169c-11ef-96ae-6479f088c5bb">
+<direction>
+<val>return</val>
+</direction>
+<ownerFormalParam>
+<ref refid="929157fe-169c-11ef-b680-6479f088c5bb"/>
+</ownerFormalParam>
+<typeValue>
+<val>Instruction</val>
+</typeValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+</Parameter>
+<Parameter id="a6c38e36-169c-11ef-a6ed-6479f088c5bb">
+<direction>
+<val>in</val>
+</direction>
+<name>
+<val>id</val>
+</name>
+<ownerFormalParam>
+<ref refid="929157fe-169c-11ef-b680-6479f088c5bb"/>
+</ownerFormalParam>
+<typeValue>
+<val>StateChangerId</val>
+</typeValue>
+</Parameter>
+<Operation id="e04d051b-169c-11ef-8fae-6479f088c5bb">
+<class_>
+<ref refid="0922335c-0817-11ef-a37b-6479f088c5bb"/>
+</class_>
+<name>
+<val>CreateStoreInstruction</val>
+</name>
+<ownedParameter>
+<reflist>
+<ref refid="e0503010-169c-11ef-8f97-6479f088c5bb"/>
+<ref refid="e051c2cb-169c-11ef-90c9-6479f088c5bb"/>
+</reflist>
+</ownedParameter>
+</Operation>
+<Parameter id="e0503010-169c-11ef-8f97-6479f088c5bb">
+<direction>
+<val>return</val>
+</direction>
+<ownerFormalParam>
+<ref refid="e04d051b-169c-11ef-8fae-6479f088c5bb"/>
+</ownerFormalParam>
+<typeValue>
+<val>Instruction</val>
+</typeValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+</Parameter>
+<Parameter id="e051c2cb-169c-11ef-90c9-6479f088c5bb">
+<direction>
+<val>in</val>
+</direction>
+<name>
+<val>variable</val>
+</name>
+<ownerFormalParam>
+<ref refid="e04d051b-169c-11ef-8fae-6479f088c5bb"/>
+</ownerFormalParam>
+<typeValue>
+<val>Value</val>
+</typeValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+</Parameter>
+<Operation id="fb78c6c7-169c-11ef-a03a-6479f088c5bb">
+<class_>
+<ref refid="0922335c-0817-11ef-a37b-6479f088c5bb"/>
+</class_>
+<name>
+<val>CreateLoadInstruction</val>
+</name>
+<ownedParameter>
+<reflist>
+<ref refid="fb7a4d63-169c-11ef-947b-6479f088c5bb"/>
+<ref refid="fb7bb9b5-169c-11ef-889f-6479f088c5bb"/>
+</reflist>
+</ownedParameter>
+</Operation>
+<Parameter id="fb7a4d63-169c-11ef-947b-6479f088c5bb">
+<direction>
+<val>return</val>
+</direction>
+<ownerFormalParam>
+<ref refid="fb78c6c7-169c-11ef-a03a-6479f088c5bb"/>
+</ownerFormalParam>
+<typeValue>
+<val>Instruction</val>
+</typeValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+</Parameter>
+<Parameter id="fb7bb9b5-169c-11ef-889f-6479f088c5bb">
+<direction>
+<val>in</val>
+</direction>
+<name>
+<val>variable</val>
+</name>
+<ownerFormalParam>
+<ref refid="fb78c6c7-169c-11ef-a03a-6479f088c5bb"/>
+</ownerFormalParam>
+<typeValue>
+<val>Value</val>
+</typeValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+</Parameter>
+<Operation id="265328ee-169d-11ef-9922-6479f088c5bb">
+<class_>
+<ref refid="0922335c-0817-11ef-a37b-6479f088c5bb"/>
+</class_>
+<name>
+<val>CreateAllocaInstruction</val>
+</name>
+<ownedParameter>
+<reflist>
+<ref refid="26564fca-169d-11ef-95e6-6479f088c5bb"/>
+<ref refid="2658064c-169d-11ef-8416-6479f088c5bb"/>
+</reflist>
+</ownedParameter>
+</Operation>
+<Parameter id="26564fca-169d-11ef-95e6-6479f088c5bb">
+<direction>
+<val>return</val>
+</direction>
+<ownerFormalParam>
+<ref refid="265328ee-169d-11ef-9922-6479f088c5bb"/>
+</ownerFormalParam>
+<typeValue>
+<val>Instruction</val>
+</typeValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+</Parameter>
+<Parameter id="2658064c-169d-11ef-8416-6479f088c5bb">
+<direction>
+<val>in</val>
+</direction>
+<name>
+<val>type</val>
+</name>
+<ownerFormalParam>
+<ref refid="265328ee-169d-11ef-9922-6479f088c5bb"/>
+</ownerFormalParam>
+<typeValue>
+<val>const Type</val>
+</typeValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+</Parameter>
+<Operation id="55b4f002-169d-11ef-8bd1-6479f088c5bb">
+<class_>
+<ref refid="0922335c-0817-11ef-a37b-6479f088c5bb"/>
+</class_>
+<name>
+<val>CreateBranchInstruction</val>
+</name>
+<ownedParameter>
+<reflist>
+<ref refid="55b6516e-169d-11ef-aacf-6479f088c5bb"/>
+<ref refid="55b7d603-169d-11ef-86a5-6479f088c5bb"/>
+</reflist>
+</ownedParameter>
+</Operation>
+<Parameter id="55b6516e-169d-11ef-aacf-6479f088c5bb">
+<direction>
+<val>return</val>
+</direction>
+<ownerFormalParam>
+<ref refid="55b4f002-169d-11ef-8bd1-6479f088c5bb"/>
+</ownerFormalParam>
+<typeValue>
+<val>Instruction</val>
+</typeValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+</Parameter>
+<Parameter id="55b7d603-169d-11ef-86a5-6479f088c5bb">
+<direction>
+<val>in</val>
+</direction>
+<name>
+<val>nextBlock</val>
+</name>
+<ownerFormalParam>
+<ref refid="55b4f002-169d-11ef-8bd1-6479f088c5bb"/>
+</ownerFormalParam>
+<typeValue>
+<val>BasicBlock</val>
+</typeValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+</Parameter>
+<Operation id="735246eb-169d-11ef-ac79-6479f088c5bb">
+<class_>
+<ref refid="0922335c-0817-11ef-a37b-6479f088c5bb"/>
+</class_>
+<name>
+<val>CreateBranchInstruction</val>
+</name>
+<ownedParameter>
+<reflist>
+<ref refid="7353a1d5-169d-11ef-a065-6479f088c5bb"/>
+<ref refid="735530bf-169d-11ef-a9f1-6479f088c5bb"/>
+<ref refid="e4d5e660-169d-11ef-8609-6479f088c5bb"/>
+<ref refid="e4d835e9-169d-11ef-8437-6479f088c5bb"/>
+</reflist>
+</ownedParameter>
+</Operation>
+<Parameter id="7353a1d5-169d-11ef-a065-6479f088c5bb">
+<direction>
+<val>return</val>
+</direction>
+<ownerFormalParam>
+<ref refid="735246eb-169d-11ef-ac79-6479f088c5bb"/>
+</ownerFormalParam>
+<typeValue>
+<val>Instruction</val>
+</typeValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+</Parameter>
+<Parameter id="735530bf-169d-11ef-a9f1-6479f088c5bb">
+<direction>
+<val>in</val>
+</direction>
+<name>
+<val>condition</val>
+</name>
+<ownerFormalParam>
+<ref refid="735246eb-169d-11ef-ac79-6479f088c5bb"/>
+</ownerFormalParam>
+<typeValue>
+<val>Value</val>
+</typeValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+</Parameter>
+<Parameter id="9fa4c476-169d-11ef-abc6-6479f088c5bb">
+<direction>
+<val>in</val>
+</direction>
+<name>
+<val>rightOperand</val>
+</name>
+<ownerFormalParam>
+<ref refid="3c77b45c-169c-11ef-807f-6479f088c5bb"/>
+</ownerFormalParam>
+<typeValue>
+<val>Value</val>
+</typeValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+</Parameter>
+<Parameter id="c022f48d-169d-11ef-81c4-6479f088c5bb">
+<direction>
+<val>return</val>
+</direction>
+<ownerFormalParam>
+<ref refid="7ded56ce-169c-11ef-957d-6479f088c5bb"/>
+</ownerFormalParam>
+<typeValue>
+<val>Instruction</val>
+</typeValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+</Parameter>
+<Parameter id="c02596c1-169d-11ef-ad50-6479f088c5bb">
+<direction>
+<val>in</val>
+</direction>
+<name>
+<val>id</val>
+</name>
+<ownerFormalParam>
+<ref refid="7ded56ce-169c-11ef-957d-6479f088c5bb"/>
+</ownerFormalParam>
+<typeValue>
+<val>BinaryOperatorId</val>
+</typeValue>
+</Parameter>
+<Parameter id="c0268ee3-169d-11ef-9f8f-6479f088c5bb">
+<direction>
+<val>in</val>
+</direction>
+<name>
+<val>leftOperand</val>
+</name>
+<ownerFormalParam>
+<ref refid="7ded56ce-169c-11ef-957d-6479f088c5bb"/>
+</ownerFormalParam>
+<typeValue>
+<val>Value</val>
+</typeValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+</Parameter>
+<Parameter id="c0276939-169d-11ef-a11c-6479f088c5bb">
+<direction>
+<val>in</val>
+</direction>
+<name>
+<val>rightOperand</val>
+</name>
+<ownerFormalParam>
+<ref refid="7ded56ce-169c-11ef-957d-6479f088c5bb"/>
+</ownerFormalParam>
+<typeValue>
+<val>Value</val>
+</typeValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+</Parameter>
+<Parameter id="e4d5e660-169d-11ef-8609-6479f088c5bb">
+<direction>
+<val>in</val>
+</direction>
+<name>
+<val>ifTrue</val>
+</name>
+<ownerFormalParam>
+<ref refid="735246eb-169d-11ef-ac79-6479f088c5bb"/>
+</ownerFormalParam>
+<typeValue>
+<val>Value</val>
+</typeValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+</Parameter>
+<Parameter id="e4d835e9-169d-11ef-8437-6479f088c5bb">
+<direction>
+<val>in</val>
+</direction>
+<name>
+<val>ifFalse</val>
+</name>
+<ownerFormalParam>
+<ref refid="735246eb-169d-11ef-ac79-6479f088c5bb"/>
+</ownerFormalParam>
+<upperValue>
+<val>*</val>
+</upperValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+</Parameter>
+<Operation id="4f996f8c-169e-11ef-bff4-6479f088c5bb">
+<class_>
+<ref refid="0922335c-0817-11ef-a37b-6479f088c5bb"/>
+</class_>
+<name>
+<val>CreateCall</val>
+</name>
+<ownedParameter>
+<reflist>
+<ref refid="4f9b2116-169e-11ef-803f-6479f088c5bb"/>
+<ref refid="4f9cc2d5-169e-11ef-a9ca-6479f088c5bb"/>
+<ref refid="4f9d9777-169e-11ef-ac62-6479f088c5bb"/>
+</reflist>
+</ownedParameter>
+</Operation>
+<Parameter id="4f9b2116-169e-11ef-803f-6479f088c5bb">
+<direction>
+<val>return</val>
+</direction>
+<ownerFormalParam>
+<ref refid="4f996f8c-169e-11ef-bff4-6479f088c5bb"/>
+</ownerFormalParam>
+<typeValue>
+<val>Instruction</val>
+</typeValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+</Parameter>
+<Parameter id="4f9cc2d5-169e-11ef-a9ca-6479f088c5bb">
+<direction>
+<val>in</val>
+</direction>
+<name>
+<val>calleeFunction</val>
+</name>
+<ownerFormalParam>
+<ref refid="4f996f8c-169e-11ef-bff4-6479f088c5bb"/>
+</ownerFormalParam>
+<typeValue>
+<val>Function</val>
+</typeValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+</Parameter>
+<Parameter id="4f9d9777-169e-11ef-ac62-6479f088c5bb">
+<direction>
+<val>in</val>
+</direction>
+<name>
+<val>arguments</val>
+</name>
+<ownerFormalParam>
+<ref refid="4f996f8c-169e-11ef-bff4-6479f088c5bb"/>
+</ownerFormalParam>
+<typeValue>
+<val>std</val>
+</typeValue>
+</Parameter>
+<Operation id="7a946ffe-169e-11ef-9b99-6479f088c5bb">
+<class_>
+<ref refid="0922335c-0817-11ef-a37b-6479f088c5bb"/>
+</class_>
+<name>
+<val>CreateOutInstruction</val>
+</name>
+<ownedParameter>
+<reflist>
+<ref refid="7a97a888-169e-11ef-819f-6479f088c5bb"/>
+<ref refid="7a996b6f-169e-11ef-a502-6479f088c5bb"/>
+</reflist>
+</ownedParameter>
+</Operation>
+<Parameter id="7a97a888-169e-11ef-819f-6479f088c5bb">
+<direction>
+<val>return</val>
+</direction>
+<ownerFormalParam>
+<ref refid="7a946ffe-169e-11ef-9b99-6479f088c5bb"/>
+</ownerFormalParam>
+<typeValue>
+<val>Instruction</val>
+</typeValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+</Parameter>
+<Parameter id="7a996b6f-169e-11ef-a502-6479f088c5bb">
+<direction>
+<val>in</val>
+</direction>
+<name>
+<val>outExpression</val>
+</name>
+<ownerFormalParam>
+<ref refid="7a946ffe-169e-11ef-9b99-6479f088c5bb"/>
+</ownerFormalParam>
+<typeValue>
+<val>Value</val>
+</typeValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+</Parameter>
+<Operation id="8537ab68-169e-11ef-ac65-6479f088c5bb">
+<class_>
+<ref refid="0922335c-0817-11ef-a37b-6479f088c5bb"/>
+</class_>
+<name>
+<val>CreateInInstruction</val>
+</name>
+<ownedParameter>
+<reflist>
+<ref refid="85396215-169e-11ef-92ce-6479f088c5bb"/>
+</reflist>
+</ownedParameter>
+</Operation>
+<Parameter id="85396215-169e-11ef-92ce-6479f088c5bb">
+<direction>
+<val>return</val>
+</direction>
+<ownerFormalParam>
+<ref refid="8537ab68-169e-11ef-ac65-6479f088c5bb"/>
+</ownerFormalParam>
+<typeValue>
+<val>Instruction</val>
+</typeValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+<upperValue>
+<val>*</val>
+</upperValue>
+</Parameter>
+<Property id="b0232a5f-169e-11ef-a335-6479f088c5bb">
+<class_>
+<ref refid="829069a9-08b8-11ef-be74-6479f088c5bb"/>
+</class_>
+<name>
+<val>+ blockNames: std::unordered_map &lt;std::string, size_t&gt;</val>
+</name>
+</Property>
+<Property id="b7923578-169e-11ef-aa10-6479f088c5bb">
+<class_>
+<ref refid="829069a9-08b8-11ef-be74-6479f088c5bb"/>
+</class_>
+<name>
+<val>+ entryPoint: Function *</val>
+</name>
+</Property>
+<Property id="e5338a95-169e-11ef-84b1-6479f088c5bb">
+<class_>
+<ref refid="e29d6050-0818-11ef-b0b1-6479f088c5bb"/>
+</class_>
+<name>
+<val>allocaSize</val>
+</name>
+<typeValue>
+<val>size_t</val>
+</typeValue>
+<visibility>
+<val>private</val>
+</visibility>
+</Property>
+<Parameter id="7637a570-169f-11ef-ae67-6479f088c5bb">
+<direction>
+<val>return</val>
+</direction>
+<ownerFormalParam>
+<ref refid="60fe1379-094a-11ef-a2ae-6479f088c5bb"/>
 </ownerFormalParam>
 <typeValue>
 <val>Function</val>
