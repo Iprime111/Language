@@ -84,15 +84,15 @@ namespace Ast {
     }
 
     void ParameterSeparatorAst::ConstructCallArguments (TranslationContext *context, std::vector <IR::Value *> *args) {
-        if (left && left->GetAstTypeId () == AstTypeId::PARAMETER_SEPARATOR)
-            static_cast <ParameterSeparatorAst *> (left)->ConstructCallArguments (context, args);
-        else
-            ConstructCallArgumentsForChild (context, args, left);
-
         if (right && right->GetAstTypeId () == AstTypeId::PARAMETER_SEPARATOR)
             static_cast <ParameterSeparatorAst *> (right)->ConstructCallArguments (context, args);
         else
             ConstructCallArgumentsForChild (context, args, right);
+
+        if (left && left->GetAstTypeId () == AstTypeId::PARAMETER_SEPARATOR)
+            static_cast <ParameterSeparatorAst *> (left)->ConstructCallArguments (context, args);
+        else
+            ConstructCallArgumentsForChild (context, args, left);
     }
 
     void CallAst::ConstructCallArguments (TranslationContext *context, std::vector <IR::Value *> *args) {

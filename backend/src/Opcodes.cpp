@@ -302,8 +302,10 @@ IR::Opcode *x86Opcodes::ProcessOutInstruction (IR::Instruction *instruction) {
 
     const IR::Value *operand = instruction->GetOperand (0); 
 
-    if (operand->GetValueId () == IR::ValueId::CONSTANT)
-        PrintOperandStore (outOpcode, 0);
+    if (operand->GetValueId () == IR::ValueId::CONSTANT) {
+        PrintOperandLoad (instruction, 0, outOpcode, 0);
+        PrintOperandStore (outOpcode,  0);
+    }
 
     outOpcode->opcodeContent += "\tcall _Print\n"
                                 "\tadd rsp, 8\n";

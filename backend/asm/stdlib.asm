@@ -143,9 +143,19 @@ FnFindDot:
     pop rax
     ret
 
+;TODO use buffers for printing
 _Print:
     movsd xmm0, [rsp + 8]
 
+    xorps xmm1, xmm1
+    comisd xmm0, xmm1
+    jae .PrintNumber
+
+    mov rsi, Minus
+    mov rdx, 1
+    call FnWriteSyscall
+
+.PrintNumber:
     cvttsd2si r9, xmm0
     mov rax, r9
     call FnPrintSigned
@@ -204,21 +214,13 @@ FnPrintUnsignedToBuffer:
 ; -------------------------------------------------------------------------------------------------
 FnPrintSigned:
 
-    xor r8, r8
     test rax, rax
     jns .BufferPrintCall                        ; check if negative
 
-    mov r8, 1
     neg rax                                     ; do rax = -rax if negative
 
 .BufferPrintCall:
     call FnPrintUnsignedToBuffer                ; print value (unsigned)
-
-    cmp r8, 0
-    je .WriteNumber                             ; check if negative
-    
-    mov byte [rdi], '-'
-    dec rdi                                     ; place minus if negative
 
 .WriteNumber:
     push rsi
@@ -289,6 +291,7 @@ SavedRet dq 0
 PrintedSymbols dq 0
 Digits  db "0123456789abcdef"
 Dot     db "."
+Minus   db "-"
 NewLine db 0x0a
 
 PrintBufferSize equ 32
