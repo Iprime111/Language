@@ -46,8 +46,11 @@ namespace Ast {
 
         context->localVariables.clear ();
 
-        for (size_t argumentIndex = 0; argumentIndex < argumentsCount; argumentIndex++)
+        for (size_t argumentIndex = 0; argumentIndex < argumentsCount; argumentIndex++) {
             context->localVariables [names [argumentIndex]] = functionArguments [argumentIndex];
+            
+            functionArguments [argumentIndex]->SetName (context->nameTable [names [argumentIndex]].c_str ());
+        }   
 
         IR::BasicBlock *block  = IR::BasicBlock::Create ("entry", function, irContext);
 

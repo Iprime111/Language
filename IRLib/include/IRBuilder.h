@@ -32,7 +32,7 @@ namespace IR {
             Instruction *CreateReturnOperator    (Value *operand);
             Instruction *CreateStoreInstruction  (Value *variable, Value *operand);
             Instruction *CreateLoadInstruction   (Value *variable);
-            Instruction *CreateAllocaInstruction (const Type *type);
+            Instruction *CreateAllocaInstruction (const Type *type, const char *name);
             Instruction *CreateBranchInstruction (Value *condition, BasicBlock *ifTrue, BasicBlock *ifFalse);
             Instruction *CreateBranchInstruction (BasicBlock *nextBlock);
             Instruction *CreateTruncCast         (Value *castValue, const IntegerType *targetType);

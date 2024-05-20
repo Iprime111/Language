@@ -1,5 +1,6 @@
 #ifndef INSTRUCTION_H_
 #define INSTRUCTION_H_
+#include <string>
 #include <vector>
 
 #include "Type.h"
@@ -66,12 +67,14 @@ namespace IR {
     
     class AllocaInstruction final : public Instruction {
         public:
-            explicit AllocaInstruction (const Type *type, size_t stackAddress);
+            explicit AllocaInstruction (const Type *type, size_t stackAddress, const char *name);
     
-            size_t GetStackAddress () const;
+            const std::string &GetName         () const;
+            size_t             GetStackAddress () const;
     
         private:
-            size_t stackAddress = 0;
+            size_t      stackAddress;
+            std::string name;
     };
     
     class StoreInstruction final : public Instruction {

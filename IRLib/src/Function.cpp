@@ -33,7 +33,7 @@ namespace IR {
         std::vector <Argument *> arguments = {};
 
         for (size_t argumentIndex = 0; argumentIndex < argumentTypes->size (); argumentIndex++)
-            arguments.push_back (new Argument ((*argumentTypes) [argumentIndex], argumentIndex));
+            arguments.push_back (new Argument ((*argumentTypes) [argumentIndex], argumentIndex, ""));
 
         Function *newFunction = new Function (name, type, std::move (arguments));
     

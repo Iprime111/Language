@@ -80,7 +80,7 @@ namespace IR {
         return nullptr;
     }
     
-    Instruction *IRBuilder::CreateAllocaInstruction (const Type *type) {
+    Instruction *IRBuilder::CreateAllocaInstruction (const Type *type, const char *name) {
         
         Function *parentFunction = nullptr;
         
@@ -96,7 +96,7 @@ namespace IR {
         //TODO alignment
         parentFunction->allocaSize += type->GetSize ();
     
-        return InsertInstruction (new AllocaInstruction (type, parentFunction->allocaSize));
+        return InsertInstruction (new AllocaInstruction (type, parentFunction->allocaSize, name));
     }
     
     Instruction *IRBuilder::CreateBranchInstruction (Value *condition, BasicBlock *ifTrue, BasicBlock *ifFalse) {

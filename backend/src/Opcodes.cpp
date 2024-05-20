@@ -57,7 +57,7 @@ IR::Opcode *x86Opcodes::ProcessFunctionEnter (IR::Function *function) {
     return CreateOpcode ("\n" + std::string (function->GetName ()) + ":\n" +
                          "\tpush rbp\n"
                          "\tmov rbp, rsp\n"
-                         "\tsub rsp, " + std::to_string (stackFrameSize) + "\n");
+                         "\tsub rsp, " + std::to_string (stackFrameSize) + " ; set up stack frame\n");
 }
 
 IR::Opcode *x86Opcodes::ProcessBlockEnter (IR::BasicBlock *basicBlock) {
@@ -71,7 +71,7 @@ IR::Opcode *x86Opcodes::ProcessStateChanger (IR::Instruction *instruction) {
 
     return CreateOpcode ("\n\tmov rax, 0x3c\n"
                            "\tmov rsi, 0x00\n"
-                           "\tsyscall\n");
+                           "\tsyscall ; exit syscall\n");
 }
 
 IR::Opcode *x86Opcodes::ProcessUnaryOperator (IR::Instruction *instruction) {
@@ -91,7 +91,7 @@ IR::Opcode *x86Opcodes::ProcessUnaryOperator (IR::Instruction *instruction) {
 
         case IR::UnaryOperatorId::FLOOR:
             newOpcode->opcodeContent += "\tcvttsd2si rax, " + XMM_DATA_REGISTERS [0] + "\n"
-                                        "\tcvtsi2sd "       + XMM_DATA_REGISTERS [0] + ", rax\n";
+                                        "\tcvtsi2sd "       + XMM_DATA_REGISTERS [0] + ", rax ; floor value\n";
             break;
 
         case IR::UnaryOperatorId::SQRT:
@@ -155,7 +155,7 @@ IR::Opcode *x86Opcodes::ProcessCmpOperator (IR::Instruction *instruction) {
     PrintOperandLoad (instruction, 1, opcode, 1);
     PrintOperandLoad (instruction, 0, opcode, 0);
 
-    opcode->opcodeContent += "\n\tcomisd " + XMM_DATA_REGISTERS [0] + ", " + XMM_DATA_REGISTERS [1] + "\n";
+    opcode->opcodeContent += "\n\tcomisd " + XMM_DATA_REGISTERS [0] + ", " + XMM_DATA_REGISTERS [1] + " ; compare\n";
 
     return opcode;
 }
@@ -178,7 +178,8 @@ IR::Opcode *x86Opcodes::ProcessStoreInstruction (IR::Instruction *instruction) {
         IR::Opcode *opcode = CreateOpcode ("\n");
         PrintOperandLoad (instruction, 1, opcode, 0);
         
-        opcode->opcodeContent += "\tmovsd [rbp + " + std::to_string (argumentAddress) + "], " + XMM_DATA_REGISTERS [0] + "\n";
+        opcode->opcodeContent += "\tmovsd [rbp + " + std::to_string (argumentAddress) + "], " + XMM_DATA_REGISTERS [0] + 
+                                 " ; store function argument \"" + functionArgument->GetName () + "\"\n";
 
         return opcode;
     } else if (operandValueId == IR::ValueId::INSTRUCTION &&
@@ -189,7 +190,8 @@ IR::Opcode *x86Opcodes::ProcessStoreInstruction (IR::Instruction *instruction) {
         IR::Opcode *opcode = CreateOpcode ("\n");
         PrintOperandLoad (instruction, 1, opcode, 0);
 
-        opcode->opcodeContent += "\tmovsd [rbp - " + std::to_string (variable->GetStackAddress ()) + "], " + XMM_DATA_REGISTERS [0] + "\n";
+        opcode->opcodeContent += "\tmovsd [rbp - " + std::to_string (variable->GetStackAddress ()) + "], " + XMM_DATA_REGISTERS [0] + 
+                                 " ; store local variable \"" + variable->GetName () + "\"\n";
 
         return opcode;
     }
@@ -207,7 +209,8 @@ IR::Opcode *x86Opcodes::ProcessLoadInstruction (IR::Instruction *instruction) {
         const IR::Argument *functionArgument = static_cast <const IR::Argument *> (operand);
         size_t              argumentAddress = functionArgument->GetType ()->GetSize () * (functionArgument->GetIndex () + 2);
 
-        IR::Opcode *newOpcode = CreateOpcode ("\n\tmovsd " + XMM_DATA_REGISTERS [0] + ", [rbp + " + std::to_string (argumentAddress) + "]\n");
+        IR::Opcode *newOpcode = CreateOpcode ("\n\tmovsd " + XMM_DATA_REGISTERS [0] + ", [rbp + " + std::to_string (argumentAddress) + 
+                                             "] ; load function argument \"" + functionArgument->GetName () + "\"\n");
         PrintOperandStore (newOpcode, 0);
 
         return newOpcode;
@@ -217,7 +220,8 @@ IR::Opcode *x86Opcodes::ProcessLoadInstruction (IR::Instruction *instruction) {
 
         const IR::AllocaInstruction *variable = static_cast <const IR::AllocaInstruction *> (operand);
 
-        IR::Opcode *newOpcode = CreateOpcode ("\n\tmovsd " + XMM_DATA_REGISTERS [0] + ", [rbp - " + std::to_string (variable->GetStackAddress ()) + "]\n");
+        IR::Opcode *newOpcode = CreateOpcode ("\n\tmovsd " + XMM_DATA_REGISTERS [0] + ", [rbp - " + std::to_string (variable->GetStackAddress ()) + 
+                                              "] ; load local variable \"" + variable->GetName () +"\"\n");
 
         PrintOperandStore (newOpcode, 0);
         
@@ -231,7 +235,8 @@ IR::Opcode *x86Opcodes::ProcessBranchInstruction (IR::Instruction *instruction) 
     assert (instruction);
     
     if (!static_cast <IR::BranchInstruction *> (instruction)->IsConditional ()) {
-        return CreateOpcode ("\n\tjmp " + static_cast <const IR::BasicBlock *> (instruction->GetOperand (0))->GetName () + "\n");
+        return CreateOpcode ("\n\tjmp " + static_cast <const IR::BasicBlock *> (instruction->GetOperand (0))->GetName () + 
+                             " ; jump to specified block\n");
     }
 
     IR::Opcode *opcode = CreateOpcode ();
@@ -266,8 +271,11 @@ IR::Opcode *x86Opcodes::ProcessBranchInstruction (IR::Instruction *instruction) 
               break;
         }
 
-        opcode->opcodeContent +=            static_cast <const IR::BasicBlock *> (instruction->GetOperand (1))->GetName () + "\n";
-        opcode->opcodeContent += "\tjmp " + static_cast <const IR::BasicBlock *> (instruction->GetOperand (2))->GetName () + "\n";
+        opcode->opcodeContent += static_cast <const IR::BasicBlock *> (instruction->GetOperand (1))->GetName () + 
+                                 " ; jump to true block if condition is true\n";
+        
+        opcode->opcodeContent += "\tjmp " + static_cast <const IR::BasicBlock *> (instruction->GetOperand (2))->GetName () + 
+                                 " ; jump to false block if not\n";
     } 
 
     return opcode;
@@ -282,7 +290,7 @@ IR::Opcode *x86Opcodes::ProcessCallInstruction (IR::Instruction *instruction) {
     IR::Opcode         *newOpcode = CreateOpcode ("\n");
     const IR::Function *callee    = static_cast <const IR::Function *> (instruction->GetOperand (0));
 
-    newOpcode->opcodeContent += "\tcall " + callee->GetName () + "\n";
+    newOpcode->opcodeContent += "\tcall " + callee->GetName () + "; make call\n";
 
     size_t argumentsSize = 0;
     size_t operandsCount = instruction->GetOperandsCount ();
@@ -290,7 +298,7 @@ IR::Opcode *x86Opcodes::ProcessCallInstruction (IR::Instruction *instruction) {
     for (size_t argumentIndex = 1; argumentIndex < operandsCount; argumentIndex++)
         argumentsSize += instruction->GetOperand (argumentIndex)->GetType ()->GetSize ();
 
-    newOpcode->opcodeContent += "\tadd rsp, " + std::to_string (argumentsSize) + "\n";
+    newOpcode->opcodeContent += "\tadd rsp, " + std::to_string (argumentsSize) + "; balance stack (remove pushed args)\n";
 
     PrintOperandStore (newOpcode, 0);
 
@@ -307,14 +315,14 @@ IR::Opcode *x86Opcodes::ProcessOutInstruction (IR::Instruction *instruction) {
         PrintOperandStore (outOpcode,  0);
     }
 
-    outOpcode->opcodeContent += "\tcall _Print\n"
-                                "\tadd rsp, 8\n";
+    outOpcode->opcodeContent += "\tcall _Print ; print number\n"
+                                "\tadd rsp, 8  ; balance stack\n";
 
     return outOpcode;
 }
 
 IR::Opcode *x86Opcodes::ProcessInInstruction (IR::Instruction *instruction) {
-    IR::Opcode *newOpcode = CreateOpcode ("\n\tcall _Scan\n");
+    IR::Opcode *newOpcode = CreateOpcode ("\n\tcall _Scan ; scan value from stdin \n");
 
     PrintOperandStore (newOpcode, 0);
 
@@ -333,14 +341,14 @@ void x86Opcodes::PrintOperandLoad (IR::Instruction *instruction, size_t operandI
 
     if (valueId == IR::ValueId::CONSTANT) {
         opcode->opcodeContent += "\tmovsd " + XMM_DATA_REGISTERS [dataRegisterIndex] + ", [_CONSTANT_" + 
-            std::to_string (constantsIndices [static_cast <const IR::Constant *> (operand)]) + "]\n";
+            std::to_string (constantsIndices [static_cast <const IR::Constant *> (operand)]) + "] ; load constant\n";
     } else {
         opcode->opcodeContent += "\tmovsd " + XMM_DATA_REGISTERS [dataRegisterIndex] + ", [rsp]\n"
-                                 "\tadd rsp, 8\n";
+                                 "\tadd rsp, 8 ; load value from stack\n";
     }
 }
 
 void x86Opcodes::PrintOperandStore (IR::Opcode *opcode, size_t dataRegisterIndex) {
     opcode->opcodeContent += "\tsub rsp, 8\n"
-                             "\tmovsd [rsp], " + XMM_DATA_REGISTERS [dataRegisterIndex] + "\n";
+                             "\tmovsd [rsp], " + XMM_DATA_REGISTERS [dataRegisterIndex] + "; store value to stack\n";
 }
