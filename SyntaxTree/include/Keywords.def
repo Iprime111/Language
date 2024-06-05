@@ -30,7 +30,7 @@ KEYWORD (FUNCTION_DEFINITION, 81, "Физтех-школа",                    
                               
 KEYWORD (LBRACKET,            82, "(",                                 NameType::SEPARATOR)
 KEYWORD (RBRACKET,            83, ")",                                 NameType::SEPARATOR)
-KEYWORD (BLOCK_OPEN,          84, "заебало уже",                       NameType::SEPARATOR)
+KEYWORD (BLOCK_OPEN,          84, "надоело уже",                       NameType::SEPARATOR)
 KEYWORD (BLOCK_CLOSE,         85, "каждый раз это",                    NameType::SEPARATOR)
 KEYWORD (CONDITION_SEPARATOR, 86, "что мне делать",                    NameType::SEPARATOR)
 KEYWORD (INITIAL_OPERATOR,    87, "Сап конфешнс, пишу о",              NameType::SEPARATOR)

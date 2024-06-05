@@ -24,14 +24,14 @@ In       ::= 'Почитал посты'
 Abort    ::= 'Пошел прыгать с КПМ'
 
 TODO: Statement
-Operator ::= If | While | {{ Abort | Out | Return | Break | Continue | FunctionCall | AssignmentExpression | Declaration | 'заебало уже' OperatorList 'каждый раз это' } '.'}
+Operator ::= If | While | {{ Abort | Out | Return | Break | Continue | FunctionCall | AssignmentExpression | Declaration | 'надоело уже' OperatorList 'каждый раз это' } '.'}
 OperatorList ::= Operator {OperatorList}?
 
 Declaration ::= TypeSpecifier InitializerDeclarator
 TypeSpecifier ::= 'брс'
 InitializerDeclarator ::= {AssignmentExpression | Identifier}
 
-FunctionDefinition ::= 'Физтех-школа' TypeSpecifier Identifier '(' ParameterList ')' 'заебало уже' OperatorList 'каждый раз это'
+FunctionDefinition ::= 'Физтех-школа' TypeSpecifier Identifier '(' ParameterList ')' 'надоело уже' OperatorList 'каждый раз это'
 FunctionCall       ::= 'все говорят что' Identifier '(' ArgumentList ')' 
 
 ArgumentList  ::= Expression  {',' ArgumentList}?
