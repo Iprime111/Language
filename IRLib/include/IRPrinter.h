@@ -13,6 +13,7 @@ namespace IR {
     
             size_t PrintIR (FILE *stream);
     
+            //TODO: change to const std::string &
             const std::string *GetBuffer  ();
         
         private:
